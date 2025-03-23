@@ -6,16 +6,16 @@
     <title>Eliminar Duplicados M3U</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        textarea { width: 100%; height: 200px; }
+        textarea { width: 100%; height: 250px; }
         button { margin-top: 10px; padding: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h2>Eliminar Duplicados de M3U</h2>
+    <h2>Eliminar Duplicados de Lista M3U</h2>
     <p>Pega tu lista de películas en formato M3U:</p>
     
-    <textarea id="inputData"></textarea>
+    <textarea id="inputData" placeholder="Pega tu lista aquí..."></textarea>
     <button onclick="eliminarDuplicados()">Eliminar Duplicados</button>
     
     <h3>Lista sin duplicados:</h3>
@@ -34,7 +34,7 @@
                     if (match) {
                         let movieName = match[1];
                         if (!uniqueMovies.has(movieName)) {
-                            uniqueMovies.set(movieName, lines[i] + "\n" + lines[i + 1]);
+                            uniqueMovies.set(movieName, lines[i] + "\n" + lines[i + 1]); // Guarda el bloque completo
                         }
                     }
                 }

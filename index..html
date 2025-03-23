@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streaming de Películas</title>
+</head>
+<body>
+    <h1>Películas Disponibles</h1>
+    <ul id="movie-list"></ul>
+
+    <script>
+        // Conectar con el WebSocket
+        const ws = new WebSocket("ws://bjac.mdj1kgdcv.com:80/v1/stargazer");
+
+        ws.onopen = function() {
+            console.log("Conectado al WebSocket");
+        };
+
+        ws.onmessage = function(event) {
+            console.log("Mensaje recibido:", event.data);
+            
+            // Intentar detectar si el mensaje es una URL de película
+            if (event.data.includes("http") && event.data.includes(".mp4")) {
+                let movieList = document.getElementById("movie-list");
+                let listItem = document.createElement("li");
+                let link = document.createElement("a");
+                
+                link.href = event.data;
+                link.textContent = "Ver Película";
+                link.target = "_blank"; // Abrir en otra pestaña
+                
+                listItem.appendChild(link);
+                movieList.appendChild(listItem);
+            }
+        };
+
+        ws.onerror = function(error) {
+            console.error("Error en WebSocket:", error);
+        };
+
+        ws.onclose = function() {
+            console.log("Conexión cerrada");
+        };
+    </script>
+</body>
+</html>

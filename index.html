@@ -3,45 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streaming de Películas</title>
+    <title>Eliminar Duplicados M3U</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        textarea { width: 100%; height: 200px; }
+        button { margin-top: 10px; padding: 10px; cursor: pointer; }
+    </style>
 </head>
 <body>
-    <h1>Películas Disponibles</h1>
-    <ul id="movie-list"></ul>
+
+    <h2>Eliminar Duplicados de M3U</h2>
+    <p>Pega tu lista de películas en formato M3U:</p>
+    
+    <textarea id="inputData"></textarea>
+    <button onclick="eliminarDuplicados()">Eliminar Duplicados</button>
+    
+    <h3>Lista sin duplicados:</h3>
+    <textarea id="outputData" readonly></textarea>
 
     <script>
-        // Conectar con el WebSocket
-        const ws = new WebSocket("ws://bjac.mdj1kgdcv.com:80/v1/stargazer");
+        function eliminarDuplicados() {
+            const input = document.getElementById("inputData").value;
+            const lines = input.split("\n");
+            const uniqueMovies = new Map();
+            let output = "";
 
-        ws.onopen = function() {
-            console.log("Conectado al WebSocket");
-        };
-
-        ws.onmessage = function(event) {
-            console.log("Mensaje recibido:", event.data);
-            
-            // Intentar detectar si el mensaje es una URL de película
-            if (event.data.includes("http") && event.data.includes(".mp4")) {
-                let movieList = document.getElementById("movie-list");
-                let listItem = document.createElement("li");
-                let link = document.createElement("a");
-                
-                link.href = event.data;
-                link.textContent = "Ver Película";
-                link.target = "_blank"; // Abrir en otra pestaña
-                
-                listItem.appendChild(link);
-                movieList.appendChild(listItem);
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith("#EXTINF")) {
+                    let match = lines[i].match(/tvg-name="([^"]+)"/);
+                    if (match) {
+                        let movieName = match[1];
+                        if (!uniqueMovies.has(movieName)) {
+                            uniqueMovies.set(movieName, lines[i] + "\n" + lines[i + 1]);
+                        }
+                    }
+                }
             }
-        };
 
-        ws.onerror = function(error) {
-            console.error("Error en WebSocket:", error);
-        };
+            uniqueMovies.forEach(value => {
+                output += value + "\n";
+            });
 
-        ws.onclose = function() {
-            console.log("Conexión cerrada");
-        };
+            document.getElementById("outputData").value = output.trim();
+        }
     </script>
+
 </body>
 </html>

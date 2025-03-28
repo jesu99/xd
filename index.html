@@ -7,161 +7,268 @@
     <style>
         body { 
             font-family: Arial, sans-serif; 
-            max-width: 800px; 
+            max-width: 1200px; 
             margin: 0 auto; 
             padding: 20px; 
+            background-color: #f4f4f4;
+        }
+        #mainContainer {
+            display: flex;
+            gap: 20px;
+        }
+        #movieList {
+            width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 15px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        #videoSection {
+            flex-grow: 1;
         }
         video { 
             width: 100%; 
-            max-height: 500px; 
-        }
-        #movieList {
-            margin-top: 20px;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
+            max-height: 600px; 
+            background-color: #000;
+            border-radius: 8px;
         }
         .movie-item {
-            margin-bottom: 10px;
             cursor: pointer;
-            padding: 5px;
-            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
         }
         .movie-item:hover {
             background-color: #f0f0f0;
         }
-        #addMovieForm {
-            margin-top: 20px;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
+        .movie-item.active {
+            background-color: #e0e0e0;
+            border-color: #007bff;
         }
-        input[type="text"] {
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 5px;
+        .movie-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .movie-status.valid {
+            background-color: green;
+        }
+        .movie-status.invalid {
+            background-color: red;
+        }
+        #movieDetails {
+            margin-top: 15px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #linkStatus {
+            margin-top: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <h1>Catálogo de Películas</h1>
-    
-    <video id="moviePlayer" controls>
-        No hay película seleccionada
-    </video>
-
-    <div id="movieList">
-        <h2>Películas</h2>
+    <div id="mainContainer">
+        <div id="movieList">
+            <!-- Movies will be dynamically added here -->
+        </div>
+        <div id="videoSection">
+            <video id="moviePlayer" controls>
+                No hay película seleccionada
+            </video>
+            <div id="linkStatus"></div>
+            <div id="movieDetails"></div>
+        </div>
     </div>
 
-    <form id="addMovieForm">
-        <h2>Agregar Nueva Película</h2>
-        <input type="text" id="movieTitle" placeholder="Título de la película" required>
-        <input type="text" id="hlsLink" placeholder="Enlace HLS (opcional)">
-        <input type="text" id="mp4Link" placeholder="Enlace MP4 (opcional)">
-        <button type="submit">Agregar Película</button>
-    </form>
-
     <script>
-        // Movie storage and management
         class MovieCatalog {
             constructor() {
-                this.movies = JSON.parse(localStorage.getItem('movieCatalog')) || [];
+                this.movies = [
+                    {
+                        id: 1,
+                        title: 'Película 1',
+                        description: 'Descripción de la primera película',
+                        genre: 'Acción',
+                        year: 2023,
+                        hlsLink: 'https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133
+',
+                        mp4Link: 'https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133
+'
+                    },
+                    {
+                        id: 2,
+                        title: 'Película 2',
+                        description: 'Descripción de la segunda película',
+                        genre: 'Comedia',
+                        year: 2022,
+                        hlsLink: '',
+                        mp4Link: ''
+                    }
+                    // Puedes agregar más películas aquí
+                ];
+                this.currentMovie = null;
                 this.renderMovieList();
             }
 
-            addMovie(title, hlsLink, mp4Link) {
-                const movie = { title, hlsLink, mp4Link };
-                this.movies.push(movie);
-                this.saveMovies();
-                this.renderMovieList();
-            }
-
-            saveMovies() {
-                localStorage.setItem('movieCatalog', JSON.stringify(this.movies));
-            }
-
-            renderMovieList() {
-                const movieList = document.getElementById('movieList');
-                movieList.innerHTML = '<h2>Películas</h2>';
+            async checkLinkValidity(link) {
+                if (!link) return false;
                 
-                this.movies.forEach((movie, index) => {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundo timeout
+                    
+                    const response = await fetch(link, { 
+                        method: 'HEAD',
+                        mode: 'no-cors',
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    return true;
+                } catch (error) {
+                    console.error('Error checking link:', error);
+                    return false;
+                }
+            }
+
+            async renderMovieList() {
+                const movieList = document.getElementById('movieList');
+                movieList.innerHTML = ''; // Limpiar lista existente
+                
+                for (const movie of this.movies) {
                     const movieItem = document.createElement('div');
                     movieItem.classList.add('movie-item');
-                    movieItem.textContent = movie.title;
-                    movieItem.onclick = () => this.playMovie(movie);
+                    movieItem.dataset.movieId = movie.id;
+                    
+                    // Título de la película
+                    const titleSpan = document.createElement('span');
+                    titleSpan.textContent = movie.title;
+                    movieItem.appendChild(titleSpan);
+
+                    // Crear indicador de estado del enlace
+                    const statusIndicator = document.createElement('div');
+                    statusIndicator.classList.add('movie-status');
+                    movieItem.appendChild(statusIndicator);
+
+                    // Verificar validez del enlace
+                    const hlsValid = await this.checkLinkValidity(movie.hlsLink);
+                    const mp4Valid = await this.checkLinkValidity(movie.mp4Link);
+                    
+                    // Establecer color del indicador
+                    if (hlsValid || mp4Valid) {
+                        statusIndicator.classList.add('valid');
+                        movie.isValid = true;
+                    } else {
+                        statusIndicator.classList.add('invalid');
+                        movie.isValid = false;
+                    }
+
+                    // Evento de clic para reproducir
+                    movieItem.onclick = () => this.selectMovie(movie);
+                    
                     movieList.appendChild(movieItem);
+                }
+
+                // Seleccionar primera película válida si existe
+                const validMovies = this.movies.filter(m => m.isValid);
+                if (validMovies.length > 0) {
+                    this.selectMovie(validMovies[0]);
+                }
+            }
+
+            selectMovie(movie) {
+                // Desmarcar películas anteriores
+                document.querySelectorAll('.movie-item').forEach(item => {
+                    item.classList.remove('active');
                 });
+
+                // Marcar película actual
+                const selectedItem = document.querySelector(`.movie-item[data-movie-id="${movie.id}"]`);
+                if (selectedItem) {
+                    selectedItem.classList.add('active');
+                }
+
+                // Mostrar detalles de la película
+                this.showMovieDetails(movie);
+
+                // Reproducir película
+                this.playMovie(movie);
+            }
+
+            showMovieDetails(movie) {
+                const detailsContainer = document.getElementById('movieDetails');
+                detailsContainer.innerHTML = `
+                    <h2>${movie.title}</h2>
+                    <p><strong>Año:</strong> ${movie.year}</p>
+                    <p><strong>Género:</strong> ${movie.genre}</p>
+                    <p>${movie.description}</p>
+                `;
             }
 
             playMovie(movie) {
                 const videoPlayer = document.getElementById('moviePlayer');
-                videoPlayer.innerHTML = ''; // Clear previous sources
+                const linkStatus = document.getElementById('linkStatus');
+                videoPlayer.innerHTML = ''; // Limpiar fuentes previas
                 
-                // Reset HLS if it was previously initialized
+                // Resetear HLS si estaba inicializado
                 if (window.hls) {
                     window.hls.destroy();
                 }
 
-                // Add video sources
+                // Determinar qué enlace usar
+                let sourceLink = '';
+                let sourceType = '';
                 if (movie.hlsLink) {
-                    if (Hls.isSupported()) {
-                        var hls = new Hls();
-                        window.hls = hls;
-                        hls.loadSource(movie.hlsLink);
-                        hls.attachMedia(videoPlayer);
-                        hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                            videoPlayer.play();
-                        });
-                    } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                        videoPlayer.src = movie.hlsLink;
-                        videoPlayer.addEventListener('loadedmetadata', () => {
-                            videoPlayer.play();
-                        });
-                    }
+                    sourceLink = movie.hlsLink;
+                    sourceType = 'HLS';
+                } else if (movie.mp4Link) {
+                    sourceLink = movie.mp4Link;
+                    sourceType = 'MP4';
                 }
 
-                // Add MP4 source as fallback
-                if (movie.mp4Link) {
-                    const mp4Source = document.createElement('source');
-                    mp4Source.src = movie.mp4Link;
-                    mp4Source.type = 'video/mp4';
-                    videoPlayer.appendChild(mp4Source);
+                // Mostrar estado del enlace
+                if (sourceLink) {
+                    linkStatus.textContent = `Reproduciendo: ${sourceType}`;
+                    linkStatus.style.color = 'green';
+                } else {
+                    linkStatus.textContent = 'No hay enlaces válidos para esta película';
+                    linkStatus.style.color = 'red';
+                    return;
                 }
 
-                // If no sources added, show message
-                if (!movie.hlsLink && !movie.mp4Link) {
-                    videoPlayer.innerHTML = 'No hay enlaces de video disponibles';
+                // Reproducir HLS
+                if (sourceType === 'HLS' && Hls.isSupported()) {
+                    var hls = new Hls();
+                    window.hls = hls;
+                    hls.loadSource(sourceLink);
+                    hls.attachMedia(videoPlayer);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        videoPlayer.play();
+                    });
+                } 
+                // Fallback para HLS o reproducir MP4
+                else {
+                    const source = document.createElement('source');
+                    source.src = sourceLink;
+                    source.type = sourceType === 'HLS' ? 'application/x-mpegURL' : 'video/mp4';
+                    videoPlayer.appendChild(source);
+                    videoPlayer.play();
                 }
             }
         }
 
-        // Initialize catalog
+        // Inicializar catálogo
         const catalog = new MovieCatalog();
-
-        // Add initial movie from previous example
-        if (catalog.movies.length === 0) {
-            catalog.addMovie(
-                'Película 1', 
-                'https://ngr2dnwrdasv7gvg.premilkyway.com/hls2/01/03115/hovozw32wstb_,n,h,x,.urlset/index-f1-a1.m3u8?t=VHwFE2kCl3I0ejDzTVKAyoYkmmT5tNGWNezB32TyklE&s=1742761502&e=129600&f=15579442&srv=z13jtbat10fa85i&i=0.4&sp=500&p1=z13jtbat10fa85i&p2=z13jtbat10fa85i&asn=273133',
-                'https://ngr2dnwrdasv7gvg.premilkyway.com/hls2/01/03115/hovozw32wstb_,n,h,x,.urlset/index-f1-a1.m3u8?t=VHwFE2kCl3I0ejDzTVKAyoYkmmT5tNGWNezB32TyklE&s=1742761502&e=129600&f=15579442&srv=z13jtbat10fa85i&i=0.4&sp=500&p1=z13jtbat10fa85i&p2=z13jtbat10fa85i&asn=273133'
-            );
-        }
-
-        // Form submission handler
-        document.getElementById('addMovieForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const title = document.getElementById('movieTitle').value;
-            const hlsLink = document.getElementById('hlsLink').value;
-            const mp4Link = document.getElementById('mp4Link').value;
-
-            if (title) {
-                catalog.addMovie(title, hlsLink, mp4Link);
-                
-                // Clear form inputs
-                document.getElementById('movieTitle').value = '';
-                document.getElementById('hlsLink').value = '';
-                document.getElementById('mp4Link').value = '';
-            }
-        });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
 </body>

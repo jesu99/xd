@@ -11,7 +11,7 @@
         .movie { cursor: pointer; padding: 10px; border: 1px solid #ddd; margin: 10px; display: flex; align-items: center; }
         .movie img { width: 100px; height: 150px; margin-right: 10px; }
         .movie-details { text-align: left; }
-        video { width: 100%; max-width: 800px; }
+        video { width: 100%; max-width: 800px; display: none; }
         #search { margin-bottom: 20px; padding: 10px; width: 100%; max-width: 400px; }
         .error-message { color: red; margin: 20px; }
         .floating-ad { position: fixed; z-index: 1000; }
@@ -19,6 +19,7 @@
         .ad-right { right: 10px; bottom: 50px; }
         .ad-top { top: 10px; left: 50%; transform: translateX(-50%); }
         .ad-bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .ad-between { margin: 15px 0; text-align: center; }
     </style>
 </head>
 <body>
@@ -32,7 +33,11 @@
         <h1>Catálogo de Películas</h1>
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list"></div>
-        <video id="player" controls style="display:none;" crossorigin="anonymous"></video>
+
+        <!-- Anuncio entre películas -->
+        <div class="ad-between" id="ad-between"></div>
+
+        <video id="player" controls crossorigin="anonymous"></video>
         <div id="error-container" class="error-message"></div>
     </div>
     
@@ -75,14 +80,29 @@ https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index
                 `;
                 movieElement.addEventListener("click", () => playMovie(movie.url));
                 movieList.appendChild(movieElement);
+
+                if (index === Math.floor(movies.length / 2)) {
+                    insertAdBetweenMovies();
+                }
             });
         }
 
         function playMovie(url) {
             const player = document.getElementById('player');
-            player.src = url;
             player.style.display = 'block';
-            player.play().catch(error => console.error("Error al reproducir", error));
+
+            if (Hls.isSupported() && url.endsWith('.m3u8')) {
+                let hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(player);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    player.play().catch(error => console.error("Error al reproducir", error));
+                });
+            } else {
+                player.src = url;
+                player.load();
+                player.play().catch(error => console.error("Error al reproducir", error));
+            }
         }
 
         function filterMovies() {
@@ -98,7 +118,8 @@ https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index
                 { id: "ad-left", src: "//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js" },
                 { id: "ad-right", src: "//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js" },
                 { id: "ad-top", src: "//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js" },
-                { id: "ad-bottom", src: "//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js" }
+                { id: "ad-bottom", src: "//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js" },
+                { id: "ad-between", src: "//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js" }
             ];
 
             adScripts.forEach(ad => {
@@ -107,6 +128,13 @@ https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index
                 script.async = true;
                 document.getElementById(ad.id).appendChild(script);
             });
+        }
+
+        function insertAdBetweenMovies() {
+            let script = document.createElement("script");
+            script.src = "//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js";
+            script.async = true;
+            document.getElementById("ad-between").appendChild(script);
         }
 
         document.addEventListener("DOMContentLoaded", () => {

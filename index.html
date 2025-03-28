@@ -13,15 +13,37 @@
         .movie-details { text-align: left; }
         video { width: 100%; max-width: 800px; }
         #search { margin-bottom: 20px; padding: 10px; width: 100%; max-width: 400px; }
+        .ad-container { margin: 20px 0; text-align: center; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Catálogo de Películas</h1>
+        
+        <div class="ad-container">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : 'b330ccd204185aee9ef640adccf896d2',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+        </div>
+        
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list"></div>
+        
         <video id="player" controls style="display:none;"></video>
+        
+        <div class="ad-container">
+            <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+            <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+        </div>
     </div>
+    
     <script>
         const movies = [
             {

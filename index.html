@@ -50,13 +50,53 @@
             document.getElementById("movie-list").scrollIntoView({ behavior: "smooth" });
         }
 
+        let adShown = false;
+
         function showAdBeforePlaying(callback) {
-            var adWindow = window.open("https://www.effectiveratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd", "_blank", "width=800,height=600");
-            setTimeout(() => {
-                if (adWindow) adWindow.close();
+            if (!adShown) {
+                adShown = true;
+                var adWindow = window.open("https://www.effectiveratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd", "_blank", "width=800,height=600");
+                setTimeout(() => {
+                    if (adWindow && !adWindow.closed) adWindow.close();
+                    callback();
+                }, 5000);
+            } else {
                 callback();
-            }, 5000);
+            }
         }
+
+        function loadMovies() {
+            const movieList = document.getElementById("movie-list");
+            movieList.innerHTML = "";
+            const movies = [
+                { title: "Película 1", image: "https://via.placeholder.com/100x150", url: "https://example.com/movie1.m3u8" },
+                { title: "Película 2", image: "https://via.placeholder.com/100x150", url: "https://example.com/movie2.m3u8" }
+            ];
+            
+            movies.forEach(movie => {
+                const movieElement = document.createElement("div");
+                movieElement.classList.add("movie");
+                movieElement.innerHTML = `
+                    <img src="${movie.image}" alt="${movie.title}">
+                    <div class="movie-details">
+                        <h3>${movie.title}</h3>
+                    </div>
+                `;
+                movieElement.addEventListener("click", () => {
+                    showAdBeforePlaying(() => playMovie(movie.url));
+                });
+                movieList.appendChild(movieElement);
+            });
+        }
+
+        function playMovie(url) {
+            const player = document.getElementById('player');
+            player.style.display = 'block';
+            player.src = url;
+            player.play().catch(console.error);
+        }
+
+        document.addEventListener("DOMContentLoaded", loadMovies);
     </script>
 
     <!-- Publicidad flotante -->

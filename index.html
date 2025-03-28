@@ -14,13 +14,17 @@
         video { width: 100%; max-width: 800px; }
         #search { margin-bottom: 20px; padding: 10px; width: 100%; max-width: 400px; }
         .error-message { color: red; margin: 20px; }
+        .scroll-button { margin: 20px; padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Catálogo de Películas</h1>
-        
-        <!-- Anuncios de Adsterra -->
+
+        <!-- Botón para desplazarse a las películas -->
+        <button class="scroll-button" onclick="scrollToMovies()">Ver Películas ↓</button>
+
+        <!-- Anuncio de Adsterra -->
         <script type="text/javascript">
             atOptions = {
                 'key' : 'b330ccd204185aee9ef640adccf896d2',
@@ -32,21 +36,6 @@
         </script>
         <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
 
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'a55c7cdc78df0520f71c2b00e4046167',
-                'format' : 'iframe',
-                'height' : 300,
-                'width' : 160,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
-
-        <script type='text/javascript' src='//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'></script>
-        <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-        <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
-        
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list"></div>
         <video id="player" controls style="display:none;" crossorigin="anonymous"></video>
@@ -111,7 +100,7 @@ https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index
             errorContainer.innerHTML = '';
             player.style.display = 'none';
             player.innerHTML = '';
-            
+
             if (Hls.isSupported() && url.includes(".m3u8")) {
                 let hls = new Hls();
                 hls.loadSource(url);
@@ -130,6 +119,10 @@ https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index
         function handlePlayError(error) {
             console.error('Error al reproducir:', error);
             document.getElementById('error-container').innerText = `Error al reproducir: ${error.message}`;
+        }
+
+        function scrollToMovies() {
+            document.getElementById("movie-list").scrollIntoView({ behavior: "smooth" });
         }
 
         document.addEventListener("DOMContentLoaded", loadMovies);

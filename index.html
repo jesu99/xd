@@ -3,50 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eliminar Duplicados M3U</title>
+    <title>Catálogo de Películas</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        textarea { width: 100%; height: 250px; }
-        button { margin-top: 10px; padding: 10px; cursor: pointer; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #141414;
+            color: white;
+        }
+        
+        .header {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        h1 {
+            margin: 0;
+            color: #e50914;
+            font-size: 2.5rem;
+        }
+        
+        .notice {
+            text-align: center;
+            padding: 12px;
+            background-color: rgba(0,0,0,0.7);
+            color: #e6e6e6;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .movies-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .movie-card {
+            background-color: #1f1f1f;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .movie-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .movie-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+        }
+        
+        .movie-info {
+            padding: 12px;
+        }
+        
+        .movie-title {
+            font-size: 1rem;
+            margin: 0 0 10px 0;
+            height: 40px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .watch-button {
+            display: block;
+            text-align: center;
+            background-color: #e50914;
+            color: white;
+            padding: 8px 0;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .watch-button:hover {
+            background-color: #f40612;
+        }
+        
+        .error-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            z-index: 10;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        
+        .compatibility-notice {
+            background-color: #ff4500;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .ad-container {
+            margin: 20px auto;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        .ad-container-top {
+            margin-bottom: 20px;
+        }
+        
+        .ad-container-bottom {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .ad-sidebar {
+            float: right;
+            margin: 20px;
+        }
+        
+        .ad-banner {
+            max-width: 100%;
+            margin: 0 auto;
+            display: block;
+        }
+        
+        @media (max-width: 728px) {
+            .ad-container {
+                width: 100%;
+                overflow: hidden;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .movies-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .movie-image {
+                height: 220px;
+            }
+            
+            .ad-sidebar {
+                float: none;
+                margin: 20px auto;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="compatibility-notice">
+        ⚠️ Para una mejor experiencia, usa un navegador moderno. Recomendamos Chrome, Firefox o Safari. ⚠️
+    </div>
 
-    <h2>Eliminar Duplicados de Lista M3U</h2>
-    <p>Pega tu lista de películas en formato M3U:</p>
+    <div class="header">
+        <h1>Catálogo de Películas</h1>
+    </div>
     
-    <textarea id="inputData" placeholder="Pega tu lista aquí..."></textarea>
-    <button onclick="eliminarDuplicados()">Eliminar Duplicados</button>
-    
-    <h3>Lista sin duplicados:</h3>
-    <textarea id="outputData" readonly></textarea>
+    <div class="notice">
+        <strong>Aviso:</strong> La reproducción de una película puede tardar hasta **20 segundos** en iniciar. Si el video no se reproduce o **intenta descargarse en lugar de reproducirse, cambia de navegador**.  
 
+La lista de películas se actualizará **cada 10 días**, ¡no te pierdas ninguna novedad! 🎬🔥  
+
+📢 **Los anuncios nos ayudan a mantener la página activa**, ¡agradecemos tu apoyo! 🙌.
+    </div>
+    
+    <div class="movies-container" id="moviesGrid"></div>
+    
     <script>
-        function eliminarDuplicados() {
-            const input = document.getElementById("inputData").value;
-            const lines = input.split("\n");
-            const uniqueMovies = new Map();
-            let output = "";
-
+        // Función para procesar el archivo M3U
+        function parseM3U(m3uData) {
+            const movies = [];
+            const lines = m3uData.split('\n');
+            
             for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith("#EXTINF")) {
-                    let match = lines[i].match(/tvg-name="([^"]+)"/);
-                    if (match) {
-                        let movieName = match[1];
-                        if (!uniqueMovies.has(movieName)) {
-                            uniqueMovies.set(movieName, lines[i] + "\n" + lines[i + 1]); // Guarda el bloque completo
-                        }
+                if (lines[i].startsWith('#EXTINF')) {
+                    const infoLine = lines[i];
+                    const urlLine = lines[i + 1] || '';
+                    
+                    const nameMatch = infoLine.match(/tvg-name="(.*?)"/);
+                    const logoMatch = infoLine.match(/tvg-logo="(.*?)"/);
+                    
+                    if (nameMatch && urlLine) {
+                        movies.push({
+                            name: nameMatch[1],
+                            url: urlLine.trim(),
+                            logo: logoMatch ? logoMatch[1] : ''
+                        });
                     }
+                    
+                    i++;
                 }
             }
-
-            uniqueMovies.forEach(value => {
-                output += value + "\n";
-            });
-
-            document.getElementById("outputData").value = output.trim();
+            
+            return movies;
         }
+        
+        // Datos de M3U a procesar
+        const m3uData = `
+#EXTINF:-1 tvg-id="" tvg-name="As Neves (2024)" tvg-logo="http://goldfull.pro:8880/images/1bfdc1a81edf859e2bc5dbc95496037d.jpg" group-title="⭐️Estrenos 2024",As Neves (2024)
+http://goldfull.pro:8880/movie/IptvNetmax026/MvEUWB5455UU/409002.mp4
+`;
+        
+        // Crear grid de películas
+        const movies = parseM3U(m3uData);
+        const moviesGrid = document.getElementById("moviesGrid");
+        
+        movies.forEach((movie, index) => {
+            const simpleName = movie.name.replace(/\(.*?\)/g, "").trim(); // Quitar el año
+            const imageUrl = movie.logo || "https://via.placeholder.com/200x300";
+            
+            const movieCard = document.createElement('div');
+            movieCard.className = 'movie-card';
+            movieCard.innerHTML = `
+                <img class="movie-image" src="${imageUrl}" alt="${simpleName}">
+                <div class="movie-info">
+                    <h3 class="movie-title">${movie.name}</h3>
+                    <a href="#" class="watch-button movie-link" data-url="${movie.url}">VER PELÍCULA</a>
+                </div>
+            `;
+            
+            moviesGrid.appendChild(movieCard);
+            
+            // Añadir verificación de reproducibilidad
+            const watchButton = movieCard.querySelector('.movie-link');
+            watchButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                const videoUrl = this.getAttribute('data-url');
+                
+                // Crear video para prueba de reproducción
+                const testVideo = document.createElement('video');
+                testVideo.style.display = 'none';
+                testVideo.src = videoUrl;
+                
+                testVideo.addEventListener('error', () => {
+                    // Mostrar overlay de error si no se puede reproducir
+                    const errorOverlay = document.createElement('div');
+                    errorOverlay.className = 'error-overlay';
+                    errorOverlay.innerHTML = 'ERROR DE REPRODUCCIÓN<br>Enlace no disponible';
+                    movieCard.appendChild(errorOverlay);
+                    
+                    // Desactivar botón
+                    watchButton.style.backgroundColor = '#888';
+                    watchButton.style.cursor = 'not-allowed';
+                    watchButton.textContent = 'NO DISPONIBLE';
+                });
+                
+                testVideo.addEventListener('loadedmetadata', () => {
+                    // Si se puede cargar el video, abrir en nueva pestaña
+                    window.open(videoUrl, '_blank');
+                });
+                
+                document.body.appendChild(testVideo);
+            });
+        });
     </script>
-
 </body>
 </html>

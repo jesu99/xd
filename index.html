@@ -93,63 +93,47 @@
             background-color: #f40612;
         }
         
-        .error-overlay {
-            position: absolute;
+        .video-modal {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255,0,0,0.5);
-            display: flex;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            z-index: 1000;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
+        }
+        
+        .video-container {
+            width: 90%;
+            max-width: 1200px;
+            position: relative;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: -40px;
+            right: 0;
             color: white;
-            font-weight: bold;
-            z-index: 10;
+            font-size: 30px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            outline: none;
+        }
+        
+        #moviePlayer {
+            width: 100%;
+            max-height: 80vh;
+        }
+        
+        .error-message {
+            color: red;
             text-align: center;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        
-        .compatibility-notice {
-            background-color: #ff4500;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-        }
-        
-        .ad-container {
-            margin: 20px auto;
-            text-align: center;
-            overflow: hidden;
-        }
-        
-        .ad-container-top {
-            margin-bottom: 20px;
-        }
-        
-        .ad-container-bottom {
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .ad-sidebar {
-            float: right;
-            margin: 20px;
-        }
-        
-        .ad-banner {
-            max-width: 100%;
-            margin: 0 auto;
-            display: block;
-        }
-        
-        @media (max-width: 728px) {
-            .ad-container {
-                width: 100%;
-                overflow: hidden;
-            }
+            padding: 20px;
         }
         
         @media (max-width: 600px) {
@@ -162,120 +146,115 @@
             .movie-image {
                 height: 220px;
             }
-            
-            .ad-sidebar {
-                float: none;
-                margin: 20px auto;
-                text-align: center;
-            }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
 </head>
 <body>
-    <div class="compatibility-notice">
-        ⚠️ Para una mejor experiencia, usa un navegador moderno. Recomendamos Chrome, Firefox o Safari. ⚠️
-    </div>
-
     <div class="header">
         <h1>Catálogo de Películas</h1>
     </div>
     
     <div class="notice">
-        <strong>Aviso:</strong> La reproducción de una película puede tardar hasta **20 segundos** en iniciar. Si el video no se reproduce o **intenta descargarse en lugar de reproducirse, cambia de navegador**.  
-
-La lista de películas se actualizará **cada 10 días**, ¡no te pierdas ninguna novedad! 🎬🔥  
-
-📢 **Los anuncios nos ayudan a mantener la página activa**, ¡agradecemos tu apoyo! 🙌.
+        <strong>Aviso:</strong> Si no se reproduce el video, intenta cambiar de navegador o actualizar la página. 
+        Probablemente necesites un navegador moderno como Chrome, Safari o Firefox. 🎬🔥
     </div>
     
     <div class="movies-container" id="moviesGrid"></div>
     
+    <!-- Modal para reproducción de video -->
+    <div id="videoModal" class="video-modal">
+        <div class="video-container">
+            <button class="close-button" onclick="closeVideoModal()">&times;</button>
+            <video id="moviePlayer" controls playsinline></video>
+        </div>
+    </div>
+
     <script>
-        // Función para procesar el archivo M3U
-        function parseM3U(m3uData) {
-            const movies = [];
-            const lines = m3uData.split('\n');
+        // Función para reproducir video HLS
+        function playHLSVideo(videoUrl) {
+            const videoModal = document.getElementById('videoModal');
+            const videoElement = document.getElementById('moviePlayer');
             
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('#EXTINF')) {
-                    const infoLine = lines[i];
-                    const urlLine = lines[i + 1] || '';
-                    
-                    const nameMatch = infoLine.match(/tvg-name="(.*?)"/);
-                    const logoMatch = infoLine.match(/tvg-logo="(.*?)"/);
-                    
-                    if (nameMatch && urlLine) {
-                        movies.push({
-                            name: nameMatch[1],
-                            url: urlLine.trim(),
-                            logo: logoMatch ? logoMatch[1] : ''
-                        });
-                    }
-                    
-                    i++;
-                }
+            // Limpiar cualquier reproductor HLS anterior
+            if (window.hlsPlayer) {
+                window.hlsPlayer.destroy();
             }
             
-            return movies;
+            videoModal.style.display = 'flex';
+            
+            // Verificar soporte nativo de HLS
+            if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+                // Safari y algunos navegadores con soporte nativo
+                videoElement.src = videoUrl;
+                videoElement.play();
+            } else if (Hls.isSupported()) {
+                // Usar Hls.js para navegadores que no soportan HLS nativamente
+                const hls = new Hls();
+                hls.loadSource(videoUrl);
+                hls.attachMedia(videoElement);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    videoElement.play();
+                });
+                
+                // Manejar errores
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    console.error('HLS Error:', data);
+                    alert('No se pudo reproducir el video. Intenta en otro navegador.');
+                });
+                
+                window.hlsPlayer = hls;
+            } else {
+                // Navegadores sin soporte
+                alert('Tu navegador no es compatible con la reproducción de este video.');
+            }
         }
-        
-        // Datos de M3U a procesar
-        const m3uData = `
-#EXTINF:-1 tvg-id="" tvg-name="Día de patriotas" tvg-logo="https://cuevana.pro/resize/200/storage/26866/zM0Zd1OGtnclMYq1bzqUZhhbNo82p0GzH4kBUzO9.jpg" group-title="⭐️Estrenos 2024",Día de patriotas
-https://dd2stliwt0bc.acek-cdn.com/hls2/01/01957/d81xodl2jvdn_l/index-v1-a1.m3u8?t=Y1uWQY4aczX9Qhx9nhQWKpYKI-sisaaomhIBmdY3HqE&s=1743185294&e=129600&f=9787806&srv=e4RHfFUBYeX4H3m&i=0.4&sp=500&p1=e4RHfFUBYeX4H3m&p2=e4RHfFUBYeX4H3m&asn=273133
 
-`;
+        // Cerrar modal de video
+        function closeVideoModal() {
+            const videoModal = document.getElementById('videoModal');
+            const videoElement = document.getElementById('moviePlayer');
+            
+            videoModal.style.display = 'none';
+            videoElement.pause();
+            videoElement.src = '';
+            
+            // Destruir instancia HLS si existe
+            if (window.hlsPlayer) {
+                window.hlsPlayer.destroy();
+            }
+        }
+
+        // Datos de películas (puedes agregar más películas aquí)
+        const movies = [
+            {
+                name: "Película de Ejemplo",
+                url: "https://jdou5wo6ffta.acek-cdn.com/hls2/01/01957/d81xodl2jvdn_l/index-v1-a1.m3u8?t=efIMl1KCPgsT2EbIbYiJl1C6DKNZMJUj04PeMqXpoTU&s=1742760741&e=129600&f=9787806&srv=e4RHfFUBYeX4H3m&i=0.4&sp=500&p1=e4RHfFUBYeX4H3m&p2=e4RHfFUBYeX4H3m&asn=273133http://goldfull.pro:8880/movie/IptvNetmax026/MvEUWB5455UU/414395.mp4",
+                logo: "https://via.placeholder.com/200x300"
+            }
+        ];
         
         // Crear grid de películas
-        const movies = parseM3U(m3uData);
         const moviesGrid = document.getElementById("moviesGrid");
         
-        movies.forEach((movie, index) => {
-            const simpleName = movie.name.replace(/\(.*?\)/g, "").trim(); // Quitar el año
-            const imageUrl = movie.logo || "https://via.placeholder.com/200x300";
-            
+        movies.forEach((movie) => {
             const movieCard = document.createElement('div');
             movieCard.className = 'movie-card';
             movieCard.innerHTML = `
-                <img class="movie-image" src="${imageUrl}" alt="${simpleName}">
+                <img class="movie-image" src="${movie.logo}" alt="${movie.name}">
                 <div class="movie-info">
                     <h3 class="movie-title">${movie.name}</h3>
-                    <a href="#" class="watch-button movie-link" data-url="${movie.url}">VER PELÍCULA</a>
+                    <a href="#" class="watch-button movie-link">VER PELÍCULA</a>
                 </div>
             `;
             
             moviesGrid.appendChild(movieCard);
             
-            // Añadir verificación de reproducibilidad
+            // Añadir evento de reproducción
             const watchButton = movieCard.querySelector('.movie-link');
             watchButton.addEventListener('click', function(e) {
                 e.preventDefault();
-                const videoUrl = this.getAttribute('data-url');
-                
-                // Crear video para prueba de reproducción
-                const testVideo = document.createElement('video');
-                testVideo.style.display = 'none';
-                testVideo.src = videoUrl;
-                
-                testVideo.addEventListener('error', () => {
-                    // Mostrar overlay de error si no se puede reproducir
-                    const errorOverlay = document.createElement('div');
-                    errorOverlay.className = 'error-overlay';
-                    errorOverlay.innerHTML = 'ERROR DE REPRODUCCIÓN<br>Enlace no disponible';
-                    movieCard.appendChild(errorOverlay);
-                    
-                    // Desactivar botón
-                    watchButton.style.backgroundColor = '#888';
-                    watchButton.style.cursor = 'not-allowed';
-                    watchButton.textContent = 'NO DISPONIBLE';
-                });
-                
-                testVideo.addEventListener('loadedmetadata', () => {
-                    // Si se puede cargar el video, abrir en nueva pestaña
-                    window.open(videoUrl, '_blank');
-                });
-                
-                document.body.appendChild(testVideo);
+                playHLSVideo(movie.url);
             });
         });
     </script>

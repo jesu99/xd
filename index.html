@@ -15,6 +15,7 @@
         #search { margin-bottom: 20px; padding: 10px; width: 100%; max-width: 400px; }
         .error-message { color: red; margin: 20px; }
         .scroll-button { margin: 20px; padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; position: relative; z-index: 1000; }
+        .floating-ad { position: fixed; bottom: 10px; right: 10px; width: 300px; height: 250px; z-index: 1000; }
     </style>
 </head>
 <body>
@@ -29,6 +30,10 @@
         <div id="error-container" class="error-message"></div>
     </div>
     
+    <div class="floating-ad">
+        <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+    </div>
+
     <script>
         function scrollToMovies() {
             document.getElementById("movie-list").scrollIntoView({ behavior: "smooth" });

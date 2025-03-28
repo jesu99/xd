@@ -5,269 +5,164 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo de Películas</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #141414;
-            color: white;
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
         }
-        
-        .header {
-            background-color: #000;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        video { 
+            width: 100%; 
+            max-height: 500px; 
         }
-        
-        h1 {
-            margin: 0;
-            color: #e50914;
-            font-size: 2.5rem;
+        #movieList {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
         }
-        
-        .notice {
-            text-align: center;
-            padding: 12px;
-            background-color: rgba(0,0,0,0.7);
-            color: #e6e6e6;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #333;
-        }
-        
-        .movies-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-        
-        .movie-card {
-            background-color: #1f1f1f;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            position: relative;
-        }
-        
-        .movie-card:hover {
-            transform: scale(1.05);
-        }
-        
-        .movie-image {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-        }
-        
-        .movie-info {
-            padding: 12px;
-        }
-        
-        .movie-title {
-            font-size: 1rem;
-            margin: 0 0 10px 0;
-            height: 40px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-        
-        .watch-button {
-            display: block;
-            text-align: center;
-            background-color: #e50914;
-            color: white;
-            padding: 8px 0;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-        
-        .watch-button:hover {
-            background-color: #f40612;
-        }
-        
-        .video-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: none;
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-        
-        .video-container {
-            width: 90%;
-            max-width: 1200px;
-            position: relative;
-        }
-        
-        .close-button {
-            position: absolute;
-            top: -40px;
-            right: 0;
-            color: white;
-            font-size: 30px;
+        .movie-item {
+            margin-bottom: 10px;
             cursor: pointer;
-            background: none;
-            border: none;
-            outline: none;
+            padding: 5px;
+            border: 1px solid #eee;
         }
-        
-        #moviePlayer {
+        .movie-item:hover {
+            background-color: #f0f0f0;
+        }
+        #addMovieForm {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        input[type="text"] {
             width: 100%;
-            max-height: 80vh;
-        }
-        
-        .error-message {
-            color: red;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        @media (max-width: 600px) {
-            .movies-container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-                padding: 10px;
-            }
-            
-            .movie-image {
-                height: 220px;
-            }
+            margin-bottom: 10px;
+            padding: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Catálogo de Películas</h1>
-    </div>
+    <h1>Catálogo de Películas</h1>
     
-    <div class="notice">
-        <strong>Aviso:</strong> Si no se reproduce el video, intenta cambiar de navegador o actualizar la página. 
-        Probablemente necesites un navegador moderno como Chrome, Safari o Firefox. 🎬🔥
-    </div>
-    
-    <div class="movies-container" id="moviesGrid"></div>
-    
-    <!-- Modal para reproducción de video -->
-    <div id="videoModal" class="video-modal">
-        <div class="video-container">
-            <button class="close-button" onclick="closeVideoModal()">&times;</button>
-            <video id="moviePlayer" controls playsinline></video>
-        </div>
+    <video id="moviePlayer" controls>
+        No hay película seleccionada
+    </video>
+
+    <div id="movieList">
+        <h2>Películas</h2>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
+    <form id="addMovieForm">
+        <h2>Agregar Nueva Película</h2>
+        <input type="text" id="movieTitle" placeholder="Título de la película" required>
+        <input type="text" id="hlsLink" placeholder="Enlace HLS (opcional)">
+        <input type="text" id="mp4Link" placeholder="Enlace MP4 (opcional)">
+        <button type="submit">Agregar Película</button>
+    </form>
+
     <script>
-        // Función para reproducir video HLS
-        function playHLSVideo(videoUrl) {
-            const videoModal = document.getElementById('videoModal');
-            const videoElement = document.getElementById('moviePlayer');
-            
-            // Limpiar cualquier reproductor HLS anterior
-            if (window.hlsPlayer) {
-                window.hlsPlayer.destroy();
+        // Movie storage and management
+        class MovieCatalog {
+            constructor() {
+                this.movies = JSON.parse(localStorage.getItem('movieCatalog')) || [];
+                this.renderMovieList();
             }
-            
-            videoModal.style.display = 'flex';
-            
-            // Verificar soporte nativo de HLS
-            if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-                // Safari y algunos navegadores con soporte nativo
-                videoElement.src = videoUrl;
-                videoElement.play();
-            } else if (Hls.isSupported()) {
-                // Usar Hls.js para navegadores que no soportan HLS nativamente
-                const hls = new Hls();
-                hls.loadSource(videoUrl);
-                hls.attachMedia(videoElement);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    videoElement.play();
-                });
+
+            addMovie(title, hlsLink, mp4Link) {
+                const movie = { title, hlsLink, mp4Link };
+                this.movies.push(movie);
+                this.saveMovies();
+                this.renderMovieList();
+            }
+
+            saveMovies() {
+                localStorage.setItem('movieCatalog', JSON.stringify(this.movies));
+            }
+
+            renderMovieList() {
+                const movieList = document.getElementById('movieList');
+                movieList.innerHTML = '<h2>Películas</h2>';
                 
-                // Manejar errores
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    console.error('HLS Error:', data);
-                    alert('No se pudo reproducir el video. Intenta en otro navegador.');
+                this.movies.forEach((movie, index) => {
+                    const movieItem = document.createElement('div');
+                    movieItem.classList.add('movie-item');
+                    movieItem.textContent = movie.title;
+                    movieItem.onclick = () => this.playMovie(movie);
+                    movieList.appendChild(movieItem);
                 });
+            }
+
+            playMovie(movie) {
+                const videoPlayer = document.getElementById('moviePlayer');
+                videoPlayer.innerHTML = ''; // Clear previous sources
                 
-                window.hlsPlayer = hls;
-            } else {
-                // Navegadores sin soporte
-                alert('Tu navegador no es compatible con la reproducción de este video.');
+                // Reset HLS if it was previously initialized
+                if (window.hls) {
+                    window.hls.destroy();
+                }
+
+                // Add video sources
+                if (movie.hlsLink) {
+                    if (Hls.isSupported()) {
+                        var hls = new Hls();
+                        window.hls = hls;
+                        hls.loadSource(movie.hlsLink);
+                        hls.attachMedia(videoPlayer);
+                        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                            videoPlayer.play();
+                        });
+                    } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                        videoPlayer.src = movie.hlsLink;
+                        videoPlayer.addEventListener('loadedmetadata', () => {
+                            videoPlayer.play();
+                        });
+                    }
+                }
+
+                // Add MP4 source as fallback
+                if (movie.mp4Link) {
+                    const mp4Source = document.createElement('source');
+                    mp4Source.src = movie.mp4Link;
+                    mp4Source.type = 'video/mp4';
+                    videoPlayer.appendChild(mp4Source);
+                }
+
+                // If no sources added, show message
+                if (!movie.hlsLink && !movie.mp4Link) {
+                    videoPlayer.innerHTML = 'No hay enlaces de video disponibles';
+                }
             }
         }
 
-        // Cerrar modal de video
-        function closeVideoModal() {
-            const videoModal = document.getElementById('videoModal');
-            const videoElement = document.getElementById('moviePlayer');
-            
-            videoModal.style.display = 'none';
-            videoElement.pause();
-            videoElement.src = '';
-            
-            // Destruir instancia HLS si existe
-            if (window.hlsPlayer) {
-                window.hlsPlayer.destroy();
-            }
+        // Initialize catalog
+        const catalog = new MovieCatalog();
+
+        // Add initial movie from previous example
+        if (catalog.movies.length === 0) {
+            catalog.addMovie(
+                'Película 1', 
+                'https://ngr2dnwrdasv7gvg.premilkyway.com/hls2/01/03115/hovozw32wstb_,n,h,x,.urlset/index-f1-a1.m3u8?t=VHwFE2kCl3I0ejDzTVKAyoYkmmT5tNGWNezB32TyklE&s=1742761502&e=129600&f=15579442&srv=z13jtbat10fa85i&i=0.4&sp=500&p1=z13jtbat10fa85i&p2=z13jtbat10fa85i&asn=273133',
+                'https://ngr2dnwrdasv7gvg.premilkyway.com/hls2/01/03115/hovozw32wstb_,n,h,x,.urlset/index-f1-a1.m3u8?t=VHwFE2kCl3I0ejDzTVKAyoYkmmT5tNGWNezB32TyklE&s=1742761502&e=129600&f=15579442&srv=z13jtbat10fa85i&i=0.4&sp=500&p1=z13jtbat10fa85i&p2=z13jtbat10fa85i&asn=273133'
+            );
         }
 
-        // Datos de películas con múltiples ejemplos
-        const movies = [
-            {
-                name: "Película de Ejemplo 1",
-                url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-                logo: "https://via.placeholder.com/200x300?text=Pelicula+1"
-            },
-            {
-                name: "Película de Ejemplo 2",
-                url: "https://sedrfmwrpjxatem5.premilkyway.com/hls2/01/03188/0sxioy0mle7r_,n,h,.urlset/index-f2-v1-a1.m3u8?t=1rzVDGFgUKjvzUxfR1HOmpfNRkcv4gBKVUQHbNGPdyU&s=1742761864&e=129600&f=15942367&srv=z13jtbat10fahdh456&i=0.4&sp=500&p1=z13jtbat10fahdh456&p2=z13jtbat10fahdh456&asn=273133
-",
-                logo: "https://via.placeholder.com/200x300?text=Pelicula+2"
-            },
-            {
-                name: "Película de Ejemplo 3",
-                url: "https://test-streams.mux.dev/test_001/playlist.m3u8",
-                logo: "https://via.placeholder.com/200x300?text=Pelicula+3"
+        // Form submission handler
+        document.getElementById('addMovieForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById('movieTitle').value;
+            const hlsLink = document.getElementById('hlsLink').value;
+            const mp4Link = document.getElementById('mp4Link').value;
+
+            if (title) {
+                catalog.addMovie(title, hlsLink, mp4Link);
+                
+                // Clear form inputs
+                document.getElementById('movieTitle').value = '';
+                document.getElementById('hlsLink').value = '';
+                document.getElementById('mp4Link').value = '';
             }
-        ];
-        
-        // Crear grid de películas
-        const moviesGrid = document.getElementById("moviesGrid");
-        
-        movies.forEach((movie) => {
-            const movieCard = document.createElement('div');
-            movieCard.className = 'movie-card';
-            movieCard.innerHTML = `
-                <img class="movie-image" src="${movie.logo}" alt="${movie.name}">
-                <div class="movie-info">
-                    <h3 class="movie-title">${movie.name}</h3>
-                    <a href="#" class="watch-button movie-link">VER PELÍCULA</a>
-                </div>
-            `;
-            
-            moviesGrid.appendChild(movieCard);
-            
-            // Añadir evento de reproducción
-            const watchButton = movieCard.querySelector('.movie-link');
-            watchButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                playHLSVideo(movie.url);
-            });
         });
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo de Películas</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
         .container { max-width: 800px; margin: auto; }
@@ -25,7 +26,16 @@
     <script>
         function playMovie(url) {
             var player = document.getElementById('player');
-            player.src = url;
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(player);
+            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                player.src = url;
+            } else {
+                alert('Tu navegador no soporta reproducción de este formato.');
+                return;
+            }
             player.style.display = 'block';
             player.play();
         }

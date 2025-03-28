@@ -19,26 +19,10 @@
 </head>
 <body>
     <div class="container">
-        <!-- Botón para desplazarse a las películas -->
         <button class="scroll-button" onclick="scrollToMovies()">Ver Películas ↓</button>
-        
         <h1>Catálogo de Películas</h1>
-        
-        <!-- Publicidad de Adsterra -->
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'b330ccd204185aee9ef640adccf896d2',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
-        
-        <script async="async" data-cfasync="false" src="//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js"></script>
+        <script type="text/javascript" src="//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js"></script>
         <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-        
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list"></div>
         <video id="player" controls style="display:none;" crossorigin="anonymous"></video>
@@ -68,38 +52,54 @@
         function loadMovies() {
             const movieList = document.getElementById("movie-list");
             movieList.innerHTML = "";
-            const movies = [
-                { title: "Película 1", image: "https://via.placeholder.com/100x150", url: "https://example.com/movie1.m3u8" },
-                { title: "Película 2", image: "https://via.placeholder.com/100x150", url: "https://example.com/movie2.m3u8" }
-            ];
+            const movies = `#EXTINF:-1 tvg-id="" tvg-name="Camino hacia el terror 3" tvg-logo="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2F8CGNZk2HJHHFpnLdCJEe6JI6Fsi.jpg&w=640&q=75" group-title="Terror"
+https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index-f2-v1-a1.m3u8?t=xEEsRcT1IsH_iNk62NwtkGb3L7UJIJh5res1jzmR16Q&s=1743133070&e=129600&f=15989036&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133`;
             
-            movies.forEach(movie => {
-                const movieElement = document.createElement("div");
-                movieElement.classList.add("movie");
-                movieElement.innerHTML = `
-                    <img src="${movie.image}" alt="${movie.title}">
-                    <div class="movie-details">
-                        <h3>${movie.title}</h3>
-                    </div>
-                `;
-                movieElement.addEventListener("click", () => {
-                    showAdBeforePlaying(() => playMovie(movie.url));
-                });
-                movieList.appendChild(movieElement);
-            });
+            const lines = movies.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('#EXTINF')) {
+                    const info = lines[i].split('"');
+                    const title = info[3];
+                    const image = info[7];
+                    const url = lines[i + 1].trim();
+
+                    const movieElement = document.createElement("div");
+                    movieElement.classList.add("movie");
+                    movieElement.innerHTML = `
+                        <img src="${image}" alt="${title}">
+                        <div class="movie-details">
+                            <h3>${title}</h3>
+                        </div>
+                    `;
+                    movieElement.addEventListener("click", () => {
+                        showAdBeforePlaying(() => playMovie(url));
+                    });
+                    movieList.appendChild(movieElement);
+                }
+            }
         }
 
         function playMovie(url) {
             const player = document.getElementById('player');
             player.style.display = 'block';
-            player.src = url;
-            player.play().catch(console.error);
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(player);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    player.play();
+                });
+            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                player.src = url;
+                player.play();
+            } else {
+                document.getElementById("error-container").innerText = "Error: Navegador no compatible con HLS.";
+            }
         }
 
         document.addEventListener("DOMContentLoaded", loadMovies);
     </script>
-
-    <!-- Publicidad flotante -->
+    
     <script async="async" data-cfasync="false" src="//pl26063313.effectiveratecpm.com/ad.js"></script>
 </body>
 </html>

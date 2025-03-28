@@ -7,41 +7,28 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; position: relative; }
-        .container { max-width: 800px; margin: auto; position: relative; }
+        .container { max-width: 800px; margin: auto; }
         .movie { cursor: pointer; padding: 10px; border: 1px solid #ddd; margin: 10px; display: flex; align-items: center; }
         .movie img { width: 100px; height: 150px; margin-right: 10px; }
         .movie-details { text-align: left; }
-        video { width: 100%; max-width: 800px; display: none; }
+        video { width: 100%; max-width: 800px; }
         #search { margin-bottom: 20px; padding: 10px; width: 100%; max-width: 400px; }
         .error-message { color: red; margin: 20px; }
-        .floating-ad { position: fixed; z-index: 1000; }
-        .ad-left { left: 10px; bottom: 50px; }
-        .ad-right { right: 10px; bottom: 50px; }
-        .ad-top { top: 10px; left: 50%; transform: translateX(-50%); }
-        .ad-bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
-        .ad-between { margin: 15px 0; text-align: center; }
     </style>
 </head>
 <body>
-    <!-- Contenedor de anuncios flotantes -->
-    <div class="floating-ad ad-left" id="ad-left"></div>
-    <div class="floating-ad ad-right" id="ad-right"></div>
-    <div class="floating-ad ad-top" id="ad-top"></div>
-    <div class="floating-ad ad-bottom" id="ad-bottom"></div>
-
     <div class="container">
         <h1>Catálogo de Películas</h1>
+        
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list"></div>
-
-        <!-- Anuncio entre películas -->
-        <div class="ad-between" id="ad-between"></div>
-
-        <video id="player" controls crossorigin="anonymous"></video>
+        
+        <video id="player" controls style="display:none;" crossorigin="anonymous"></video>
         <div id="error-container" class="error-message"></div>
     </div>
     
     <script>
+        // Updated movie data with the provided video URL
         const rawMovies = `#EXTINF:-1 tvg-id="" tvg-name="Camino Hacia el Terror: La Herencia" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvgoMcmtcHFvtiWy3k6hnLI_EjqrI_DQ3gJQ&s" group-title="Terror"
 https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index-f2-v1-a1.m3u8?t=xEEsRcT1IsH_iNk62NwtkGb3L7UJIJh5res1jzmR16Q&s=1743133070&e=129600&f=15989036&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133`;
 
@@ -67,7 +54,7 @@ https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index
         function loadMovies() {
             const movieList = document.getElementById("movie-list");
             movieList.innerHTML = "";
-            movies.forEach((movie, index) => {
+            movies.forEach(movie => {
                 const movieElement = document.createElement("div");
                 movieElement.classList.add("movie");
                 movieElement.setAttribute("data-title", movie.title);
@@ -80,67 +67,74 @@ https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index
                 `;
                 movieElement.addEventListener("click", () => playMovie(movie.url));
                 movieList.appendChild(movieElement);
-
-                if (index === Math.floor(movies.length / 2)) {
-                    insertAdBetweenMovies();
-                }
             });
         }
 
         function playMovie(url) {
             const player = document.getElementById('player');
-            player.style.display = 'block';
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = ''; // Clear previous errors
 
-            if (Hls.isSupported() && url.endsWith('.m3u8')) {
-                let hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(player);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    player.play().catch(error => console.error("Error al reproducir", error));
+            // Reset player
+            player.style.display = 'none';
+            player.innerHTML = ''; // Clear any source elements
+
+            try {
+                // Create source element
+                const sourceElement = document.createElement('source');
+                sourceElement.src = url;
+                sourceElement.type = 'video/mp4';
+                player.appendChild(sourceElement);
+
+                // Try HLS if available
+                if (Hls.isSupported()) {
+                    var hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(player);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        player.play().catch(handlePlayError);
+                    });
+                } else {
+                    // Fallback to native playback
+                    player.load();
+                    player.play().catch(handlePlayError);
+                }
+
+                player.style.display = 'block';
+            } catch (error) {
+                handlePlayError(error);
+            }
+
+            function handlePlayError(error) {
+                console.error('Play error details:', {
+                    name: error.name,
+                    message: error.message,
+                    url: url
                 });
-            } else {
-                player.src = url;
-                player.load();
-                player.play().catch(error => console.error("Error al reproducir", error));
+                
+                errorContainer.innerHTML = `
+                    <p>Error al reproducir: ${error.message}</p>
+                    <p>Detalles técnicos:</p>
+                    <ul>
+                        <li>Nombre del error: ${error.name}</li>
+                        <li>URL del video: ${url}</li>
+                        <li>¿Soporta HLS?: ${Hls.isSupported()}</li>
+                        <li>Tipos de video soportados: ${player.canPlayType('video/mp4')}</li>
+                    </ul>
+                `;
             }
         }
 
         function filterMovies() {
-            const input = document.getElementById('search').value.toLowerCase();
-            document.querySelectorAll('.movie').forEach(movie => {
-                const title = movie.getAttribute('data-title').toLowerCase();
-                movie.style.display = title.includes(input) ? "flex" : "none";
-            });
+            var input = document.getElementById('search').value.toLowerCase();
+            var movies = document.getElementsByClassName('movie');
+            for (var i = 0; i < movies.length; i++) {
+                var title = movies[i].getAttribute('data-title').toLowerCase();
+                movies[i].style.display = title.includes(input) ? "flex" : "none";
+            }
         }
 
-        function loadAds() {
-            const adScripts = [
-                { id: "ad-left", src: "//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js" },
-                { id: "ad-right", src: "//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js" },
-                { id: "ad-top", src: "//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js" },
-                { id: "ad-bottom", src: "//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js" },
-                { id: "ad-between", src: "//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js" }
-            ];
-
-            adScripts.forEach(ad => {
-                let script = document.createElement("script");
-                script.src = ad.src;
-                script.async = true;
-                document.getElementById(ad.id).appendChild(script);
-            });
-        }
-
-        function insertAdBetweenMovies() {
-            let script = document.createElement("script");
-            script.src = "//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js";
-            script.async = true;
-            document.getElementById("ad-between").appendChild(script);
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            loadMovies();
-            loadAds();
-        });
+        document.addEventListener("DOMContentLoaded", loadMovies);
     </script>
 </body>
 </html>

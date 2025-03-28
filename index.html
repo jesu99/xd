@@ -13,41 +13,24 @@
         .movie-details { text-align: left; }
         video { width: 100%; max-width: 800px; }
         #search { margin-bottom: 20px; padding: 10px; width: 100%; max-width: 400px; }
-        .ad-container { margin: 20px 0; text-align: center; }
-        .ad-side { position: fixed; top: 50%; transform: translateY(-50%); width: 160px; }
-        .ad-left { left: 10px; }
-        .ad-right { right: 10px; }
+        .error-message { color: red; margin: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Catálogo de Películas</h1>
         
-        <div class="ad-container">
-            <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
-        </div>
-        
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list"></div>
         
         <video id="player" controls style="display:none;"></video>
-        
-        <div class="ad-container">
-            <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-        </div>
-    </div>
-    
-    <div class="ad-side ad-left">
-        <script type="text/javascript" src="//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js"></script>
-    </div>
-    
-    <div class="ad-side ad-right">
-        <script type="text/javascript" src="//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js"></script>
+        <div id="error-container" class="error-message"></div>
     </div>
     
     <script>
+        // Sample movie data with a placeholder video URL
         const rawMovies = `#EXTINF:-1 tvg-id="" tvg-name="Camino Hacia el Terror: La Herencia" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvgoMcmtcHFvtiWy3k6hnLI_EjqrI_DQ3gJQ&s" group-title="Terror"
-        https://cdnst14.tokyvideo.com/videos/268/268356/mp4/0ee321b94dc6ad717186e9cd42de4ea872e3847cdcc84ade5e79e222242d4ad1.mp4?secure=wvqlmMeSjUd7zw0EqHwmQA%3D%3D%2C1743220249`;
+        https://example.com/sample-movie.mp4`;
 
         function parseMovies(data) {
             const lines = data.trim().split('\n');
@@ -88,23 +71,47 @@
         }
 
         function playMovie(url) {
-            var player = document.getElementById('player');
-            if (Hls.isSupported()) {
-                var hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(player);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    player.play().catch(error => console.error('Error al reproducir:', error));
-                });
-            } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-                player.src = url;
-                player.load();
-                player.play().catch(error => console.error('Error al reproducir:', error));
-            } else {
-                alert('Tu navegador no soporta reproducción de este formato.');
+            const player = document.getElementById('player');
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = ''; // Clear previous errors
+
+            // Reset player
+            player.style.display = 'none';
+            player.src = '';
+
+            // Validate URL
+            if (!url || url === 'https://example.com/sample-movie.mp4') {
+                errorContainer.textContent = 'Video URL no válida. Por favor, proporcione un enlace de video correcto.';
                 return;
             }
-            player.style.display = 'block';
+
+            try {
+                if (Hls.isSupported()) {
+                    var hls = new Hls();
+                    hls.loadSource(url);
+                    hls.attachMedia(player);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        player.play().catch(error => {
+                            errorContainer.textContent = `Error al reproducir: ${error.message}`;
+                        });
+                    });
+                    hls.on(Hls.Events.ERROR, function(event, data) {
+                        errorContainer.textContent = `Error de reproducción: ${data.details}`;
+                    });
+                } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+                    player.src = url;
+                    player.load();
+                    player.play().catch(error => {
+                        errorContainer.textContent = `Error al reproducir: ${error.message}`;
+                    });
+                } else {
+                    errorContainer.textContent = 'Tu navegador no soporta reproducción de este formato.';
+                    return;
+                }
+                player.style.display = 'block';
+            } catch (error) {
+                errorContainer.textContent = `Error inesperado: ${error.message}`;
+            }
         }
 
         function filterMovies() {

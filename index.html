@@ -19,6 +19,19 @@
 <body>
     <div class="container">
         <h1>Catálogo de Películas</h1>
+        
+        <!-- Anuncio de Adsterra -->
+        <div id="adsterra-ad"></div>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=ADSTER_TAG"></script>
+        <script>
+            (function() {
+                var script = document.createElement("script");
+                script.src = "https://adsterra-url.js";
+                script.async = true;
+                document.getElementById("adsterra-ad").appendChild(script);
+            })();
+        </script>
+
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list"></div>
         <video id="player" controls style="display:none;" crossorigin="anonymous"></video>
@@ -62,9 +75,21 @@ https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index
                         <p>Categoría: ${movie.category}</p>
                     </div>
                 `;
-                movieElement.addEventListener("click", () => playMovie(movie.url));
+                movieElement.addEventListener("click", () => {
+                    showAdBeforePlaying(() => playMovie(movie.url));
+                });
                 movieList.appendChild(movieElement);
             });
+        }
+
+        function showAdBeforePlaying(callback) {
+            var adContainer = document.createElement("div");
+            adContainer.innerHTML = "<p>Publicidad...</p>";
+            document.body.appendChild(adContainer);
+            setTimeout(() => {
+                document.body.removeChild(adContainer);
+                callback();
+            }, 5000); // Simulación de 5 segundos de publicidad
         }
 
         function playMovie(url) {

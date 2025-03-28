@@ -28,9 +28,9 @@
     </div>
     
     <script>
-        // Sample movie data with a placeholder video URL
+        // Updated movie data with a more descriptive error if no URL
         const rawMovies = `#EXTINF:-1 tvg-id="" tvg-name="Camino Hacia el Terror: La Herencia" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvgoMcmtcHFvtiWy3k6hnLI_EjqrI_DQ3gJQ&s" group-title="Terror"
-        https://example.com/sample-movie.mp4`;
+https://cdnst14.tokyvideo.com/videos/268/268356/mp4/0ee321b94dc6ad717186e9cd42de4ea872e3847cdcc84ade5e79e222242d4ad1.mp4?secure=wvqlmMeSjUd7zw0EqHwmQA%3D%3D%2C1743220249`;
 
         function parseMovies(data) {
             const lines = data.trim().split('\n');
@@ -80,8 +80,8 @@
             player.src = '';
 
             // Validate URL
-            if (!url || url === 'https://example.com/sample-movie.mp4') {
-                errorContainer.textContent = 'Video URL no válida. Por favor, proporcione un enlace de video correcto.';
+            if (!url || url === 'https://cdnst14.tokyvideo.com/videos/268/268356/mp4/0ee321b94dc6ad717186e9cd42de4ea872e3847cdcc84ade5e79e222242d4ad1.mp4?secure=wvqlmMeSjUd7zw0EqHwmQA%3D%3D%2C1743220249') {
+                errorContainer.textContent = 'https://cdnst14.tokyvideo.com/videos/268/268356/mp4/0ee321b94dc6ad717186e9cd42de4ea872e3847cdcc84ade5e79e222242d4ad1.mp4?secure=wvqlmMeSjUd7zw0EqHwmQA%3D%3D%2C1743220249.';
                 return;
             }
 
@@ -93,16 +93,19 @@
                     hls.on(Hls.Events.MANIFEST_PARSED, function() {
                         player.play().catch(error => {
                             errorContainer.textContent = `Error al reproducir: ${error.message}`;
+                            console.error('Play error:', error);
                         });
                     });
                     hls.on(Hls.Events.ERROR, function(event, data) {
                         errorContainer.textContent = `Error de reproducción: ${data.details}`;
+                        console.error('HLS error:', data);
                     });
                 } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
                     player.src = url;
                     player.load();
                     player.play().catch(error => {
                         errorContainer.textContent = `Error al reproducir: ${error.message}`;
+                        console.error('Play error:', error);
                     });
                 } else {
                     errorContainer.textContent = 'Tu navegador no soporta reproducción de este formato.';
@@ -111,6 +114,7 @@
                 player.style.display = 'block';
             } catch (error) {
                 errorContainer.textContent = `Error inesperado: ${error.message}`;
+                console.error('Unexpected error:', error);
             }
         }
 

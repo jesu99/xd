@@ -5,266 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo de Películas</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            background-color: #f4f4f4;
-        }
-        #mainContainer {
-            display: flex;
-            gap: 20px;
-        }
-        #movieList {
-            width: 300px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 15px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        #videoSection {
-            flex-grow: 1;
-        }
-        video { 
-            width: 100%; 
-            max-height: 600px; 
-            background-color: #000;
-            border-radius: 8px;
-        }
-        .movie-item {
-            cursor: pointer;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-        .movie-item:hover {
-            background-color: #f0f0f0;
-        }
-        .movie-item.active {
-            background-color: #e0e0e0;
-            border-color: #007bff;
-        }
-        .movie-status {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-        .movie-status.valid {
-            background-color: green;
-        }
-        .movie-status.invalid {
-            background-color: red;
-        }
-        #movieDetails {
-            margin-top: 15px;
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        #linkStatus {
-            margin-top: 10px;
-            font-weight: bold;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { max-width: 800px; margin: auto; }
+        .movie { cursor: pointer; padding: 10px; border: 1px solid #ddd; margin: 10px; }
+        video { width: 100%; max-width: 800px; }
     </style>
 </head>
 <body>
-    <div id="mainContainer">
-        <div id="movieList">
-            <!-- Movies will be dynamically added here -->
+    <div class="container">
+        <h1>Catálogo de Películas</h1>
+        <div id="movie-list">
+            <div class="movie" onclick="playMovie('https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133')">
+                Película 1
+            </div>
+            <!-- Agrega más películas aquí -->
         </div>
-        <div id="videoSection">
-            <video id="moviePlayer" controls>
-                No hay película seleccionada
-            </video>
-            <div id="linkStatus"></div>
-            <div id="movieDetails"></div>
-        </div>
+        <video id="player" controls style="display:none;"></video>
     </div>
-
     <script>
-        class MovieCatalog {
-            constructor() {
-                this.movies = [
-                    {
-                        id: 1,
-                        title: 'Película 1',
-                        description: 'Descripción de la primera película',
-                        genre: 'Acción',
-                        year: 2023,
-                        videoLinks: [
-                            'https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133
-',
-                            'https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133
-'
-                        ]
-                    },
-                    {
-                        id: 2,
-                        title: 'Película 2',
-                        description: 'Descripción de la segunda película',
-                        genre: 'Comedia',
-                        year: 2022,
-                        videoLinks: []
-                    }
-                ];
-                this.currentMovie = null;
-                this.renderMovieList();
-            }
-
-            async checkLinkValidity(link) {
-                if (!link) return false;
-                
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 5000);
-                    
-                    const response = await fetch(link, { 
-                        method: 'HEAD',
-                        mode: 'cors',
-                        signal: controller.signal
-                    });
-                    
-                    clearTimeout(timeoutId);
-                    return response.ok;
-                } catch (error) {
-                    console.error('Error checking link:', error);
-                    return false;
-                }
-            }
-
-            async renderMovieList() {
-                const movieList = document.getElementById('movieList');
-                movieList.innerHTML = ''; 
-                
-                for (const movie of this.movies) {
-                    const movieItem = document.createElement('div');
-                    movieItem.classList.add('movie-item');
-                    movieItem.dataset.movieId = movie.id;
-                    
-                    const titleSpan = document.createElement('span');
-                    titleSpan.textContent = movie.title;
-                    movieItem.appendChild(titleSpan);
-
-                    const statusIndicator = document.createElement('div');
-                    statusIndicator.classList.add('movie-status');
-                    movieItem.appendChild(statusIndicator);
-
-                    // Check if any links are valid
-                    let isValid = false;
-                    for (const link of movie.videoLinks) {
-                        if (await this.checkLinkValidity(link)) {
-                            isValid = true;
-                            break;
-                        }
-                    }
-                    
-                    if (isValid) {
-                        statusIndicator.classList.add('valid');
-                        movie.isValid = true;
-                    } else {
-                        statusIndicator.classList.add('invalid');
-                        movie.isValid = false;
-                    }
-
-                    movieItem.onclick = () => this.selectMovie(movie);
-                    
-                    movieList.appendChild(movieItem);
-                }
-
-                // Select first valid movie if exists
-                const validMovies = this.movies.filter(m => m.isValid);
-                if (validMovies.length > 0) {
-                    this.selectMovie(validMovies[0]);
-                }
-            }
-
-            selectMovie(movie) {
-                // Deselect previous movies
-                document.querySelectorAll('.movie-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-
-                // Mark current movie
-                const selectedItem = document.querySelector(`.movie-item[data-movie-id="${movie.id}"]`);
-                if (selectedItem) {
-                    selectedItem.classList.add('active');
-                }
-
-                // Show movie details
-                this.showMovieDetails(movie);
-
-                // Play movie
-                this.playMovie(movie);
-            }
-
-            showMovieDetails(movie) {
-                const detailsContainer = document.getElementById('movieDetails');
-                detailsContainer.innerHTML = `
-                    <h2>${movie.title}</h2>
-                    <p><strong>Año:</strong> ${movie.year}</p>
-                    <p><strong>Género:</strong> ${movie.genre}</p>
-                    <p>${movie.description}</p>
-                `;
-            }
-
-            playMovie(movie) {
-                const videoPlayer = document.getElementById('moviePlayer');
-                const linkStatus = document.getElementById('linkStatus');
-                videoPlayer.innerHTML = ''; 
-                
-                // Reset HLS if initialized
-                if (window.hls) {
-                    window.hls.destroy();
-                }
-
-                // Find first valid video link
-                const validLinks = movie.videoLinks.filter(link => link.trim() !== '');
-                if (validLinks.length === 0) {
-                    linkStatus.textContent = 'No hay enlaces válidos para esta película';
-                    linkStatus.style.color = 'red';
-                    return;
-                }
-
-                const sourceLink = validLinks[0];
-                const isHLS = sourceLink.includes('.m3u8');
-
-                // Show link status
-                linkStatus.textContent = `Reproduciendo: ${isHLS ? 'HLS' : 'MP4'}`;
-                linkStatus.style.color = 'green';
-
-                // Play HLS if supported
-                if (isHLS && Hls.isSupported()) {
-                    const hls = new Hls();
-                    window.hls = hls;
-                    hls.loadSource(sourceLink);
-                    hls.attachMedia(videoPlayer);
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        videoPlayer.play();
-                    });
-                } 
-                // Fallback for HLS or play MP4
-                else {
-                    const source = document.createElement('source');
-                    source.src = sourceLink;
-                    source.type = isHLS ? 'application/x-mpegURL' : 'video/mp4';
-                    videoPlayer.appendChild(source);
-                    videoPlayer.play();
-                }
-            }
+        function playMovie(url) {
+            var player = document.getElementById('player');
+            player.src = url;
+            player.style.display = 'block';
+            player.play();
         }
-
-        // Initialize catalog
-        const catalog = new MovieCatalog();
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
 </body>
 </html>

@@ -24,15 +24,6 @@
         <h1>Catálogo de Películas</h1>
         
         <div class="ad-container">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : 'b330ccd204185aee9ef640adccf896d2',
-                    'format' : 'iframe',
-                    'height' : 90,
-                    'width' : 728,
-                    'params' : {}
-                };
-            </script>
             <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
         </div>
         
@@ -43,7 +34,6 @@
         
         <div class="ad-container">
             <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-            <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
         </div>
     </div>
     
@@ -56,16 +46,27 @@
     </div>
     
     <script>
-        const movies = [
-            {
-                title: "Película 1",
-                category: "Acción",
-                description: "Una emocionante película llena de acción y aventura.",
-                image: "https://via.placeholder.com/100x150",
-                url: "https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133"
-            },
-            // Agrega más películas aquí
-        ];
+        const rawMovies = `#EXTINF:-1 tvg-id="" tvg-name="Camino Hacia el Terror: La Herencia" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvgoMcmtcHFvtiWy3k6hnLI_EjqrI_DQ3gJQ&s" group-title="Terror"
+        https://cdnst14.tokyvideo.com/videos/268/268356/mp4/0ee321b94dc6ad717186e9cd42de4ea872e3847cdcc84ade5e79e222242d4ad1.mp4?secure=wvqlmMeSjUd7zw0EqHwmQA%3D%3D%2C1743220249`;
+
+        function parseMovies(data) {
+            const lines = data.trim().split('\n');
+            let movies = [];
+            for (let i = 0; i < lines.length; i += 2) {
+                let info = lines[i].match(/tvg-name="(.*?)".*?tvg-logo="(.*?)".*?group-title="(.*?)"/);
+                if (info) {
+                    movies.push({
+                        title: info[1],
+                        image: info[2],
+                        category: info[3],
+                        url: lines[i + 1].trim()
+                    });
+                }
+            }
+            return movies;
+        }
+
+        const movies = parseMovies(rawMovies);
 
         function loadMovies() {
             const movieList = document.getElementById("movie-list");
@@ -79,7 +80,6 @@
                     <div class="movie-details">
                         <h3>${movie.title}</h3>
                         <p>Categoría: ${movie.category}</p>
-                        <p>${movie.description}</p>
                     </div>
                 `;
                 movieElement.addEventListener("click", () => playMovie(movie.url));
@@ -112,11 +112,7 @@
             var movies = document.getElementsByClassName('movie');
             for (var i = 0; i < movies.length; i++) {
                 var title = movies[i].getAttribute('data-title').toLowerCase();
-                if (title.includes(input)) {
-                    movies[i].style.display = "flex";
-                } else {
-                    movies[i].style.display = "none";
-                }
+                movies[i].style.display = title.includes(input) ? "flex" : "none";
             }
         }
 

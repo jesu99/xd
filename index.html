@@ -148,7 +148,6 @@
             }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
 </head>
 <body>
     <div class="header">
@@ -170,6 +169,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
     <script>
         // Función para reproducir video HLS
         function playHLSVideo(videoUrl) {
@@ -225,13 +225,22 @@
             }
         }
 
-        // Datos de películas (puedes agregar más películas aquí)
+        // Datos de películas con múltiples ejemplos
         const movies = [
             {
-                name: "Película de Ejemplo",
-                url: "https://jdou5wo6ffta.acek-cdn.com/hls2/01/01957/d81xodl2jvdn_l/index-v1-a1.m3u8?t=efIMl1KCPgsT2EbIbYiJl1C6DKNZMJUj04PeMqXpoTU&s=1742760741&e=129600&f=9787806&srv=e4RHfFUBYeX4H3m&i=0.4&sp=500&p1=e4RHfFUBYeX4H3m&p2=e4RHfFUBYeX4H3m&asn=273133http://goldfull.pro:8880/movie/IptvNetmax026/MvEUWB5455UU/414395.mp4
-",
-                logo: "https://cuevana.pro/resize/200/storage/26866/zM0Zd1OGtnclMYq1bzqUZhhbNo82p0GzH4kBUzO9.jpg"
+                name: "Película de Ejemplo 1",
+                url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+                logo: "https://via.placeholder.com/200x300?text=Pelicula+1"
+            },
+            {
+                name: "Película de Ejemplo 2",
+                url: "https://jdou5wo6ffta.acek-cdn.com/hls2/01/01957/d81xodl2jvdn_l/index-v1-a1.m3u8?t=efIMl1KCPgsT2EbIbYiJl1C6DKNZMJUj04PeMqXpoTU&s=1742760741&e=129600&f=9787806&srv=e4RHfFUBYeX4H3m&i=0.4&sp=500&p1=e4RHfFUBYeX4H3m&p2=e4RHfFUBYeX4H3m&asn=273133http://goldfull.pro:8880/movie/IptvNetmax026/MvEUWB5455UU/414395.mp4",
+                logo: "https://via.placeholder.com/200x300?text=Pelicula+2"
+            },
+            {
+                name: "Película de Ejemplo 3",
+                url: "https://test-streams.mux.dev/test_001/playlist.m3u8",
+                logo: "https://via.placeholder.com/200x300?text=Pelicula+3"
             }
         ];
         

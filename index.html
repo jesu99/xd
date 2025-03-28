@@ -19,20 +19,41 @@
     <div class="container">
         <h1>Catálogo de Películas</h1>
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
-        <div id="movie-list">
-            <div class="movie" data-title="Película 1" data-category="Acción" onclick="playMovie('https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133')">
-                <img src="https://via.placeholder.com/100x150" alt="Película 1">
-                <div class="movie-details">
-                    <h3>Película 1</h3>
-                    <p>Categoría: Acción</p>
-                    <p>Una emocionante película llena de acción y aventura.</p>
-                </div>
-            </div>
-            <!-- Agrega más películas aquí -->
-        </div>
+        <div id="movie-list"></div>
         <video id="player" controls style="display:none;"></video>
     </div>
     <script>
+        const movies = [
+            {
+                title: "Película 1",
+                category: "Acción",
+                description: "Una emocionante película llena de acción y aventura.",
+                image: "https://via.placeholder.com/100x150",
+                url: "https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133"
+            },
+            // Agrega más películas aquí
+        ];
+
+        function loadMovies() {
+            const movieList = document.getElementById("movie-list");
+            movieList.innerHTML = "";
+            movies.forEach(movie => {
+                const movieElement = document.createElement("div");
+                movieElement.classList.add("movie");
+                movieElement.setAttribute("data-title", movie.title);
+                movieElement.innerHTML = `
+                    <img src="${movie.image}" alt="${movie.title}">
+                    <div class="movie-details">
+                        <h3>${movie.title}</h3>
+                        <p>Categoría: ${movie.category}</p>
+                        <p>${movie.description}</p>
+                    </div>
+                `;
+                movieElement.addEventListener("click", () => playMovie(movie.url));
+                movieList.appendChild(movieElement);
+            });
+        }
+
         function playMovie(url) {
             var player = document.getElementById('player');
             if (Hls.isSupported()) {
@@ -65,6 +86,8 @@
                 }
             }
         }
+
+        document.addEventListener("DOMContentLoaded", loadMovies);
     </script>
 </body>
 </html>

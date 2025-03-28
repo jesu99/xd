@@ -23,12 +23,12 @@
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list"></div>
         
-        <video id="player" controls style="display:none;"></video>
+        <video id="player" controls style="display:none;" crossorigin="anonymous"></video>
         <div id="error-container" class="error-message"></div>
     </div>
     
     <script>
-        // Updated movie data with a more descriptive error if no URL
+        // Updated movie data with the provided video URL
         const rawMovies = `#EXTINF:-1 tvg-id="" tvg-name="Camino Hacia el Terror: La Herencia" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvgoMcmtcHFvtiWy3k6hnLI_EjqrI_DQ3gJQ&s" group-title="Terror"
 https://cdnst14.tokyvideo.com/videos/268/268356/mp4/0ee321b94dc6ad717186e9cd42de4ea872e3847cdcc84ade5e79e222242d4ad1.mp4?secure=wvqlmMeSjUd7zw0EqHwmQA%3D%3D%2C1743220249`;
 
@@ -77,44 +77,51 @@ https://cdnst14.tokyvideo.com/videos/268/268356/mp4/0ee321b94dc6ad717186e9cd42de
 
             // Reset player
             player.style.display = 'none';
-            player.src = '';
-
-            // Validate URL
-            if (!url || url === 'https://cdnst14.tokyvideo.com/videos/268/268356/mp4/0ee321b94dc6ad717186e9cd42de4ea872e3847cdcc84ade5e79e222242d4ad1.mp4?secure=wvqlmMeSjUd7zw0EqHwmQA%3D%3D%2C1743220249') {
-                errorContainer.textContent = 'https://cdnst14.tokyvideo.com/videos/268/268356/mp4/0ee321b94dc6ad717186e9cd42de4ea872e3847cdcc84ade5e79e222242d4ad1.mp4?secure=wvqlmMeSjUd7zw0EqHwmQA%3D%3D%2C1743220249.';
-                return;
-            }
+            player.innerHTML = ''; // Clear any source elements
 
             try {
+                // Create source element
+                const sourceElement = document.createElement('source');
+                sourceElement.src = url;
+                sourceElement.type = 'video/mp4';
+                player.appendChild(sourceElement);
+
+                // Try HLS if available
                 if (Hls.isSupported()) {
                     var hls = new Hls();
                     hls.loadSource(url);
                     hls.attachMedia(player);
                     hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        player.play().catch(error => {
-                            errorContainer.textContent = `Error al reproducir: ${error.message}`;
-                            console.error('Play error:', error);
-                        });
-                    });
-                    hls.on(Hls.Events.ERROR, function(event, data) {
-                        errorContainer.textContent = `Error de reproducción: ${data.details}`;
-                        console.error('HLS error:', data);
-                    });
-                } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-                    player.src = url;
-                    player.load();
-                    player.play().catch(error => {
-                        errorContainer.textContent = `Error al reproducir: ${error.message}`;
-                        console.error('Play error:', error);
+                        player.play().catch(handlePlayError);
                     });
                 } else {
-                    errorContainer.textContent = 'Tu navegador no soporta reproducción de este formato.';
-                    return;
+                    // Fallback to native playback
+                    player.load();
+                    player.play().catch(handlePlayError);
                 }
+
                 player.style.display = 'block';
             } catch (error) {
-                errorContainer.textContent = `Error inesperado: ${error.message}`;
-                console.error('Unexpected error:', error);
+                handlePlayError(error);
+            }
+
+            function handlePlayError(error) {
+                console.error('Play error details:', {
+                    name: error.name,
+                    message: error.message,
+                    url: url
+                });
+                
+                errorContainer.innerHTML = `
+                    <p>Error al reproducir: ${error.message}</p>
+                    <p>Detalles técnicos:</p>
+                    <ul>
+                        <li>Nombre del error: ${error.name}</li>
+                        <li>URL del video: ${url}</li>
+                        <li>¿Soporta HLS?: ${Hls.isSupported()}</li>
+                        <li>Tipos de video soportados: ${player.canPlayType('video/mp4')}</li>
+                    </ul>
+                `;
             }
         }
 

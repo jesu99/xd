@@ -8,16 +8,25 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
         .container { max-width: 800px; margin: auto; }
-        .movie { cursor: pointer; padding: 10px; border: 1px solid #ddd; margin: 10px; }
+        .movie { cursor: pointer; padding: 10px; border: 1px solid #ddd; margin: 10px; display: flex; align-items: center; }
+        .movie img { width: 100px; height: 150px; margin-right: 10px; }
+        .movie-details { text-align: left; }
         video { width: 100%; max-width: 800px; }
+        #search { margin-bottom: 20px; padding: 10px; width: 100%; max-width: 400px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Catálogo de Películas</h1>
+        <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list">
-            <div class="movie" onclick="playMovie('https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133')">
-                Película 1
+            <div class="movie" data-title="Película 1" data-category="Acción" onclick="playMovie('https://m68btj72qc.premilkyway.com/hls2/01/04108/tyedzkhcsxs7_,n,h,.urlset/index-f1-v1-a1.m3u8?t=bFkr3XbrsCYk765sT4EwgBFOY0uaI8ql1TcSSCGYPeg&s=1743137793&e=129600&f=20541941&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133')">
+                <img src="https://via.placeholder.com/100x150" alt="Película 1">
+                <div class="movie-details">
+                    <h3>Película 1</h3>
+                    <p>Categoría: Acción</p>
+                    <p>Una emocionante película llena de acción y aventura.</p>
+                </div>
             </div>
             <!-- Agrega más películas aquí -->
         </div>
@@ -38,6 +47,19 @@
             }
             player.style.display = 'block';
             player.play();
+        }
+
+        function filterMovies() {
+            var input = document.getElementById('search').value.toLowerCase();
+            var movies = document.getElementsByClassName('movie');
+            for (var i = 0; i < movies.length; i++) {
+                var title = movies[i].getAttribute('data-title').toLowerCase();
+                if (title.includes(input)) {
+                    movies[i].style.display = "flex";
+                } else {
+                    movies[i].style.display = "none";
+                }
+            }
         }
     </script>
 </body>

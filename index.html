@@ -19,16 +19,13 @@
 <body>
     <div class="container">
         <h1>Catálogo de Películas</h1>
-        
         <input type="text" id="search" placeholder="Buscar película..." onkeyup="filterMovies()">
         <div id="movie-list"></div>
-        
         <video id="player" controls style="display:none;" crossorigin="anonymous"></video>
         <div id="error-container" class="error-message"></div>
     </div>
     
     <script>
-        // Updated movie data with the provided video URL
         const rawMovies = `#EXTINF:-1 tvg-id="" tvg-name="Camino Hacia el Terror: La Herencia" tvg-logo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvgoMcmtcHFvtiWy3k6hnLI_EjqrI_DQ3gJQ&s" group-title="Terror"
 https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index-f2-v1-a1.m3u8?t=xEEsRcT1IsH_iNk62NwtkGb3L7UJIJh5res1jzmR16Q&s=1743133070&e=129600&f=15989036&srv=3FjgDmcnea8S35m&i=0.4&sp=500&p1=3FjgDmcnea8S35m&p2=3FjgDmcnea8S35m&asn=273133`;
 
@@ -73,56 +70,28 @@ https://yhqd4yg264.premilkyway.com/hls2/01/03197/uoasre0r3f4n_,n,h,.urlset/index
         function playMovie(url) {
             const player = document.getElementById('player');
             const errorContainer = document.getElementById('error-container');
-            errorContainer.innerHTML = ''; // Clear previous errors
-
-            // Reset player
+            errorContainer.innerHTML = '';
             player.style.display = 'none';
-            player.innerHTML = ''; // Clear any source elements
-
-            try {
-                // Create source element
-                const sourceElement = document.createElement('source');
-                sourceElement.src = url;
-                sourceElement.type = 'video/mp4';
-                player.appendChild(sourceElement);
-
-                // Try HLS if available
-                if (Hls.isSupported()) {
-                    var hls = new Hls();
-                    hls.loadSource(url);
-                    hls.attachMedia(player);
-                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        player.play().catch(handlePlayError);
-                    });
-                } else {
-                    // Fallback to native playback
-                    player.load();
+            player.innerHTML = '';
+            
+            if (Hls.isSupported() && url.includes(".m3u8")) {
+                let hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(player);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
                     player.play().catch(handlePlayError);
-                }
-
-                player.style.display = 'block';
-            } catch (error) {
-                handlePlayError(error);
-            }
-
-            function handlePlayError(error) {
-                console.error('Play error details:', {
-                    name: error.name,
-                    message: error.message,
-                    url: url
                 });
-                
-                errorContainer.innerHTML = `
-                    <p>Error al reproducir: ${error.message}</p>
-                    <p>Detalles técnicos:</p>
-                    <ul>
-                        <li>Nombre del error: ${error.name}</li>
-                        <li>URL del video: ${url}</li>
-                        <li>¿Soporta HLS?: ${Hls.isSupported()}</li>
-                        <li>Tipos de video soportados: ${player.canPlayType('video/mp4')}</li>
-                    </ul>
-                `;
+            } else {
+                player.src = url;
+                player.load();
+                player.play().catch(handlePlayError);
             }
+            player.style.display = 'block';
+        }
+
+        function handlePlayError(error) {
+            console.error('Error al reproducir:', error);
+            document.getElementById('error-container').innerText = `Error al reproducir: ${error.message}`;
         }
 
         function filterMovies() {

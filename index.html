@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Cambio en la forma de importar Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
     <h2>Iniciar Sesión / Registrarse</h2>
@@ -14,34 +15,52 @@
     <button onclick="signIn()">Iniciar Sesión</button>
     <p id="message"></p>
     <script>
-        // Asegurarse que supabaseJs está disponible
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof supabaseJs === 'undefined') {
-                document.getElementById("message").innerText = "Error: La biblioteca Supabase no se ha cargado correctamente";
-            }
-        });
-
-        // La forma correcta de inicializar Supabase.js v2
+        // La forma correcta de inicializar Supabase.js v2 con la versión UMD
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         
         let supabase;
         
-        // Inicializar supabase solo después de que la página haya cargado
         window.onload = function() {
             try {
-                if (typeof supabaseJs !== 'undefined') {
-                    supabase = supabaseJs.createClient(supabaseUrl, supabaseKey);
+                // Con la versión UMD, Supabase debería estar disponible globalmente
+                if (typeof supabase === 'undefined') {
+                    // Intenta acceder al objeto de forma directa
+                    supabase = Supabase.createClient(supabaseUrl, supabaseKey);
                     console.log("Supabase inicializado correctamente");
+                    
+                    // Verificamos la conexión inmediatamente
+                    testConnection();
                 } else {
                     document.getElementById("message").innerText = "Error: No se pudo inicializar Supabase";
-                    console.error("supabaseJs no está definido");
                 }
             } catch (err) {
                 document.getElementById("message").innerText = "Error al inicializar Supabase: " + err.message;
                 console.error("Error al inicializar Supabase:", err);
             }
         };
+        
+        // Función para probar la conexión
+        async function testConnection() {
+            try {
+                // Intentamos una operación simple para verificar que funciona
+                const { data, error } = await supabase
+                    .from('usuarios')
+                    .select('count(*)', { count: 'exact' })
+                    .limit(1);
+                
+                if (error) {
+                    document.getElementById("message").innerText = "Error al conectar con la base de datos: " + error.message;
+                    console.error("Error de conexión:", error);
+                } else {
+                    console.log("Conexión exitosa. Registros encontrados:", data);
+                    document.getElementById("message").innerText = "Conexión con Supabase establecida correctamente";
+                }
+            } catch (err) {
+                document.getElementById("message").innerText = "Error al probar conexión: " + err.message;
+                console.error("Error al probar conexión:", err);
+            }
+        }
         
         async function signUp() {
             try {

@@ -26,6 +26,8 @@
             margin-top: 20px;
         }
     </style>
+    <!-- Cargar Supabase primero para asegurar que esté disponible -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
 <body>
     <div id="anuncio-container">
@@ -34,16 +36,36 @@
     </div>
     <div id="cronometro">20</div>
     <div id="mensaje-error">❌ No se pudo abrir el anuncio. Desactiva el bloqueador de ventanas emergentes.</div>
+    
     <script>
         let tiempo = 20;
         let intervalo;
         let anuncioAbierto = false; // Para evitar múltiples aperturas
         
-        // Esperar a que el script del anuncio cargue completamente
-        window.addEventListener('load', function() {
-            // Asignar el evento directamente al contenedor del anuncio
-            document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098").addEventListener("click", manejarClicAnuncio);
-        });
+        // Configuración de Supabase
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
+        
+        let usuarioId = 1; // Reemplaza con el ID del usuario que está logueado
+        
+        async function contarClickEnSupabase() {
+            try {
+                const { data, error } = await supabase
+                    .from('usuarios')
+                    .update({ anuncios_clickeados: supabase.rpc('increment', { x: 1 }) })
+                    .eq('id', usuarioId)
+                    .select();
+                
+                if (error) {
+                    console.error("Error al actualizar clics:", error);
+                } else {
+                    console.log("Clic registrado en Supabase:", data);
+                }
+            } catch (e) {
+                console.error("Excepción al actualizar clics:", e);
+            }
+        }
         
         function manejarClicAnuncio(event) {
             // Evitamos la propagación del evento para que no interfiera con el anuncio
@@ -52,11 +74,10 @@
             if (!anuncioAbierto) { 
                 anuncioAbierto = true; // Marcamos que ya se abrió
                 
-                // Aquí NO abrimos Google explícitamente, ya que el script del anuncio
-                // debería manejar esa parte. Esta línea es la que causaba confusión:
-                // let ventanaAnuncio = window.open("https://www.google.com", "_blank");
+                // Intentar registrar el clic en Supabase
+                contarClickEnSupabase();
                 
-                // En su lugar, simplemente iniciamos el cronómetro
+                // Iniciamos el cronómetro
                 iniciarCronometro();
                 
                 // El script del anuncio debería abrir su propia ventana/redirección
@@ -65,6 +86,10 @@
                     // Comprobar si realmente se abrió una ventana (esto es aproximado)
                     if (!document.hidden) {
                         document.getElementById("mensaje-error").style.display = "block";
+                        // Ocultamos el mensaje de error después de 3 segundos
+                        setTimeout(function() {
+                            document.getElementById("mensaje-error").style.display = "none";
+                        }, 3000);
                         anuncioAbierto = false; // Permitir otro intento
                     }
                 }, 1000);
@@ -87,34 +112,30 @@
                 }
             }, 1000);
         }
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script>
-    const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";  // Reemplaza con tu URL de Supabase
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";  // Reemplaza con tu clave API
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-    let usuarioId = 1; // Reemplaza con el ID del usuario que está logueado
-
-    async function contarClickEnSupabase() {
-        let { data, error } = await supabase
-            .from('usuarios')
-            .update({ anuncios_clickeados: supabase.sql`anuncios_clickeados + 1` })
-            .eq('id', usuarioId);
-
-        if (error) {
-            console.error("Error al actualizar clics:", error);
-        } else {
-            console.log("Clic registrado en Supabase:", data);
-        }
-    }
-
-    window.addEventListener('load', function() {
-        document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098").addEventListener("click", function(event) {
-            event.stopPropagation();
-            contarClickEnSupabase();
+        
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aseguramos que el contenedor existe antes de asignar el evento
+            const container = document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098");
+            if (container) {
+                container.addEventListener("click", manejarClicAnuncio);
+                console.log("Evento de clic asignado al contenedor de anuncios");
+            } else {
+                console.error("No se encontró el contenedor de anuncios");
+            }
         });
-    });
-</script>
-
+        
+        // Respaldo para cuando el script de anuncios se carga después del DOM
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const container = document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098");
+                if (container) {
+                    // Verificar si ya tiene el evento asignado
+                    container.addEventListener("click", manejarClicAnuncio);
+                    console.log("Evento de clic asignado al contenedor de anuncios (respaldo)");
+                }
+            }, 1000); // Esperamos un segundo adicional para asegurar que todo está cargado
+        });
+    </script>
 </body>
 </html>

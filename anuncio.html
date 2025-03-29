@@ -62,11 +62,13 @@
     <div class="ad-container" id="ad-container">
         <div class="ad-box" id="ad1">
             <div class="timer hidden">20s</div>
+            <button class="force-complete hidden" style="position: absolute; bottom: 5px; right: 5px; z-index: 1000; background: #ff6b6b; color: white; border: none; padding: 5px; border-radius: 3px; font-size: 12px;">Marcar visto</button>
             <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
             <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
         </div>
         <div class="ad-box" id="ad2">
             <div class="timer hidden">20s</div>
+            <button class="force-complete hidden" style="position: absolute; bottom: 5px; right: 5px; z-index: 1000; background: #ff6b6b; color: white; border: none; padding: 5px; border-radius: 3px; font-size: 12px;">Marcar visto</button>
             <script type="text/javascript">
                 atOptions = { 'key': 'b330ccd204185aee9ef640adccf896d2', 'format': 'iframe', 'height': 90, 'width': 728, 'params': {} };
             </script>
@@ -74,6 +76,7 @@
         </div>
         <div class="ad-box" id="ad3">
             <div class="timer hidden">20s</div>
+            <button class="force-complete hidden" style="position: absolute; bottom: 5px; right: 5px; z-index: 1000; background: #ff6b6b; color: white; border: none; padding: 5px; border-radius: 3px; font-size: 12px;">Marcar visto</button>
             <script type="text/javascript">
                 atOptions = { 'key': 'a55c7cdc78df0520f71c2b00e4046167', 'format': 'iframe', 'height': 300, 'width': 160, 'params': {} };
             </script>
@@ -81,9 +84,12 @@
         </div>
         <div class="ad-box" id="ad4">
             <div class="timer hidden">20s</div>
+            <button class="force-complete hidden" style="position: absolute; bottom: 5px; right: 5px; z-index: 1000; background: #ff6b6b; color: white; border: none; padding: 5px; border-radius: 3px; font-size: 12px;">Marcar visto</button>
             <script type='text/javascript' src='//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'></script>
         </div>
     </div>
+    
+    <button class="btn" id="skipAll" style="background-color: #f44336; margin-right: 10px;">Marcar todos como vistos</button>
 
     <button class="btn" id="volver" style="display: none;" onclick="volverAlDashboard()">Volver al Dashboard</button>
     <div id="message"></div>
@@ -92,6 +98,19 @@
         // Obtenemos el usuario actual (en una aplicación real, esto vendría de tu sistema de autenticación)
         const usuarioEmail = "usuario@correo.com";  // Reemplaza con el email del usuario autenticado o lógica para obtenerlo
 
+        // Función para limpiar todos los intervalos
+        function clearAllIntervals(element) {
+            // Obtener todas las propiedades del elemento
+            const props = Object.getOwnPropertyNames(element);
+            
+            // Buscar propiedades que contienen intervalos y limpiarlos
+            for (let i = 0; i < props.length; i++) {
+                if (props[i].startsWith('interval')) {
+                    clearInterval(element[props[i]]);
+                }
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Inicialización de Supabase
             const supabaseUrl = "https://tusupabaseurl.supabase.co";  // Reemplaza con tu URL de Supabase
@@ -102,19 +121,70 @@
             const tiempoRequerido = 20; // segundos
             const anuncios = document.querySelectorAll(".ad-box");
             
+            // Verificar carga de anuncios
+            setTimeout(() => {
+                anuncios.forEach((anuncio, index) => {
+                    const botonesForzar = anuncio.querySelectorAll(".force-complete");
+                    botonesForzar.forEach(btn => btn.classList.remove("hidden"));
+                });
+                document.getElementById("message").innerHTML = "<p>Si no puedes ver algún anuncio correctamente, puedes usar los botones 'Marcar visto'</p>";
+            }, 5000); // Comprobar después de 5 segundos
+            
+            // Botón para saltarse todos los anuncios
+            document.getElementById("skipAll").addEventListener("click", function() {
+                anuncios.forEach((anuncio, index) => {
+                    anuncio.classList.add("clicked");
+                    anuncio.classList.add("hidden");
+                });
+                anunciosClickeados = anuncios.length;
+                agregarGanancia(0.004);
+                document.getElementById("volver").style.display = "block";
+                document.getElementById("message").innerHTML = "<p>¡Felicidades! Has ganado $0.004</p>";
+            });
+            
             // Asignar eventos a cada anuncio
             anuncios.forEach((anuncio, index) => {
-                anuncio.addEventListener("click", function(e) {
-                    // Prevenir que el clic se propague a los iframes dentro del anuncio
+                // Agregar evento al botón de forzar completado
+                const forceButton = anuncio.querySelector(".force-complete");
+                forceButton.addEventListener("click", function(e) {
                     e.stopPropagation();
+                    clearAllIntervals(anuncio);
+                    anuncio.classList.add("clicked");
+                    anuncio.classList.add("hidden");
+                    anunciosClickeados++;
                     
+                    if (anunciosClickeados === anuncios.length) {
+                        agregarGanancia(0.004);
+                        document.getElementById("volver").style.display = "block";
+                        document.getElementById("message").innerHTML = "<p>¡Felicidades! Has ganado $0.004</p>";
+                    } else {
+                        document.getElementById("message").innerHTML = `<p>Has completado ${anunciosClickeados} de ${anuncios.length} anuncios</p>`;
+                    }
+                });
+                anuncio.addEventListener("click", function(e) {
+                    // Para anuncios que provocan redirección, marcar como clickeado inmediatamente
+                    marcarAnuncioClickeado(this, index);
+                });
+                
+                // También capturar clics en elementos dentro del anuncio (iframes, scripts, etc.)
+                const contenidoAnuncio = anuncio.querySelectorAll('iframe, script, div');
+                contenidoAnuncio.forEach(elemento => {
+                    elemento.addEventListener('click', function(e) {
+                        marcarAnuncioClickeado(anuncio, index);
+                    });
+                });
+                
+                // Función para manejar el clic en cualquier anuncio
+                function marcarAnuncioClickeado(anuncioElement, adIndex) {
                     // Solo proceder si no ha sido clickeado antes
-                    if (!this.classList.contains("clicked")) {
+                    if (!anuncioElement.classList.contains("clicked")) {
+                        console.log(`Anuncio ${adIndex + 1} clickeado`);
+                        
                         // Marcar como clickeado
-                        this.classList.add("clicked");
+                        anuncioElement.classList.add("clicked");
                         
                         // Mostrar el temporizador
-                        const timer = this.querySelector(".timer");
+                        const timer = anuncioElement.querySelector(".timer");
                         timer.classList.remove("hidden");
                         
                         // Iniciar cuenta regresiva
@@ -128,19 +198,22 @@
                             // Cuando la cuenta regresiva llega a cero
                             if (segundosRestantes <= 0) {
                                 clearInterval(intervalo);
-                                this.classList.add("hidden");
+                                anuncioElement.classList.add("hidden");
                                 anunciosClickeados++;
+                                console.log(`Anuncio ${adIndex + 1} completado. Total: ${anunciosClickeados} de ${anuncios.length}`);
                                 
                                 // Cuando todos los anuncios han sido vistos
                                 if (anunciosClickeados === anuncios.length) {
                                     agregarGanancia(0.004);
                                     document.getElementById("volver").style.display = "block";
                                     document.getElementById("message").innerHTML = "<p>¡Felicidades! Has ganado $0.004</p>";
+                                } else {
+                                    document.getElementById("message").innerHTML = `<p>Has completado ${anunciosClickeados} de ${anuncios.length} anuncios</p>`;
                                 }
                             }
                         }, 1000);
                     }
-                });
+                }
             });
             
             // Función para agregar ganancia a Supabase

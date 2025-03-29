@@ -90,7 +90,15 @@
             window.location.href = "index.html";
         }
 
-        // Bloquear teclas de navegación y redirigir a index.html si se presiona la flecha atrás
+        // Bloquear navegación con flechas y F5, redirigir a index.html
+        window.onload = function() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function() {
+                history.pushState(null, null, location.href);
+                window.location.href = "index.html";
+            };
+        };
+        
         document.addEventListener("keydown", function (event) {
             if (
                 event.key === "F5" ||
@@ -103,7 +111,7 @@
                 window.location.href = "index.html";
             }
         });
-
+        
         // Bloquear F12, Ctrl+Shift+I y el menú de clic derecho
         document.addEventListener("contextmenu", function (event) {
             event.preventDefault();

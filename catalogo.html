@@ -7,11 +7,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
-        #buscador { margin: 10px; padding: 8px; width: 80%; max-width: 400px; border-radius: 5px; border: 1px solid #ccc; }
-        #peliculas { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 10px; }
-        .pelicula { cursor: pointer; padding: 10px; border: 1px solid #ccc; width: 200px; text-align: center; border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s; }
-        .pelicula img { width: 100%; height: auto; border-radius: 5px; }
-        .pelicula:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        #buscador { margin: 10px; padding: 5px; width: 80%; max-width: 400px; }
+        #peliculas { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+        .pelicula { cursor: pointer; padding: 10px; border: 1px solid #ccc; width: 200px; text-align: center; }
+        .pelicula img { width: 100%; height: auto; }
         #loader { display: none; font-size: 18px; margin-top: 20px; }
     </style>
 </head>
@@ -22,9 +21,9 @@
     <div id="peliculas"></div>
 
     <script>
-        // 🔹 Mueve la inicialización de Supabase al inicio
+        // Configuración de Supabase
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "SUPABASE_PUBLIC_ANON_KEY"; // Proteger en producción
+        const supabaseKey = "TU_SUPABASE_KEY_AQUI"; // Usa una variable de entorno en producción
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -35,54 +34,41 @@
             async function cargarPeliculas(filtro = "") {
                 loader.style.display = "block";
                 peliculasContainer.innerHTML = "";
+                
+                let { data, error } = await supabase
+                    .from('peliculas')
+                    .select('*')
+                    .ilike('nombre', `%${filtro}%`); // Filtrar por nombre
 
-                let query = supabase.from('peliculas').select('*');
-                if (filtro.trim()) query = query.ilike('nombre', `%${filtro}%`);
+                loader.style.display = "none";
 
-                try {
-                    const { data, error } = await query;
-                    loader.style.display = "none";
-
-                    if (error) {
-                        console.error("Error al obtener películas:", error.message);
-                        peliculasContainer.innerHTML = "<p>Error al cargar películas.</p>";
-                        return;
-                    }
-
-                    mostrarPeliculas(data);
-                } catch (err) {
-                    console.error("Error en la consulta:", err);
-                    loader.style.display = "none";
+                if (error) {
+                    console.error("Error al obtener películas:", error.message);
+                    peliculasContainer.innerHTML = "<p>Error al cargar películas.</p>";
+                    return;
                 }
+
+                mostrarPeliculas(data);
             }
 
             function mostrarPeliculas(peliculas) {
-                peliculasContainer.innerHTML = "";
-                peliculas.forEach(peli => {
-                    const peliculaDiv = document.createElement("div");
-                    peliculaDiv.classList.add("pelicula");
-                    peliculaDiv.addEventListener("click", () => {
-                        window.location.href = `player.html?id=${peli.id}`;
-                    });
+                if (peliculas.length === 0) {
+                    peliculasContainer.innerHTML = "<p>No se encontraron películas.</p>";
+                    return;
+                }
 
-                    const imagen = document.createElement("img");
-                    imagen.src = peli.imagen;
-                    imagen.alt = peli.nombre;
-
-                    const titulo = document.createElement("h3");
-                    titulo.textContent = peli.nombre;
-
-                    const resena = document.createElement("p");
-                    resena.textContent = peli.resena;
-
-                    peliculaDiv.appendChild(imagen);
-                    peliculaDiv.appendChild(titulo);
-                    peliculaDiv.appendChild(resena);
-                    peliculasContainer.appendChild(peliculaDiv);
-                });
+                peliculasContainer.innerHTML = peliculas.map(peli => `
+                    <div class="pelicula" onclick="location.href='player.html?id=${peli.id}'">
+                        <img src="${peli.imagen}" alt="${peli.nombre}">
+                        <h3>${peli.nombre}</h3>
+                        <p>${peli.resena || 'Sin reseña disponible'}</p>
+                    </div>
+                `).join('');
             }
 
-            buscador.addEventListener("input", () => cargarPeliculas(buscador.value.toLowerCase()));
+            buscador.addEventListener("input", () => {
+                cargarPeliculas(buscador.value.trim().toLowerCase());
+            });
 
             await cargarPeliculas();
         });

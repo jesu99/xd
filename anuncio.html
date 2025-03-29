@@ -25,31 +25,15 @@
             font-size: 18px;
             margin-top: 20px;
         }
-        #mensaje-focus {
+        #mensaje-instruccion {
             display: none;
-            color: red;
+            color: #0066cc;
             font-size: 18px;
             margin-top: 20px;
-            font-weight: bold;
-        }
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            flex-direction: column;
-            display: none;
-        }
-        .overlay p {
-            color: white;
-            font-size: 24px;
-            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #0066cc;
+            border-radius: 5px;
+            background-color: #e6f2ff;
         }
     </style>
     <!-- Importar Supabase correctamente -->
@@ -62,42 +46,34 @@
     </div>
     <div id="cronometro">20</div>
     <div id="mensaje-error">❌ No se pudo abrir el anuncio. Desactiva el bloqueador de ventanas emergentes.</div>
-    <div id="mensaje-focus">⚠️ ¡VUELVE A LA VENTANA PARA CONTINUAR CON LA CUENTA REGRESIVA!</div>
-    
-    <!-- Overlay para cuando el usuario abandona la ventana -->
-    <div id="focus-overlay" class="overlay">
-        <p>⚠️ ¡DEBES MANTENER ESTA VENTANA ACTIVA!</p>
-        <p>El cronómetro está pausado</p>
-    </div>
+    <div id="mensaje-instruccion">Por favor, mantén abierta la ventana del anuncio durante 20 segundos. No la cierres ni cambies de pestaña.</div>
     
     <script>
         let tiempo = 20;
         let intervalo;
         let anuncioAbierto = false;
-        let ventanaActiva = true;
+        let ventanaAnuncio = null;
+        let tiempoInicio = null;
         
         // Inicializar Supabase correctamente
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        // Obtener el ID de usuario desde localStorage o URL (ejemplo)
+        // Obtener el ID de usuario desde localStorage o URL
         let usuarioId = getUsuarioId();
         
         function getUsuarioId() {
-            // Obtener de URL o localStorage (puedes adaptarlo según tu implementación)
             const urlParams = new URLSearchParams(window.location.search);
             const idFromUrl = urlParams.get('id');
             
-            // Si hay un ID en la URL, úsalo y guárdalo
             if (idFromUrl) {
                 localStorage.setItem('usuarioId', idFromUrl);
                 return idFromUrl;
             }
             
-            // Si no, intenta obtenerlo del localStorage
             const storedId = localStorage.getItem('usuarioId');
-            return storedId || 1; // Valor predeterminado 1 si no hay ID
+            return storedId || 1;
         }
         
         async function contarClickEnSupabase() {
@@ -134,23 +110,64 @@
         
         function manejarClicAnuncio(event) {
             console.log("Clic en anuncio detectado");
-            event.stopPropagation();
             
             if (!anuncioAbierto) { 
                 anuncioAbierto = true;
                 contarClickEnSupabase();
-                iniciarCronometro();
                 
-                setTimeout(function() {
-                    if (!document.hidden) {
-                        document.getElementById("mensaje-error").style.display = "block";
-                        setTimeout(() => {
-                            document.getElementById("mensaje-error").style.display = "none";
-                        }, 3000);
-                        anuncioAbierto = false;
-                    }
-                }, 1000);
+                // Guardar la URL actual para redirigir después si es necesario
+                localStorage.setItem('paginaOrigen', window.location.href);
+                
+                // Mostrar instrucciones
+                document.getElementById("mensaje-instruccion").style.display = "block";
+                
+                // Abrir anuncio en nueva ventana/pestaña
+                const urlDestino = event.target.closest('a')?.href || "about:blank";
+                ventanaAnuncio = window.open(urlDestino, '_blank');
+                
+                if (ventanaAnuncio) {
+                    // Si se pudo abrir la ventana
+                    iniciarCronometro();
+                    
+                    // Verificar periódicamente si la ventana sigue abierta
+                    const verificadorVentana = setInterval(() => {
+                        if (ventanaAnuncio.closed) {
+                            // La ventana fue cerrada antes de tiempo
+                            console.log("Ventana del anuncio cerrada prematuramente");
+                            clearInterval(intervalo);
+                            clearInterval(verificadorVentana);
+                            document.getElementById("mensaje-instruccion").style.display = "none";
+                            document.getElementById("cronometro").innerText = "20";
+                            anuncioAbierto = false;
+                        }
+                    }, 500);
+                    
+                    // Cuando nuestra ventana vuelve a tener el foco, probablemente cerraron el anuncio
+                    window.addEventListener('focus', function focusHandler() {
+                        if (anuncioAbierto && tiempo > 0) {
+                            console.log("El usuario volvió a nuestra ventana antes de tiempo");
+                            clearInterval(intervalo);
+                            document.getElementById("mensaje-instruccion").style.display = "none";
+                            document.getElementById("cronometro").innerText = "20";
+                            anuncioAbierto = false;
+                            
+                            // Eliminar este event listener después de usarlo
+                            window.removeEventListener('focus', focusHandler);
+                        }
+                    });
+                } else {
+                    // No se pudo abrir la ventana (bloqueador de pop-ups)
+                    document.getElementById("mensaje-error").style.display = "block";
+                    setTimeout(() => {
+                        document.getElementById("mensaje-error").style.display = "none";
+                    }, 3000);
+                    anuncioAbierto = false;
+                }
             }
+            
+            // Prevenir la navegación normal
+            event.preventDefault();
+            return false;
         }
         
         function iniciarCronometro() {
@@ -158,65 +175,35 @@
             clearInterval(intervalo);
             tiempo = 20;
             document.getElementById("cronometro").innerText = tiempo;
-            ventanaActiva = true;
             
             intervalo = setInterval(() => {
-                if (ventanaActiva) {
-                    console.log("Tiempo restante:", tiempo);
-                    if (tiempo > 0) {
-                        tiempo--;
-                        document.getElementById("cronometro").innerText = tiempo;
-                    } else {
-                        clearInterval(intervalo);
-                        anuncioAbierto = false;
-                        console.log("Cronómetro finalizado");
-                        document.getElementById("focus-overlay").style.display = "none";
-                        document.getElementById("mensaje-focus").style.display = "none";
-                    }
+                if (tiempo > 0) {
+                    tiempo--;
+                    document.getElementById("cronometro").innerText = tiempo;
+                } else {
+                    clearInterval(intervalo);
+                    document.getElementById("mensaje-instruccion").style.display = "none";
+                    anuncioAbierto = false;
+                    console.log("Cronómetro finalizado");
                 }
             }, 1000);
         }
-        
-        // Detectar cuando el usuario cambia de pestaña o minimiza la ventana
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                // El usuario ha cambiado de pestaña o minimizado la ventana
-                ventanaActiva = false;
-                document.getElementById("focus-overlay").style.display = "flex";
-                document.getElementById("mensaje-focus").style.display = "block";
-                console.log("Usuario ha abandonado la ventana");
-            } else {
-                // El usuario ha vuelto a la pestaña
-                ventanaActiva = true;
-                document.getElementById("focus-overlay").style.display = "none";
-                document.getElementById("mensaje-focus").style.display = "none";
-                console.log("Usuario ha vuelto a la ventana");
-            }
-        });
-        
-        // También detectar si el usuario pierde el enfoque de la ventana
-        window.addEventListener('blur', function() {
-            ventanaActiva = false;
-            document.getElementById("focus-overlay").style.display = "flex";
-            document.getElementById("mensaje-focus").style.display = "block";
-            console.log("Ventana perdió el enfoque");
-        });
-        
-        window.addEventListener('focus', function() {
-            ventanaActiva = true;
-            document.getElementById("focus-overlay").style.display = "none";
-            document.getElementById("mensaje-focus").style.display = "none";
-            console.log("Ventana recuperó el enfoque");
-        });
         
         // Función para agregar el evento de clic al contenedor de anuncios
         function agregarEventoAlContenedor() {
             const container = document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098");
             if (container) {
-                // Eliminar cualquier evento previo para evitar duplicados
+                // Agregar evento a todos los enlaces dentro del contenedor
+                const enlaces = container.getElementsByTagName('a');
+                for (let i = 0; i < enlaces.length; i++) {
+                    enlaces[i].removeEventListener('click', manejarClicAnuncio);
+                    enlaces[i].addEventListener('click', manejarClicAnuncio);
+                }
+                
+                // También al contenedor mismo
                 container.removeEventListener("click", manejarClicAnuncio);
                 container.addEventListener("click", manejarClicAnuncio);
-                console.log("Evento de clic asignado al contenedor de anuncios");
+                console.log("Eventos de clic asignados al contenedor de anuncios y sus enlaces");
             } else {
                 console.error("No se encontró el contenedor de anuncios, reintentando en 1 segundo");
                 setTimeout(agregarEventoAlContenedor, 1000);
@@ -225,13 +212,11 @@
         
         // Esperar a que el DOM esté completamente cargado
         document.addEventListener('DOMContentLoaded', function() {
-            // Intentamos asignar el evento inmediatamente
             agregarEventoAlContenedor();
         });
         
         // Como respaldo, también lo intentamos cuando la página completa haya cargado
         window.addEventListener('load', function() {
-            // Esperamos un segundo para dar tiempo a que los scripts de anuncios se carguen
             setTimeout(agregarEventoAlContenedor, 1000);
             
             // Y también intentamos cada 2 segundos por un total de 10 segundos

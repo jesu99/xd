@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro e Inicio de Sesión</title>
+    <title>Registro</title>
     <style>
         body {
             display: flex;
@@ -22,77 +22,47 @@
     </style>
 </head>
 <body>
-    <h2>Registro</h2>
+    <h2>Registro de Usuario</h2>
     <input type="email" id="email" placeholder="Correo" required>
-    <input type="password" id="password" placeholder="Contraseña" required>
+    <input type="password" id="clave" placeholder="Contraseña" required>
     <input type="text" id="dni" placeholder="DNI" required>
-    <select id="payment_method">
-        <option value="paypal">PayPal</option>
-        <option value="binance">Binance</option>
-        <option value="yape">Yape</option>
-    </select>
-    <button onclick="registerUser()">Registrarse</button>
-    
-    <h2>Iniciar Sesión</h2>
-    <input type="email" id="login_email" placeholder="Correo" required>
-    <input type="password" id="login_password" placeholder="Contraseña" required>
-    <button onclick="loginUser()">Iniciar Sesión</button>
-    
-    <p id="message"></p>
+    <button onclick="registrarUsuario()">Registrarse</button>
+    <p id="mensaje"></p>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "TU_SUPABASE_KEY_AQUI";
+        const supabaseKey = "TU_CLAVE_SECRETA";  // Asegúrate de usar la clave correcta
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function registerUser() {
+        async function registrarUsuario() {
             const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+            const clave = document.getElementById("clave").value;
             const dni = document.getElementById("dni").value;
-            const payment_method = document.getElementById("payment_method").value;
+            const mensaje = document.getElementById("mensaje");
 
-            // Verificar si el usuario ya existe
-            const { data: existingUser } = await supabase.from("usuarios").select("email").eq("email", email);
-            if (existingUser.length > 0) {
-                document.getElementById("message").innerText = "El usuario ya está registrado.";
+            if (!email || !clave || !dni) {
+                mensaje.innerText = "Todos los campos son obligatorios.";
                 return;
             }
 
-            // Insertar usuario
-            const { error } = await supabase.from("usuarios").insert([
-                { email, dni, clave: password, payment_method, saldo: 0 }
-            ]);
+            try {
+                // Insertar usuario en la tabla
+                const { error } = await supabase
+                    .from("usuarios")
+                    .insert([{ email, clave, dni }]);
 
-            if (error) {
-                document.getElementById("message").innerText = "Error en el registro: " + error.message;
-            } else {
-                document.getElementById("message").innerText = "Registro exitoso. Ahora puedes iniciar sesión.";
+                if (error) {
+                    console.error("Error al registrar usuario:", error.message);
+                    mensaje.innerText = "Error: " + error.message;
+                    return;
+                }
+
+                mensaje.innerText = "Usuario registrado correctamente.";
+            } catch (err) {
+                console.error("Error inesperado:", err);
+                mensaje.innerText = "Error inesperado.";
             }
-        }
-
-        async function loginUser() {
-            const email = document.getElementById("login_email").value;
-            const password = document.getElementById("login_password").value;
-
-            // Buscar usuario
-            const { data: user, error } = await supabase
-                .from("usuarios")
-                .select("clave")
-                .eq("email", email)
-                .single();
-
-            if (error || !user) {
-                document.getElementById("message").innerText = "Usuario no encontrado.";
-                return;
-            }
-
-            if (user.clave !== password) {
-                document.getElementById("message").innerText = "Contraseña incorrecta.";
-                return;
-            }
-
-            document.getElementById("message").innerText = "Inicio de sesión exitoso.";
         }
     </script>
 </body>

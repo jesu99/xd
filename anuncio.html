@@ -59,7 +59,7 @@
 
         function iniciarCronometro() {
             intervalo = setInterval(() => {
-                if (tiempo > 0 && enAnuncio) {
+                if (tiempo > 0 && enAnuncio && !ventanaAnuncio.closed) {
                     tiempo--;
                     document.getElementById("cronometro").innerText = tiempo;
                 } else {

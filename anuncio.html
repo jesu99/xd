@@ -25,6 +25,7 @@
             width: 250px;
             height: 250px;
             position: relative;
+            cursor: pointer;
         }
         .hidden { display: none; }
         .btn {
@@ -64,26 +65,61 @@
 
     <button class="btn" id="volver" onclick="volverAlDashboard()">Volver al Dashboard</button>
 
-    <script>
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+        
+        const supabaseUrl = "https://tusupabaseurl.supabase.co";  // Reemplaza con tu URL de Supabase
+        const supabaseKey = "tusupabaseapikey";  // Reemplaza con tu API Key
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
         let anunciosClickeados = 0;
         const tiempoRequerido = 20000; 
+        const usuarioEmail = "usuario@correo.com";  // Reemplaza con el email del usuario autenticado
+
         const anuncios = document.querySelectorAll(".ad-box");
+
         anuncios.forEach(anuncio => {
             anuncio.addEventListener("click", function() {
-                let adId = this.id;
                 if (!this.classList.contains("clicked")) {
                     this.classList.add("clicked");
                     setTimeout(() => {
                         this.classList.add("hidden");
                         anunciosClickeados++;
+
                         if (anunciosClickeados === 4) {
-                            localStorage.setItem("ganancia", 0.004);
+                            agregarGanancia(0.004);
                             document.getElementById("volver").style.display = "block";
                         }
                     }, tiempoRequerido);
                 }
             });
         });
+
+        async function agregarGanancia(monto) {
+            let { data, error } = await supabase
+                .from("usuarios")
+                .select("saldo")
+                .eq("email", usuarioEmail)
+                .single();
+
+            if (error) {
+                console.error("Error al obtener saldo:", error);
+                return;
+            }
+
+            let nuevoSaldo = data.saldo + monto;
+
+            let { error: updateError } = await supabase
+                .from("usuarios")
+                .update({ saldo: nuevoSaldo })
+                .eq("email", usuarioEmail);
+
+            if (updateError) {
+                console.error("Error al actualizar saldo:", updateError);
+            } else {
+                console.log("Saldo actualizado con éxito");
+            }
+        }
 
         function volverAlDashboard() {
             window.location.href = "dashboard.html";

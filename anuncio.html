@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anuncios</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .ad-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px;
+        }
+        .ad-box {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            height: 250px;
+            position: relative;
+        }
+        .hidden { display: none; }
+        .btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>Gana dinero viendo anuncios</h2>
+    <p>Haz clic en los anuncios y quédate 20 segundos para recibir el pago.</p>
+
+    <div class="ad-container" id="ad-container">
+        <div class="ad-box" id="ad1">
+            <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+            <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+        </div>
+        <div class="ad-box" id="ad2">
+            <script type="text/javascript">
+                atOptions = { 'key': 'b330ccd204185aee9ef640adccf896d2', 'format': 'iframe', 'height': 90, 'width': 728, 'params': {} };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+        </div>
+        <div class="ad-box" id="ad3">
+            <script type="text/javascript">
+                atOptions = { 'key': 'a55c7cdc78df0520f71c2b00e4046167', 'format': 'iframe', 'height': 300, 'width': 160, 'params': {} };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
+        </div>
+        <div class="ad-box" id="ad4">
+            <script type='text/javascript' src='//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'></script>
+        </div>
+    </div>
+
+    <button class="btn" id="volver" onclick="volverAlDashboard()">Volver al Dashboard</button>
+
+    <script>
+        let anunciosClickeados = 0;
+        const tiempoRequerido = 20000; 
+        const anuncios = document.querySelectorAll(".ad-box");
+        anuncios.forEach(anuncio => {
+            anuncio.addEventListener("click", function() {
+                let adId = this.id;
+                if (!this.classList.contains("clicked")) {
+                    this.classList.add("clicked");
+                    setTimeout(() => {
+                        this.classList.add("hidden");
+                        anunciosClickeados++;
+                        if (anunciosClickeados === 4) {
+                            localStorage.setItem("ganancia", 0.004);
+                            document.getElementById("volver").style.display = "block";
+                        }
+                    }, tiempoRequerido);
+                }
+            });
+        });
+
+        function volverAlDashboard() {
+            window.location.href = "dashboard.html";
+        }
+    </script>
+</body>
+</html>

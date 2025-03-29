@@ -40,15 +40,20 @@
     <script>
         let tiempo = 20;
         let intervalo;
+        let anuncioAbierto = false; // Para evitar múltiples aperturas
 
-        document.getElementById("anuncio-container").addEventListener("click", function() {
-            let ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Cambia por el enlace real del anuncio
-            
-            if (ventanaAnuncio === null || ventanaAnuncio.closed) {
-                document.getElementById("mensaje-error").style.display = "block";
-            } else {
-                document.getElementById("mensaje-error").style.display = "none";
-                iniciarCronometro();
+        document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098").addEventListener("click", function(event) {
+            if (!anuncioAbierto) { 
+                anuncioAbierto = true; // Marcamos que ya se abrió
+                let ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Enlace real del anuncio
+                
+                if (ventanaAnuncio === null || ventanaAnuncio.closed) {
+                    document.getElementById("mensaje-error").style.display = "block";
+                    anuncioAbierto = false; // Permitir otro intento si está bloqueado
+                } else {
+                    document.getElementById("mensaje-error").style.display = "none";
+                    iniciarCronometro();
+                }
             }
         });
 

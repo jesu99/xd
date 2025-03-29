@@ -1,0 +1,56 @@
+<!-- catalogo.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Películas</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #buscador { margin: 10px; padding: 5px; }
+        .pelicula { cursor: pointer; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Catálogo de Películas</h1>
+    <input type="text" id="buscador" placeholder="Buscar película...">
+    <div id="peliculas"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+            const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+            const supabase = window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+            async function cargarPeliculas() {
+                let { data, error } = await supabase.from('peliculas').select('*');
+                if (error) { console.error(error); return; }
+                mostrarPeliculas(data);
+            }
+
+            function mostrarPeliculas(peliculas) {
+                const contenedor = document.getElementById("peliculas");
+                contenedor.innerHTML = "";
+                peliculas.forEach(peli => {
+                    let div = document.createElement("div");
+                    div.className = "pelicula";
+                    div.innerHTML = `<h3>${peli.nombre}</h3>`;
+                    div.onclick = () => location.href = `player.html?id=${peli.id}`;
+                    contenedor.appendChild(div);
+                });
+            }
+
+            document.getElementById("buscador").addEventListener("input", function() {
+                let filtro = this.value.toLowerCase();
+                let peliculas = document.querySelectorAll(".pelicula");
+                peliculas.forEach(peli => {
+                    peli.style.display = peli.innerText.toLowerCase().includes(filtro) ? "block" : "none";
+                });
+            });
+
+            await cargarPeliculas();
+        });
+    </script>
+</body>
+</html>

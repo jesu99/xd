@@ -34,11 +34,13 @@
         let tiempo = 20;
         let intervalo;
         let ventanaAnuncio;
+        let enAnuncio = false;
 
         document.getElementById("anuncio-container").addEventListener("click", function(event) {
             event.preventDefault();
             ventanaAnuncio = window.open(event.target.href, "_blank");
             if (ventanaAnuncio) {
+                enAnuncio = true;
                 iniciarCronometro();
                 verificarVentana();
             }
@@ -46,11 +48,14 @@
 
         function iniciarCronometro() {
             intervalo = setInterval(() => {
-                if (tiempo > 0) {
+                if (tiempo > 0 && enAnuncio) {
                     tiempo--;
                     document.getElementById("cronometro").innerText = tiempo;
                 } else {
                     clearInterval(intervalo);
+                    if (tiempo === 0) {
+                        alert("¡Felicidades! Has completado el tiempo requerido en el anuncio.");
+                    }
                 }
             }, 1000);
         }
@@ -64,6 +69,18 @@
                 }
             }, 1000);
         }
+
+        window.addEventListener("focus", () => {
+            if (ventanaAnuncio && !ventanaAnuncio.closed) {
+                enAnuncio = false;
+            }
+        });
+
+        window.addEventListener("blur", () => {
+            if (ventanaAnuncio && !ventanaAnuncio.closed) {
+                enAnuncio = true;
+            }
+        });
     </script>
 </body>
 </html>

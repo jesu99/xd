@@ -26,6 +26,7 @@
             height: 300px;
             position: relative;
             transition: all 0.3s ease;
+            overflow: hidden; /* Asegura que el contenido no desborde */
         }
         .ad-box:hover {
             transform: translateY(-5px);
@@ -40,6 +41,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+        .ad-content iframe,
+        .ad-content div,
+        .ad-content * {
+            max-width: 100% !important;
+            max-height: 100% !important;
         }
         .clicked {
             border: 2px solid #4CAF50;
@@ -113,36 +120,30 @@
     <div class="ad-container" id="ad-container">
         <div class="ad-box" id="ad1">
             <div class="timer hidden">20s</div>
-            <div class="ad-content">
-                <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-                <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+            <div class="ad-content" id="ad-content-1">
+                <!-- Anuncio 1 -->
             </div>
         </div>
         <div class="ad-box" id="ad2">
             <div class="timer hidden">20s</div>
-            <div class="ad-content">
-                <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-                <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+            <div class="ad-content" id="ad-content-2">
+                <!-- Anuncio 2 -->
             </div>
         </div>
         <div class="ad-box" id="ad3">
             <div class="timer hidden">20s</div>
-            <div class="ad-content">
-                <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-                <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+            <div class="ad-content" id="ad-content-3">
+                <!-- Anuncio 3 -->
             </div>
         </div>
         <div class="ad-box" id="ad4">
             <div class="timer hidden">20s</div>
-            <div class="ad-content">
-                <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-                <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+            <div class="ad-content" id="ad-content-4">
+                <!-- Anuncio 4 -->
             </div>
         </div>
     </div>
     
-    <button class="btn" id="skipAll" style="background-color: #f44336; margin-right: 10px;">Marcar todos como vistos</button>
-
     <button class="btn" id="volver" style="display: none;" onclick="volverAlDashboard()">Volver al Dashboard</button>
     <div id="message"></div>
 
@@ -174,11 +175,46 @@
             const progressBar = document.getElementById("progress-bar");
             const progressText = document.getElementById("progress-text");
             
-            // Verificar carga de anuncios
-            setTimeout(() => {
-                console.log("Verificando carga de anuncios...");
-                setupAdEventListeners();
-            }, 3000); // Comprobar después de 3 segundos
+            // Cargar anuncios diferentes en cada contenedor
+            loadAds();
+            
+            // Función para cargar anuncios
+            function loadAds() {
+                // Cargar anuncio 1
+                loadAdInContainer("ad-content-1", "2537ae2ea8b16bc9e554273a94dfd098");
+                
+                // Cargar anuncio 2 (usar un ID diferente si tienes diferentes anuncios)
+                loadAdInContainer("ad-content-2", "2537ae2ea8b16bc9e554273a94dfd098");
+                
+                // Cargar anuncio 3
+                loadAdInContainer("ad-content-3", "2537ae2ea8b16bc9e554273a94dfd098");
+                
+                // Cargar anuncio 4
+                loadAdInContainer("ad-content-4", "2537ae2ea8b16bc9e554273a94dfd098");
+                
+                // Verificar carga después de un tiempo
+                setTimeout(() => {
+                    console.log("Verificando carga de anuncios...");
+                    setupAdEventListeners();
+                }, 3000);
+            }
+            
+            // Función para cargar un anuncio en un contenedor específico
+            function loadAdInContainer(containerId, adUnitId) {
+                const container = document.getElementById(containerId);
+                
+                // Crear el contenedor para el anuncio
+                const adContainer = document.createElement("div");
+                adContainer.id = "container-" + adUnitId;
+                container.appendChild(adContainer);
+                
+                // Crear el script para cargar el anuncio
+                const script = document.createElement("script");
+                script.async = true;
+                script.setAttribute("data-cfasync", "false");
+                script.src = "//pl26063295.effectiveratecpm.com/" + adUnitId + "/invoke.js";
+                container.insertBefore(script, adContainer);
+            }
             
             // Función para configurar los event listeners en los anuncios
             function setupAdEventListeners() {
@@ -199,6 +235,10 @@
                                         
                                         // Si es un iframe
                                         if (node.tagName === 'IFRAME') {
+                                            // Asegurar que el iframe se adapte al contenedor
+                                            node.style.maxWidth = "100%";
+                                            node.style.maxHeight = "100%";
+                                            
                                             node.addEventListener('load', () => {
                                                 console.log(`Iframe del anuncio ${index + 1} cargado`);
                                                 try {
@@ -240,19 +280,6 @@
                     });
                 });
             }
-            
-            // Botón para saltarse todos los anuncios
-            document.getElementById("skipAll").addEventListener("click", function() {
-                anuncios.forEach((anuncio) => {
-                    completarAnuncio(anuncio);
-                });
-                
-                anunciosCompletados = anuncios.length;
-                actualizarProgreso();
-                agregarGanancia(0.004);
-                document.getElementById("volver").style.display = "block";
-                document.getElementById("message").innerHTML = "<p>¡Felicidades! Has ganado $0.004</p>";
-            });
             
             // Función para iniciar el cronómetro cuando se hace clic en un anuncio
             function iniciarCronometro(anuncioElement, adIndex) {

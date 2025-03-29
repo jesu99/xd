@@ -14,34 +14,76 @@
     <button onclick="signIn()">Iniciar Sesión</button>
     <p id="message"></p>
     <script>
+        // La forma correcta de inicializar Supabase.js v2
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        // Esta es la forma de acceder a createClient desde la librería cargada
+        const supabase = supabaseJs.createClient(supabaseUrl, supabaseKey);
         
         async function signUp() {
-            let email = document.getElementById("email").value;
-            let password = document.getElementById("password").value;
-            
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) {
-                document.getElementById("message").innerText = error.message;
-            } else {
-                await supabase.from("usuarios").insert([{ email: email, saldo: 0 }]);
-                document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
+            try {
+                let email = document.getElementById("email").value;
+                let password = document.getElementById("password").value;
+                
+                const { data, error } = await supabase.auth.signUp({ 
+                    email, 
+                    password 
+                });
+                
+                if (error) {
+                    document.getElementById("message").innerText = error.message;
+                } else {
+                    try {
+                        const insertResult = await supabase.from("usuarios").insert([{ 
+                            email: email, 
+                            saldo: 0,
+                            peliculas_vistas: 0,
+                            anuncios_clickeados: 0
+                        }]);
+                        
+                        if (insertResult.error) {
+                            document.getElementById("message").innerText = "Registro de usuario exitoso, pero error al crear perfil: " + insertResult.error.message;
+                        } else {
+                            document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
+                        }
+                    } catch (err) {
+                        document.getElementById("message").innerText = "Error al crear perfil: " + err.message;
+                    }
+                }
+            } catch (err) {
+                document.getElementById("message").innerText = "Error de sistema: " + err.message;
+                console.error(err);
             }
         }
         
         async function signIn() {
-            let email = document.getElementById("email").value;
-            let password = document.getElementById("password").value;
-            
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) {
-                document.getElementById("message").innerText = error.message;
-            } else {
-                window.location.href = "dashboard.html";
+            try {
+                let email = document.getElementById("email").value;
+                let password = document.getElementById("password").value;
+                
+                const { data, error } = await supabase.auth.signInWithPassword({ 
+                    email, 
+                    password 
+                });
+                
+                if (error) {
+                    document.getElementById("message").innerText = error.message;
+                } else {
+                    window.location.href = "dashboard.html";
+                }
+            } catch (err) {
+                document.getElementById("message").innerText = "Error de sistema: " + err.message;
+                console.error(err);
             }
         }
+        
+        // Verificar que Supabase se haya cargado correctamente
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof supabaseJs === 'undefined') {
+                document.getElementById("message").innerText = "Error: La biblioteca Supabase no se ha cargado correctamente";
+            }
+        });
     </script>
 </body>
 </html>

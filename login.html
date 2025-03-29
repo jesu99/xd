@@ -27,11 +27,14 @@
     <input type="password" id="clave" placeholder="Contraseña" required>
     <button onclick="iniciarSesion()">Ingresar</button>
     <p id="mensaje"></p>
+    
+    <!-- Botón para ir a index -->
+    <button onclick="window.location.href='index.html'">Ir a Inicio</button>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Usa la clave correcta
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         async function iniciarSesion() {
@@ -52,8 +55,8 @@
                     .eq("email", email)
                     .single();
 
-                if (error) {
-                    console.error("Error al buscar usuario:", error.message);
+                if (error || !data) {
+                    console.error("Error al buscar usuario:", error?.message);
                     mensaje.innerText = "Usuario no encontrado.";
                     return;
                 }
@@ -65,8 +68,12 @@
                 }
 
                 mensaje.innerText = "Inicio de sesión exitoso.";
-                // Redirigir a otra página si es necesario
-                // window.location.href = "dashboard.html";
+
+                // Redirección al dashboard después de 2 segundos
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 2000);
+
             } catch (err) {
                 console.error("Error inesperado:", err);
                 mensaje.innerText = "Error inesperado.";

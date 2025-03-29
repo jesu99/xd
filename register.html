@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
+    <title>Registro e Inicio de Sesión</title>
     <style>
         body {
             display: flex;
@@ -32,56 +32,68 @@
         <option value="yape">Yape</option>
     </select>
     <button onclick="registerUser()">Registrarse</button>
+    
+    <h2>Iniciar Sesión</h2>
+    <input type="email" id="login_email" placeholder="Correo" required>
+    <input type="password" id="login_password" placeholder="Contraseña" required>
+    <button onclick="loginUser()">Iniciar Sesión</button>
+    
     <p id="message"></p>
 
-    <!-- Cargar Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            console.log("Documento cargado, inicializando Supabase...");
-            
-            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-            const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-            const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "TU_SUPABASE_KEY_AQUI";
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-            async function registerUser() {
-                console.log("Intentando registrar usuario...");
-                
-                const email = document.getElementById("email").value;
-                const password = document.getElementById("password").value;
-                const dni = document.getElementById("dni").value;
-                const payment_method = document.getElementById("payment_method").value;
+        async function registerUser() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const dni = document.getElementById("dni").value;
+            const payment_method = document.getElementById("payment_method").value;
 
-                try {
-                    // Registro de usuario en Supabase Auth
-                    const { data, error } = await supabase.auth.signUp({ email, password });
-                    if (error) {
-                        console.error("Error al registrarse:", error.message);
-                        document.getElementById("message").innerText = "Error: " + error.message;
-                        return;
-                    }
-                    console.log("Usuario registrado con éxito:", data);
-
-                    // Insertar datos adicionales en la tabla "usuarios"
-                    const { error: dbError } = await supabase
-                        .from("usuarios")
-                        .insert([{ email, dni, clave: password, payment_method, saldo: 0 }]);
-                    
-                    if (dbError) {
-                        console.error("Error al insertar en la base de datos:", dbError.message);
-                        document.getElementById("message").innerText = "Error al guardar datos.";
-                        return;
-                    }
-                    
-                    document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
-                } catch (err) {
-                    console.error("Error inesperado:", err);
-                    document.getElementById("message").innerText = "Ocurrió un error inesperado.";
-                }
+            // Verificar si el usuario ya existe
+            const { data: existingUser } = await supabase.from("usuarios").select("email").eq("email", email);
+            if (existingUser.length > 0) {
+                document.getElementById("message").innerText = "El usuario ya está registrado.";
+                return;
             }
 
-            window.registerUser = registerUser;
-        });
+            // Insertar usuario
+            const { error } = await supabase.from("usuarios").insert([
+                { email, dni, clave: password, payment_method, saldo: 0 }
+            ]);
+
+            if (error) {
+                document.getElementById("message").innerText = "Error en el registro: " + error.message;
+            } else {
+                document.getElementById("message").innerText = "Registro exitoso. Ahora puedes iniciar sesión.";
+            }
+        }
+
+        async function loginUser() {
+            const email = document.getElementById("login_email").value;
+            const password = document.getElementById("login_password").value;
+
+            // Buscar usuario
+            const { data: user, error } = await supabase
+                .from("usuarios")
+                .select("clave")
+                .eq("email", email)
+                .single();
+
+            if (error || !user) {
+                document.getElementById("message").innerText = "Usuario no encontrado.";
+                return;
+            }
+
+            if (user.clave !== password) {
+                document.getElementById("message").innerText = "Contraseña incorrecta.";
+                return;
+            }
+
+            document.getElementById("message").innerText = "Inicio de sesión exitoso.";
+        }
     </script>
 </body>
 </html>

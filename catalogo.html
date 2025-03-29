@@ -21,6 +21,7 @@
     <div id="peliculas"></div>
 
     <script>
+        // 💡 INICIALIZACIÓN CORRECTA DE SUPABASE (ANTES DE USARLO)
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Reemplázalo con tu clave real
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);

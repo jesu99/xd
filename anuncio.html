@@ -52,20 +52,28 @@
             ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Reemplázalo con el enlace real del anuncio
             if (ventanaAnuncio) {
                 enAnuncio = true;
+                document.getElementById("cronometro").innerText = tiempo;
                 iniciarCronometro();
                 verificarVentana();
             }
         });
 
         function iniciarCronometro() {
+            clearInterval(intervalo);
             intervalo = setInterval(() => {
-                if (tiempo > 0 && enAnuncio && !ventanaAnuncio.closed) {
+                if (tiempo > 0 && ventanaAnuncio && !ventanaAnuncio.closed) {
                     tiempo--;
                     document.getElementById("cronometro").innerText = tiempo;
                 } else {
                     clearInterval(intervalo);
                     if (tiempo === 0) {
                         alert("¡Felicidades! Has completado el tiempo requerido en el anuncio.");
+                    } else {
+                        document.getElementById("reintentar").style.display = "block";
+                        document.getElementById("cronometro").innerText = "20";
+                        tiempo = 20;
+                        enAnuncio = false;
+                        alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
                     }
                 }
             }, 1000);
@@ -76,11 +84,13 @@
                 if (!ventanaAnuncio || ventanaAnuncio.closed) {
                     clearInterval(chequeo);
                     clearInterval(intervalo);
-                    document.getElementById("reintentar").style.display = "block";
-                    document.getElementById("cronometro").innerText = "20";
-                    tiempo = 20;
-                    enAnuncio = false;
-                    alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
+                    if (tiempo > 0) {
+                        document.getElementById("reintentar").style.display = "block";
+                        document.getElementById("cronometro").innerText = "20";
+                        tiempo = 20;
+                        enAnuncio = false;
+                        alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
+                    }
                 }
             }, 1000);
         }

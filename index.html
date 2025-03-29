@@ -15,12 +15,12 @@
     <p id="message"></p>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Inicialización correcta de Supabase
-            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-            const supabaseKey = "TU_SUPABASE_KEY"; // NO compartas esta clave en producción
-            const supabase = window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // ✅ Inicializar Supabase correctamente ANTES de cualquier otra cosa
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "TU_SUPABASE_KEY"; // Reemplaza con tu clave
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+        document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("register-btn").addEventListener("click", async () => {
                 const email = document.getElementById("email").value;
                 const password = document.getElementById("password").value;

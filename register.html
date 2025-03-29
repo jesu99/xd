@@ -32,29 +32,39 @@
         <option value="binance">Binance</option>
         <option value="yape">Yape</option>
     </select>
-    <button onclick="registerUser()">Registrarse</button>
+    <button id="registerBtn">Registrarse</button>
     <p id="message"></p>
 
     <script>
-        const supabaseUrl = "https://tusupabaseurl.supabase.co";
-        const supabaseKey = "tu-clave-secreta";
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        document.addEventListener("DOMContentLoaded", () => {
+            const supabaseUrl = "https://tusupabaseurl.supabase.co";
+            const supabaseKey = "tu-clave-secreta";
+            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function registerUser() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const dni = document.getElementById("dni").value;
-            const payment_method = document.getElementById("payment_method").value;
+            async function registerUser() {
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                const dni = document.getElementById("dni").value;
+                const payment_method = document.getElementById("payment_method").value;
 
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) {
-                document.getElementById("message").innerText = "Error: " + error.message;
-                return;
+                try {
+                    const { data, error } = await supabase.auth.signUp({ email, password });
+
+                    if (error) {
+                        document.getElementById("message").innerText = "Error: " + error.message;
+                        return;
+                    }
+
+                    await supabase.from("usuarios").insert([{ email, dni, payment_method, saldo: 0 }]);
+
+                    document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
+                } catch (err) {
+                    document.getElementById("message").innerText = "Error inesperado: " + err.message;
+                }
             }
 
-            await supabase.from("usuarios").insert([{ email, dni, payment_method, saldo: 0 }]);
-            document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
-        }
+            document.getElementById("registerBtn").addEventListener("click", registerUser);
+        });
     </script>
 </body>
 </html>

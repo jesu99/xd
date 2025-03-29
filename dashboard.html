@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Bienvenido a tu Dashboard</h2>
+        <p>Gana dinero interactuando con anuncios o viendo películas.</p>
+        <p><strong>Saldo actual: $<span id="saldo">0.000</span></strong></p>
+    </div>
+    
+    <button onclick="pagarPorAnuncio()">Pago por clic a anuncio ($0.001 por 20s)</button>
+    <button onclick="pagarPorPelicula()">Pago por ver películas ($0.003 por 5 min)</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        const usuarioEmail = "usuario@email.com"; // Reemplázalo con el usuario actual
+        
+        async function cargarSaldo() {
+            const { data, error } = await supabase
+                .from("usuarios")
+                .select("saldo")
+                .eq("email", usuarioEmail)
+                .single();
+            
+            if (error) {
+                console.error("Error al obtener saldo", error);
+                return;
+            }
+            document.getElementById("saldo").innerText = data.saldo.toFixed(3);
+        }
+        
+        async function actualizarSaldo(monto) {
+            const { error } = await supabase
+                .from("usuarios")
+                .update({ saldo: supabase.raw("saldo + ?", [monto]) })
+                .eq("email", usuarioEmail);
+            
+            if (error) {
+                console.error("Error al actualizar saldo", error);
+                return;
+            }
+            cargarSaldo();
+        }
+        
+        function pagarPorAnuncio() {
+            setTimeout(() => actualizarSaldo(0.001), 20000);
+            alert("Has hecho clic en un anuncio. Debes esperar 20 segundos para recibir el pago.");
+        }
+        
+        function pagarPorPelicula() {
+            setTimeout(() => actualizarSaldo(0.003), 300000);
+            alert("Has iniciado una película. Debes verla al menos 5 minutos para recibir el pago.");
+        }
+        
+        cargarSaldo();
+    </script>
+</body>
+</html>

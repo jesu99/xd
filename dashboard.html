@@ -84,10 +84,17 @@
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        const usuarioEmail = "usuario@email.com"; // Reemplázalo con el usuario actual
+        // Constantes para almacenamiento local
+        const STORAGE_KEY_USER = "dashboard_user";
+        const STORAGE_KEY_TASKS = "dashboard_tasks";
+        const STORAGE_KEY_SESSION = "dashboard_session";
+        
+        // Obtener usuario del almacenamiento local o usar el predeterminado
+        let usuarioEmail = localStorage.getItem(STORAGE_KEY_USER) || "usuario@email.com";
         let timerInterval;
         let activeTasks = 0;
         let isProcessing = false;
+        let tasks = [];
         
         // Bloquear teclas de navegación
         document.addEventListener('keydown', function(e) {
@@ -139,17 +146,49 @@
             try {
                 const { data, error } = await supabase
                     .from("usuarios")
-                    .select("saldo")
+                    .select("saldo, email")
                     .eq("email", usuarioEmail)
                     .single();
                 
                 if (error) {
                     console.error("Error al obtener saldo", error);
+                    
+                    // Si no existe el usuario, intentamos crearlo
+                    if (error.code === 'PGRST116') {
+                        await crearUsuario();
+                        return;
+                    }
                     return;
                 }
+                
+                // Actualizar el email y el saldo en la interfaz
+                usuarioEmail = data.email;
+                localStorage.setItem(STORAGE_KEY_USER, usuarioEmail);
                 document.getElementById("saldo").innerText = data.saldo.toFixed(3);
             } catch (err) {
                 console.error("Error al cargar saldo:", err);
+            }
+        }
+        
+        // Crear usuario si no existe
+        async function crearUsuario() {
+            try {
+                const { data, error } = await supabase
+                    .from("usuarios")
+                    .insert([
+                        { email: usuarioEmail, saldo: 0 }
+                    ])
+                    .select();
+                
+                if (error) {
+                    console.error("Error al crear usuario", error);
+                    return;
+                }
+                
+                // Inicializar saldo en 0
+                document.getElementById("saldo").innerText = "0.000";
+            } catch (err) {
+                console.error("Error al crear usuario:", err);
             }
         }
         
@@ -219,10 +258,35 @@
             const tiempoEspera = 20; // 20 segundos
             startTimer(tiempoEspera, document.getElementById('timer'));
             
+            // Crear una nueva tarea con tiempo de finalización
+            const taskId = generarTaskId();
+            const endTime = Date.now() + (tiempoEspera * 1000);
+            
+            // Guardar la tarea
+            tasks.push({
+                id: taskId,
+                type: 'anuncio',
+                startTime: Date.now(),
+                endTime: endTime,
+                amount: 0.001
+            });
+            
+            // Guardar estado inmediatamente
+            guardarEstadoTareas();
+            
             setTimeout(() => {
-                actualizarSaldo(0.001);
-                habilitarBotones();
-                alert("¡Felicidades! Has recibido $0.001 por ver el anuncio.");
+                // Buscar la tarea para verificar que sigue existiendo
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                if (taskIndex >= 0) {
+                    actualizarSaldo(0.001);
+                    tasks.splice(taskIndex, 1); // Eliminar tarea completada
+                    guardarEstadoTareas();
+                    
+                    if (tasks.length === 0) {
+                        habilitarBotones();
+                    }
+                    alert("¡Felicidades! Has recibido $0.001 por ver el anuncio.");
+                }
             }, tiempoEspera * 1000);
             
             alert("Has hecho clic en un anuncio. Debes esperar " + tiempoEspera + " segundos para recibir el pago.");
@@ -234,10 +298,35 @@
             const tiempoEspera = 300; // 5 minutos (300 segundos)
             startTimer(tiempoEspera, document.getElementById('timer'));
             
+            // Crear una nueva tarea con tiempo de finalización
+            const taskId = generarTaskId();
+            const endTime = Date.now() + (tiempoEspera * 1000);
+            
+            // Guardar la tarea
+            tasks.push({
+                id: taskId,
+                type: 'pelicula',
+                startTime: Date.now(),
+                endTime: endTime,
+                amount: 0.003
+            });
+            
+            // Guardar estado inmediatamente
+            guardarEstadoTareas();
+            
             setTimeout(() => {
-                actualizarSaldo(0.003);
-                habilitarBotones();
-                alert("¡Felicidades! Has recibido $0.003 por ver la película.");
+                // Buscar la tarea para verificar que sigue existiendo
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                if (taskIndex >= 0) {
+                    actualizarSaldo(0.003);
+                    tasks.splice(taskIndex, 1); // Eliminar tarea completada
+                    guardarEstadoTareas();
+                    
+                    if (tasks.length === 0) {
+                        habilitarBotones();
+                    }
+                    alert("¡Felicidades! Has recibido $0.003 por ver la película.");
+                }
             }, tiempoEspera * 1000);
             
             alert("Has iniciado una película. Debes verla al menos 5 minutos para recibir el pago.");
@@ -255,9 +344,113 @@
             window.location.href = "index.html";
         }
         
+        // Guardar estado de tareas en localStorage
+        function guardarEstadoTareas() {
+            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(tasks));
+            localStorage.setItem(STORAGE_KEY_USER, usuarioEmail);
+            
+            // Guardar timestamp para verificar sesión
+            localStorage.setItem(STORAGE_KEY_SESSION, Date.now().toString());
+        }
+        
+        // Cargar estado de tareas desde localStorage
+        function cargarEstadoTareas() {
+            const tasksJson = localStorage.getItem(STORAGE_KEY_TASKS);
+            if (tasksJson) {
+                try {
+                    const savedTasks = JSON.parse(tasksJson);
+                    const sessionTime = parseInt(localStorage.getItem(STORAGE_KEY_SESSION) || '0');
+                    const ahora = Date.now();
+                    
+                    // Filtrar solo tareas válidas que no hayan expirado
+                    tasks = savedTasks.filter(task => {
+                        // Verificar si la tarea aún no ha expirado
+                        return (task.endTime > ahora);
+                    });
+                    
+                    // Restaurar tareas activas
+                    activeTasks = tasks.length;
+                    
+                    // Reiniciar temporizadores para tareas existentes
+                    tasks.forEach(task => {
+                        const tiempoRestante = Math.ceil((task.endTime - ahora) / 1000);
+                        if (tiempoRestante > 0) {
+                            // Reiniciar el temporizador con el tiempo restante
+                            if (task.type === 'anuncio') {
+                                reiniciarTareaAnuncio(tiempoRestante, task.id);
+                            } else if (task.type === 'pelicula') {
+                                reiniciarTareaPelicula(tiempoRestante, task.id);
+                            }
+                        }
+                    });
+                    
+                    if (tasks.length > 0) {
+                        deshabilitarBotones();
+                    }
+                } catch (e) {
+                    console.error("Error al cargar tareas guardadas:", e);
+                    // Resetear en caso de error
+                    tasks = [];
+                    localStorage.removeItem(STORAGE_KEY_TASKS);
+                }
+            }
+        }
+        
+        // Reiniciar tarea de anuncio interrumpida
+        function reiniciarTareaAnuncio(tiempoRestante, taskId) {
+            document.getElementById('timerContainer').style.display = 'block';
+            startTimer(tiempoRestante, document.getElementById('timer'));
+            
+            setTimeout(() => {
+                // Buscar la tarea para verificar que sigue existiendo
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                if (taskIndex >= 0) {
+                    actualizarSaldo(0.001);
+                    tasks.splice(taskIndex, 1); // Eliminar tarea completada
+                    guardarEstadoTareas();
+                    
+                    if (tasks.length === 0) {
+                        habilitarBotones();
+                    }
+                    alert("¡Felicidades! Has recibido $0.001 por ver el anuncio.");
+                }
+            }, tiempoRestante * 1000);
+        }
+        
+        // Reiniciar tarea de película interrumpida
+        function reiniciarTareaPelicula(tiempoRestante, taskId) {
+            document.getElementById('timerContainer').style.display = 'block';
+            startTimer(tiempoRestante, document.getElementById('timer'));
+            
+            setTimeout(() => {
+                // Buscar la tarea para verificar que sigue existiendo
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+                if (taskIndex >= 0) {
+                    actualizarSaldo(0.003);
+                    tasks.splice(taskIndex, 1); // Eliminar tarea completada
+                    guardarEstadoTareas();
+                    
+                    if (tasks.length === 0) {
+                        habilitarBotones();
+                    }
+                    alert("¡Felicidades! Has recibido $0.003 por ver la película.");
+                }
+            }, tiempoRestante * 1000);
+        }
+        
+        // Generar ID único para tareas
+        function generarTaskId() {
+            return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Guardar estado cada minuto y antes de cerrar
+        setInterval(guardarEstadoTareas, 60000); // Cada minuto
+        window.addEventListener('beforeunload', guardarEstadoTareas);
+        
         // Inicializar
         bloquearNavegacion();
         cargarSaldo();
+        cargarEstadoTareas();
     </script>
 </body>
 </html>

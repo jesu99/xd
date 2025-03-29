@@ -18,15 +18,20 @@
     <div id="peliculas"></div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-            const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-            const supabase = window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // Primero, aseguramos la correcta inicialización de Supabase
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+        document.addEventListener("DOMContentLoaded", async () => {
             async function cargarPeliculas() {
-                let { data, error } = await supabase.from('peliculas').select('*');
-                if (error) { console.error("Error al obtener películas:", error); return; }
-                mostrarPeliculas(data);
+                try {
+                    let { data, error } = await supabase.from('peliculas').select('*');
+                    if (error) throw error;
+                    mostrarPeliculas(data);
+                } catch (err) {
+                    console.error("Error al obtener películas:", err.message);
+                }
             }
 
             function mostrarPeliculas(peliculas) {

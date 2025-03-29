@@ -19,11 +19,15 @@
             font-size: 24px;
             margin-top: 20px;
         }
-        #mensaje-error {
+        #mensaje-error, #mensaje-limite, #mensaje-espera {
             display: none;
             color: red;
             font-size: 18px;
             margin-top: 20px;
+            padding: 10px;
+            border: 1px solid red;
+            border-radius: 5px;
+            background-color: #ffeeee;
         }
         #mensaje-instruccion {
             display: none;
@@ -35,6 +39,23 @@
             border-radius: 5px;
             background-color: #e6f2ff;
         }
+        #mensaje-exito {
+            display: none;
+            color: green;
+            font-size: 18px;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid green;
+            border-radius: 5px;
+            background-color: #e6ffe6;
+        }
+        #info-usuario {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
     </style>
     <!-- Importar Supabase correctamente -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
@@ -45,15 +66,20 @@
         <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
     </div>
     <div id="cronometro">20</div>
+    <div id="info-usuario">Cargando información...</div>
     <div id="mensaje-error">❌ No se pudo abrir el anuncio. Desactiva el bloqueador de ventanas emergentes.</div>
+    <div id="mensaje-limite">❌ Has alcanzado el límite de 3 clics por sesión. Vuelve más tarde.</div>
+    <div id="mensaje-espera">❌ Debes esperar 3 horas entre clics. Podrás hacer clic de nuevo en: <span id="tiempo-espera"></span></div>
     <div id="mensaje-instruccion">Por favor, mantén abierta la ventana del anuncio durante 20 segundos. No la cierres ni cambies de pestaña.</div>
+    <div id="mensaje-exito">✅ ¡Anuncio visto correctamente! Tu clic ha sido registrado.</div>
     
     <script>
         let tiempo = 20;
         let intervalo;
         let anuncioAbierto = false;
         let ventanaAnuncio = null;
-        let tiempoInicio = null;
+        let clickValido = false;
+        let clicsEnSesion = 0;
         
         // Inicializar Supabase correctamente
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
@@ -62,6 +88,14 @@
         
         // Obtener el ID de usuario desde localStorage o URL
         let usuarioId = getUsuarioId();
+        let ultimoClick = null;
+        let anunciosClickeados = 0;
+        
+        // Cargar información del usuario al inicio
+        document.addEventListener('DOMContentLoaded', async function() {
+            await cargarInfoUsuario();
+            agregarEventoAlContenedor();
+        });
         
         function getUsuarioId() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -76,32 +110,133 @@
             return storedId || 1;
         }
         
-        async function contarClickEnSupabase() {
-            console.log("Intentando registrar clic para usuario ID:", usuarioId);
+        async function cargarInfoUsuario() {
             try {
-                // Primero obtenemos el valor actual
-                const { data: userData, error: fetchError } = await supabase
+                const { data: userData, error } = await supabase
                     .from('usuarios')
-                    .select('anuncios_clickeados')
+                    .select('anuncios_clickeados, ultimo_click')
                     .eq('id', usuarioId)
                     .single();
                 
-                if (fetchError) {
-                    console.error("Error al obtener datos del usuario:", fetchError);
+                if (error) {
+                    console.error("Error al obtener datos del usuario:", error);
                     return;
                 }
                 
-                // Incrementamos el valor y actualizamos
-                const nuevoValor = (userData.anuncios_clickeados || 0) + 1;
+                anunciosClickeados = userData.anuncios_clickeados || 0;
+                ultimoClick = userData.ultimo_click ? new Date(userData.ultimo_click) : null;
+                
+                // Recuperar clics de sesión desde localStorage o inicializar
+                const clicksStoredStr = localStorage.getItem('clicsEnSesion');
+                if (clicksStoredStr) {
+                    const clicksData = JSON.parse(clicksStoredStr);
+                    // Solo usar si es del mismo día
+                    const ahora = new Date();
+                    if (clicksData.fecha && new Date(clicksData.fecha).toDateString() === ahora.toDateString()) {
+                        clicsEnSesion = clicksData.clicks || 0;
+                    } else {
+                        // Es un nuevo día, restablecer contador
+                        clicsEnSesion = 0;
+                        guardarClicsEnSesion();
+                    }
+                }
+                
+                actualizarInfoUsuario();
+            } catch (e) {
+                console.error("Error al cargar información del usuario:", e);
+            }
+        }
+        
+        function actualizarInfoUsuario() {
+            const infoElement = document.getElementById("info-usuario");
+            let html = `Total de anuncios vistos: ${anunciosClickeados}<br>`;
+            html += `Anuncios vistos en esta sesión: ${clicsEnSesion}/3<br>`;
+            
+            if (ultimoClick) {
+                const tiempoEspera = puedeHacerClick();
+                if (tiempoEspera > 0) {
+                    const minutosRestantes = Math.ceil(tiempoEspera / 60000);
+                    html += `Próximo anuncio disponible en: ${formatearTiempoEspera(tiempoEspera)}`;
+                } else {
+                    html += "Puedes ver un anuncio ahora";
+                }
+            } else {
+                html += "Puedes ver un anuncio ahora";
+            }
+            
+            infoElement.innerHTML = html;
+        }
+        
+        function formatearTiempoEspera(tiempoMs) {
+            const horas = Math.floor(tiempoMs / 3600000);
+            const minutos = Math.floor((tiempoMs % 3600000) / 60000);
+            const segundos = Math.floor((tiempoMs % 60000) / 1000);
+            
+            let resultado = "";
+            if (horas > 0) resultado += `${horas}h `;
+            if (minutos > 0 || horas > 0) resultado += `${minutos}m `;
+            resultado += `${segundos}s`;
+            
+            return resultado;
+        }
+        
+        function puedeHacerClick() {
+            if (!ultimoClick) return 0;
+            
+            // Comprobar si han pasado 3 horas desde el último clic
+            const ahora = new Date();
+            const tiempoTranscurrido = ahora - new Date(ultimoClick);
+            const tiempoEspera = 3 * 60 * 60 * 1000; // 3 horas en milisegundos
+            
+            if (tiempoTranscurrido < tiempoEspera) {
+                return tiempoEspera - tiempoTranscurrido;
+            }
+            
+            return 0;
+        }
+        
+        function guardarClicsEnSesion() {
+            localStorage.setItem('clicsEnSesion', JSON.stringify({
+                clicks: clicsEnSesion,
+                fecha: new Date().toString()
+            }));
+        }
+        
+        async function contarClickEnSupabase() {
+            if (!clickValido) return;
+            
+            console.log("Registrando clic válido para usuario ID:", usuarioId);
+            try {
+                // Actualizar contador y timestamp
+                const ahora = new Date().toISOString();
                 const { data, error } = await supabase
                     .from('usuarios')
-                    .update({ anuncios_clickeados: nuevoValor })
+                    .update({ 
+                        anuncios_clickeados: anunciosClickeados + 1,
+                        ultimo_click: ahora
+                    })
                     .eq('id', usuarioId);
                 
                 if (error) {
                     console.error("Error al actualizar clics:", error);
                 } else {
-                    console.log("Clic registrado en Supabase, nuevo valor:", nuevoValor);
+                    anunciosClickeados++;
+                    ultimoClick = new Date(ahora);
+                    
+                    // Incrementar clics en sesión
+                    clicsEnSesion++;
+                    guardarClicsEnSesion();
+                    
+                    console.log("Clic registrado exitosamente");
+                    
+                    // Mostrar mensaje de éxito
+                    document.getElementById("mensaje-exito").style.display = "block";
+                    setTimeout(() => {
+                        document.getElementById("mensaje-exito").style.display = "none";
+                    }, 3000);
+                    
+                    // Actualizar info
+                    actualizarInfoUsuario();
                 }
             } catch (e) {
                 console.error("Excepción al actualizar clics:", e);
@@ -110,19 +245,46 @@
         
         function manejarClicAnuncio(event) {
             console.log("Clic en anuncio detectado");
+            event.preventDefault();
+            
+            // Verificar límites de clics
+            if (clicsEnSesion >= 3) {
+                document.getElementById("mensaje-limite").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("mensaje-limite").style.display = "none";
+                }, 3000);
+                return false;
+            }
+            
+            // Verificar tiempo de espera
+            const tiempoEspera = puedeHacerClick();
+            if (tiempoEspera > 0) {
+                document.getElementById("tiempo-espera").textContent = formatearTiempoEspera(tiempoEspera);
+                document.getElementById("mensaje-espera").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("mensaje-espera").style.display = "none";
+                }, 3000);
+                return false;
+            }
             
             if (!anuncioAbierto) { 
                 anuncioAbierto = true;
-                contarClickEnSupabase();
-                
-                // Guardar la URL actual para redirigir después si es necesario
-                localStorage.setItem('paginaOrigen', window.location.href);
+                clickValido = false; // Inicialmente no es válido hasta que pasen 20 segundos
                 
                 // Mostrar instrucciones
                 document.getElementById("mensaje-instruccion").style.display = "block";
                 
+                // Obtener la URL del anuncio
+                const clickTarget = event.target.closest('a');
+                const urlDestino = clickTarget ? clickTarget.href : null;
+                
+                if (!urlDestino) {
+                    console.error("No se pudo determinar la URL del anuncio");
+                    anuncioAbierto = false;
+                    return false;
+                }
+                
                 // Abrir anuncio en nueva ventana/pestaña
-                const urlDestino = event.target.closest('a')?.href || "about:blank";
                 ventanaAnuncio = window.open(urlDestino, '_blank');
                 
                 if (ventanaAnuncio) {
@@ -139,6 +301,7 @@
                             document.getElementById("mensaje-instruccion").style.display = "none";
                             document.getElementById("cronometro").innerText = "20";
                             anuncioAbierto = false;
+                            clickValido = false;
                         }
                     }, 500);
                     
@@ -150,6 +313,7 @@
                             document.getElementById("mensaje-instruccion").style.display = "none";
                             document.getElementById("cronometro").innerText = "20";
                             anuncioAbierto = false;
+                            clickValido = false;
                             
                             // Eliminar este event listener después de usarlo
                             window.removeEventListener('focus', focusHandler);
@@ -165,8 +329,6 @@
                 }
             }
             
-            // Prevenir la navegación normal
-            event.preventDefault();
             return false;
         }
         
@@ -183,8 +345,12 @@
                 } else {
                     clearInterval(intervalo);
                     document.getElementById("mensaje-instruccion").style.display = "none";
-                    anuncioAbierto = false;
                     console.log("Cronómetro finalizado");
+                    
+                    // El clic es válido si completó los 20 segundos
+                    clickValido = true;
+                    contarClickEnSupabase();
+                    anuncioAbierto = false;
                 }
             }, 1000);
         }
@@ -210,11 +376,6 @@
             }
         }
         
-        // Esperar a que el DOM esté completamente cargado
-        document.addEventListener('DOMContentLoaded', function() {
-            agregarEventoAlContenedor();
-        });
-        
         // Como respaldo, también lo intentamos cuando la página completa haya cargado
         window.addEventListener('load', function() {
             setTimeout(agregarEventoAlContenedor, 1000);
@@ -231,6 +392,9 @@
                 }
             }, 2000);
         });
+        
+        // Actualizar la información del usuario cada minuto para mostrar tiempos de espera actualizados
+        setInterval(actualizarInfoUsuario, 60000);
     </script>
 </body>
 </html>

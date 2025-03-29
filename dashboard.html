@@ -39,9 +39,7 @@
     
     <button onclick="pagarPorAnuncio()">Pago por clic a anuncio ($0.001 por 20s)</button>
     <button onclick="pagarPorPelicula()">Pago por ver películas ($0.003 por 5 min)</button>
-
-    <!-- Botón de cerrar sesión -->
-    <button onclick="cerrarSesion()" style="background-color: red; color: white;">Cerrar Sesión</button>
+    <button onclick="cerrarSesion()">Cerrar Sesión</button>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -87,12 +85,17 @@
             setTimeout(() => actualizarSaldo(0.003), 300000);
             alert("Has iniciado una película. Debes verla al menos 5 minutos para recibir el pago.");
         }
-
+        
         function cerrarSesion() {
-            alert("Cerrando sesión...");
-            window.location.href = "index.html"; // Redirigir a la página de inicio
+            window.location.href = "index.html";
         }
-
+        
+        // Evitar retroceder o avanzar con las flechas del navegador
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function () {
+            window.history.pushState(null, "", window.location.href);
+        };
+        
         cargarSaldo();
     </script>
 </body>

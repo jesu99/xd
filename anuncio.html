@@ -45,12 +45,16 @@
     <script>
         let tiempo = 20;
         let intervalo;
+        let ventanaAnuncio;
         let enAnuncio = false;
 
-        // Detectar si el usuario hace clic en el anuncio
-        document.getElementById("anuncio-container").addEventListener("click", function() {
-            enAnuncio = true;
-            iniciarCronometro();
+        document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098").addEventListener("click", function() {
+            ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Reemplázalo con el enlace real del anuncio
+            if (ventanaAnuncio) {
+                enAnuncio = true;
+                iniciarCronometro();
+                verificarVentana();
+            }
         });
 
         function iniciarCronometro() {
@@ -63,6 +67,20 @@
                     if (tiempo === 0) {
                         alert("¡Felicidades! Has completado el tiempo requerido en el anuncio.");
                     }
+                }
+            }, 1000);
+        }
+
+        function verificarVentana() {
+            let chequeo = setInterval(() => {
+                if (!ventanaAnuncio || ventanaAnuncio.closed) {
+                    clearInterval(chequeo);
+                    clearInterval(intervalo);
+                    document.getElementById("reintentar").style.display = "block";
+                    document.getElementById("cronometro").innerText = "20";
+                    tiempo = 20;
+                    enAnuncio = false;
+                    alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
                 }
             }, 1000);
         }

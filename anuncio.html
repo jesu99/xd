@@ -26,7 +26,8 @@
             margin-top: 20px;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8"></script>
+    <!-- Importar Supabase correctamente -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
 <body>
     <div id="anuncio-container">
@@ -41,9 +42,10 @@
         let intervalo;
         let anuncioAbierto = false;
         
+        // Inicializar Supabase correctamente
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Reemplaza con tu clave pública segura
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         let usuarioId = 1;
         
@@ -65,6 +67,7 @@
         }
         
         function manejarClicAnuncio(event) {
+            console.log("Clic en anuncio detectado");
             event.stopPropagation();
             
             if (!anuncioAbierto) { 
@@ -85,40 +88,68 @@
         }
         
         function iniciarCronometro() {
+            console.log("Iniciando cronómetro");
             clearInterval(intervalo);
             tiempo = 20;
             document.getElementById("cronometro").innerText = tiempo;
             
             intervalo = setInterval(() => {
+                console.log("Tiempo restante:", tiempo);
                 if (tiempo > 0) {
                     tiempo--;
                     document.getElementById("cronometro").innerText = tiempo;
                 } else {
                     clearInterval(intervalo);
                     anuncioAbierto = false;
+                    console.log("Cronómetro finalizado");
                 }
             }, 1000);
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
+        // Función para agregar el evento de clic al contenedor de anuncios
+        function agregarEventoAlContenedor() {
             const container = document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098");
             if (container) {
+                // Eliminar cualquier evento previo para evitar duplicados
+                container.removeEventListener("click", manejarClicAnuncio);
                 container.addEventListener("click", manejarClicAnuncio);
                 console.log("Evento de clic asignado al contenedor de anuncios");
             } else {
-                console.error("No se encontró el contenedor de anuncios");
+                console.error("No se encontró el contenedor de anuncios, reintentando en 1 segundo");
+                setTimeout(agregarEventoAlContenedor, 1000);
             }
+        }
+        
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intentamos asignar el evento inmediatamente
+            agregarEventoAlContenedor();
         });
         
+        // Como respaldo, también lo intentamos cuando la página completa haya cargado
         window.addEventListener('load', function() {
-            setTimeout(function() {
-                const container = document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098");
-                if (container) {
-                    container.addEventListener("click", manejarClicAnuncio);
-                    console.log("Evento de clic asignado al contenedor de anuncios (respaldo)");
+            // Esperamos un segundo para dar tiempo a que los scripts de anuncios se carguen
+            setTimeout(agregarEventoAlContenedor, 1000);
+            
+            // Y también intentamos cada 2 segundos por un total de 10 segundos
+            let intentos = 0;
+            const maxIntentos = 5;
+            const intervalCheck = setInterval(() => {
+                intentos++;
+                agregarEventoAlContenedor();
+                
+                if (intentos >= maxIntentos) {
+                    clearInterval(intervalCheck);
                 }
-            }, 1000);
+            }, 2000);
         });
+        
+        // Para pruebas - un botón que inicia el cronómetro manualmente
+        const botonTest = document.createElement("button");
+        botonTest.innerText = "Probar Cronómetro";
+        botonTest.style.marginTop = "20px";
+        botonTest.addEventListener("click", iniciarCronometro);
+        document.body.appendChild(botonTest);
     </script>
 </body>
 </html>

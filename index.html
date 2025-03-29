@@ -10,56 +10,68 @@
     <h2>Iniciar Sesión / Registrarse</h2>
     <input type="email" id="email" placeholder="Correo" required>
     <input type="password" id="password" placeholder="Contraseña" required>
-    <button onclick="signUp()">Registrarse</button>
-    <button onclick="signIn()">Iniciar Sesión</button>
+    <button id="register-btn">Registrarse</button>
+    <button id="login-btn">Iniciar Sesión</button>
     <p id="message"></p>
 
     <script>
-        // Configuración de Supabase
-        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "TU_SUPABASE_KEY"; // NO expongas esta clave en producción
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        document.addEventListener("DOMContentLoaded", () => {
+            // Inicialización correcta de Supabase
+            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+            const supabaseKey = "TU_SUPABASE_KEY"; // NO compartas esta clave en producción
+            const supabase = window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function signUp() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+            document.getElementById("register-btn").addEventListener("click", async () => {
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                
+                try {
+                    const { data, error } = await supabase.auth.signUp({ email, password });
 
-            const { data, error } = await supabase.auth.signUp({ email, password });
+                    if (error) {
+                        document.getElementById("message").innerText = "Error: " + error.message;
+                        return;
+                    }
 
-            if (error) {
-                document.getElementById("message").innerText = "Error: " + error.message;
-                return;
-            }
+                    // Registro en la tabla usuarios
+                    const { error: insertError } = await supabase.from("usuarios").insert([{ 
+                        email: email, 
+                        saldo: 0,
+                        peliculas_vistas: 0,
+                        anuncios_clickeados: 0
+                    }]);
 
-            // Crear registro en la tabla de usuarios
-            const { error: insertError } = await supabase.from("usuarios").insert([{ 
-                email: email, 
-                saldo: 0,
-                peliculas_vistas: 0,
-                anuncios_clickeados: 0
-            }]);
+                    if (insertError) {
+                        document.getElementById("message").innerText = "Registro exitoso, pero error al guardar perfil.";
+                    } else {
+                        document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
+                    }
+                } catch (err) {
+                    console.error("Error en el registro:", err);
+                    document.getElementById("message").innerText = "Error inesperado. Intenta nuevamente.";
+                }
+            });
 
-            if (insertError) {
-                document.getElementById("message").innerText = "Registro exitoso, pero error al guardar perfil.";
-            } else {
-                document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
-            }
-        }
+            document.getElementById("login-btn").addEventListener("click", async () => {
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-        async function signIn() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+                    if (error) {
+                        document.getElementById("message").innerText = "Error: " + error.message;
+                        return;
+                    }
 
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                document.getElementById("message").innerText = "Error: " + error.message;
-                return;
-            }
-
-            document.getElementById("message").innerText = "Inicio de sesión exitoso.";
-            window.location.href = "dashboard.html";
-        }
+                    document.getElementById("message").innerText = "Inicio de sesión exitoso.";
+                    window.location.href = "dashboard.html";
+                } catch (err) {
+                    console.error("Error en el inicio de sesión:", err);
+                    document.getElementById("message").innerText = "Error inesperado. Intenta nuevamente.";
+                }
+            });
+        });
     </script>
 </body>
 </html>

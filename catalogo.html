@@ -36,9 +36,12 @@
                 peliculas.forEach(peli => {
                     let div = document.createElement("div");
                     div.className = "pelicula";
-                    div.innerHTML = `<img src="${peli.imagen_url}" alt="${peli.nombre}"><h3>${peli.nombre}</h3>
-                                    <p>${peli.descripcion}</p>
-                                    <a href="player.html?id=${peli.id}">Ver Película</a>`;
+                    div.innerHTML = `
+                        <img src="${peli.imagen_url}" alt="${peli.nombre}">
+                        <h3>${peli.nombre}</h3>
+                        <p>${peli.resena}</p>
+                    `;
+                    div.onclick = () => location.href = `player.html?id=${peli.id}`;
                     contenedor.appendChild(div);
                 });
             }

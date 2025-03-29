@@ -27,13 +27,31 @@
             position: relative;
             cursor: pointer;
         }
-        .hidden { display: none; }
+        .clicked {
+            border: 2px solid #4CAF50;
+        }
+        .hidden { 
+            display: none !important; 
+        }
         .btn {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
-            display: none;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .timer {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -43,87 +61,141 @@
 
     <div class="ad-container" id="ad-container">
         <div class="ad-box" id="ad1">
+            <div class="timer hidden">20s</div>
             <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
             <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
         </div>
         <div class="ad-box" id="ad2">
+            <div class="timer hidden">20s</div>
             <script type="text/javascript">
                 atOptions = { 'key': 'b330ccd204185aee9ef640adccf896d2', 'format': 'iframe', 'height': 90, 'width': 728, 'params': {} };
             </script>
             <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
         </div>
         <div class="ad-box" id="ad3">
+            <div class="timer hidden">20s</div>
             <script type="text/javascript">
                 atOptions = { 'key': 'a55c7cdc78df0520f71c2b00e4046167', 'format': 'iframe', 'height': 300, 'width': 160, 'params': {} };
             </script>
             <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
         </div>
         <div class="ad-box" id="ad4">
+            <div class="timer hidden">20s</div>
             <script type='text/javascript' src='//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'></script>
         </div>
     </div>
 
-    <button class="btn" id="volver" onclick="volverAlDashboard()">Volver al Dashboard</button>
+    <button class="btn" id="volver" style="display: none;" onclick="volverAlDashboard()">Volver al Dashboard</button>
+    <div id="message"></div>
 
-    <script type="module">
-        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-        
-        const supabaseUrl = "https://tusupabaseurl.supabase.co";  // Reemplaza con tu URL de Supabase
-        const supabaseKey = "tusupabaseapikey";  // Reemplaza con tu API Key
-        const supabase = createClient(supabaseUrl, supabaseKey);
+    <script>
+        // Obtenemos el usuario actual (en una aplicación real, esto vendría de tu sistema de autenticación)
+        const usuarioEmail = "usuario@correo.com";  // Reemplaza con el email del usuario autenticado o lógica para obtenerlo
 
-        let anunciosClickeados = 0;
-        const tiempoRequerido = 20000; 
-        const usuarioEmail = "usuario@correo.com";  // Reemplaza con el email del usuario autenticado
-
-        const anuncios = document.querySelectorAll(".ad-box");
-
-        anuncios.forEach(anuncio => {
-            anuncio.addEventListener("click", function() {
-                if (!this.classList.contains("clicked")) {
-                    this.classList.add("clicked");
-                    setTimeout(() => {
-                        this.classList.add("hidden");
-                        anunciosClickeados++;
-
-                        if (anunciosClickeados === 4) {
-                            agregarGanancia(0.004);
-                            document.getElementById("volver").style.display = "block";
-                        }
-                    }, tiempoRequerido);
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicialización de Supabase
+            const supabaseUrl = "https://tusupabaseurl.supabase.co";  // Reemplaza con tu URL de Supabase
+            const supabaseKey = "tusupabaseapikey";  // Reemplaza con tu API Key
+            
+            // Inicializar contador y variables
+            let anunciosClickeados = 0;
+            const tiempoRequerido = 20; // segundos
+            const anuncios = document.querySelectorAll(".ad-box");
+            
+            // Asignar eventos a cada anuncio
+            anuncios.forEach((anuncio, index) => {
+                anuncio.addEventListener("click", function(e) {
+                    // Prevenir que el clic se propague a los iframes dentro del anuncio
+                    e.stopPropagation();
+                    
+                    // Solo proceder si no ha sido clickeado antes
+                    if (!this.classList.contains("clicked")) {
+                        // Marcar como clickeado
+                        this.classList.add("clicked");
+                        
+                        // Mostrar el temporizador
+                        const timer = this.querySelector(".timer");
+                        timer.classList.remove("hidden");
+                        
+                        // Iniciar cuenta regresiva
+                        let segundosRestantes = tiempoRequerido;
+                        timer.textContent = segundosRestantes + 's';
+                        
+                        const intervalo = setInterval(() => {
+                            segundosRestantes--;
+                            timer.textContent = segundosRestantes + 's';
+                            
+                            // Cuando la cuenta regresiva llega a cero
+                            if (segundosRestantes <= 0) {
+                                clearInterval(intervalo);
+                                this.classList.add("hidden");
+                                anunciosClickeados++;
+                                
+                                // Cuando todos los anuncios han sido vistos
+                                if (anunciosClickeados === anuncios.length) {
+                                    agregarGanancia(0.004);
+                                    document.getElementById("volver").style.display = "block";
+                                    document.getElementById("message").innerHTML = "<p>¡Felicidades! Has ganado $0.004</p>";
+                                }
+                            }
+                        }, 1000);
+                    }
+                });
             });
+            
+            // Función para agregar ganancia a Supabase
+            window.agregarGanancia = async function(monto) {
+                try {
+                    const response = await fetch(`${supabaseUrl}/rest/v1/usuarios?email=eq.${encodeURIComponent(usuarioEmail)}`, {
+                        method: 'GET',
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Error al obtener datos del usuario');
+                    }
+                    
+                    const userData = await response.json();
+                    
+                    if (userData.length === 0) {
+                        throw new Error('Usuario no encontrado');
+                    }
+                    
+                    const user = userData[0];
+                    const nuevoSaldo = (user.saldo || 0) + monto;
+                    
+                    const updateResponse = await fetch(`${supabaseUrl}/rest/v1/usuarios?email=eq.${encodeURIComponent(usuarioEmail)}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return=minimal'
+                        },
+                        body: JSON.stringify({
+                            saldo: nuevoSaldo
+                        })
+                    });
+                    
+                    if (!updateResponse.ok) {
+                        throw new Error('Error al actualizar el saldo');
+                    }
+                    
+                    console.log('Saldo actualizado con éxito a: ' + nuevoSaldo);
+                    
+                } catch (error) {
+                    console.error('Error en la operación con Supabase:', error);
+                    document.getElementById("message").innerHTML = "<p>Error al procesar el pago. Por favor intenta de nuevo.</p>";
+                }
+            };
+            
+            // Función para volver al dashboard
+            window.volverAlDashboard = function() {
+                window.location.href = "dashboard.html";
+            };
         });
-
-        async function agregarGanancia(monto) {
-            let { data, error } = await supabase
-                .from("usuarios")
-                .select("saldo")
-                .eq("email", usuarioEmail)
-                .single();
-
-            if (error) {
-                console.error("Error al obtener saldo:", error);
-                return;
-            }
-
-            let nuevoSaldo = data.saldo + monto;
-
-            let { error: updateError } = await supabase
-                .from("usuarios")
-                .update({ saldo: nuevoSaldo })
-                .eq("email", usuarioEmail);
-
-            if (updateError) {
-                console.error("Error al actualizar saldo:", updateError);
-            } else {
-                console.log("Saldo actualizado con éxito");
-            }
-        }
-
-        function volverAlDashboard() {
-            window.location.href = "dashboard.html";
-        }
     </script>
 </body>
 </html>

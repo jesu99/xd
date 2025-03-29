@@ -28,47 +28,65 @@
     </style>
 </head>
 <body>
-
     <div id="anuncio-container">
         <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
         <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
     </div>
-
     <div id="cronometro">20</div>
     <div id="mensaje-error">❌ No se pudo abrir el anuncio. Desactiva el bloqueador de ventanas emergentes.</div>
-
     <script>
         let tiempo = 20;
         let intervalo;
         let anuncioAbierto = false; // Para evitar múltiples aperturas
-
-        document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098").addEventListener("click", function(event) {
+        
+        // Esperar a que el script del anuncio cargue completamente
+        window.addEventListener('load', function() {
+            // Asignar el evento directamente al contenedor del anuncio
+            document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098").addEventListener("click", manejarClicAnuncio);
+        });
+        
+        function manejarClicAnuncio(event) {
+            // Evitamos la propagación del evento para que no interfiera con el anuncio
+            event.stopPropagation();
+            
             if (!anuncioAbierto) { 
                 anuncioAbierto = true; // Marcamos que ya se abrió
-                let ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Enlace real del anuncio
                 
-                if (ventanaAnuncio === null || ventanaAnuncio.closed) {
-                    document.getElementById("mensaje-error").style.display = "block";
-                    anuncioAbierto = false; // Permitir otro intento si está bloqueado
-                } else {
-                    document.getElementById("mensaje-error").style.display = "none";
-                    iniciarCronometro();
-                }
+                // Aquí NO abrimos Google explícitamente, ya que el script del anuncio
+                // debería manejar esa parte. Esta línea es la que causaba confusión:
+                // let ventanaAnuncio = window.open("https://www.google.com", "_blank");
+                
+                // En su lugar, simplemente iniciamos el cronómetro
+                iniciarCronometro();
+                
+                // El script del anuncio debería abrir su propia ventana/redirección
+                // Si después de un tiempo no detectamos la apertura, mostramos el error
+                setTimeout(function() {
+                    // Comprobar si realmente se abrió una ventana (esto es aproximado)
+                    if (!document.hidden) {
+                        document.getElementById("mensaje-error").style.display = "block";
+                        anuncioAbierto = false; // Permitir otro intento
+                    }
+                }, 1000);
             }
-        });
-
+        }
+        
         function iniciarCronometro() {
             clearInterval(intervalo);
+            tiempo = 20; // Reiniciamos el tiempo
+            document.getElementById("cronometro").innerText = tiempo;
+            
             intervalo = setInterval(() => {
                 if (tiempo > 0) {
                     tiempo--;
                     document.getElementById("cronometro").innerText = tiempo;
                 } else {
                     clearInterval(intervalo);
+                    // Reiniciamos para permitir otro clic cuando termine el tiempo
+                    anuncioAbierto = false;
                 }
             }, 1000);
         }
     </script>
-
 </body>
 </html>

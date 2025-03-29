@@ -33,26 +33,37 @@
     <script>
         let tiempo = 20;
         let intervalo;
-        let ventanaAbierta = false;
-        
-        document.getElementById("anuncio-container").addEventListener("click", function() {
-            if (!intervalo) {
-                ventanaAbierta = true;
-                intervalo = setInterval(() => {
-                    if (tiempo > 0 && ventanaAbierta) {
-                        tiempo--;
-                        document.getElementById("cronometro").innerText = tiempo;
-                    } else {
-                        clearInterval(intervalo);
-                        intervalo = null;
-                    }
-                }, 1000);
+        let ventanaAnuncio;
+
+        document.getElementById("anuncio-container").addEventListener("click", function(event) {
+            event.preventDefault();
+            ventanaAnuncio = window.open(event.target.href, "_blank");
+            if (ventanaAnuncio) {
+                iniciarCronometro();
+                verificarVentana();
             }
-            
-            setTimeout(() => {
-                ventanaAbierta = false;
-            }, 500);
         });
+
+        function iniciarCronometro() {
+            intervalo = setInterval(() => {
+                if (tiempo > 0) {
+                    tiempo--;
+                    document.getElementById("cronometro").innerText = tiempo;
+                } else {
+                    clearInterval(intervalo);
+                }
+            }, 1000);
+        }
+
+        function verificarVentana() {
+            let chequeo = setInterval(() => {
+                if (ventanaAnuncio.closed) {
+                    clearInterval(chequeo);
+                    clearInterval(intervalo);
+                    alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>

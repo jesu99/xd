@@ -3,43 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Dashboard - Estadísticas de Ganancias</title>
     <style>
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
+            justify-content: flex-start;
+            min-height: 100vh;
+            background-color: #141414;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             text-align: center;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
         }
         .box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            background: #1f1f1f;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        .box h2 {
+            color: #E50914;
+            margin-top: 0;
+        }
+        .box p {
+            color: #ffffff;
+            font-size: 16px;
+        }
+        .saldo {
+            font-size: 24px;
+            color: #E50914;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin: 20px 0;
+            gap: 20px;
+        }
+        .stat-box {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .stat-title {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
         }
         button {
             margin: 10px;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 16px;
             cursor: pointer;
+            background-color: #E50914;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #F40612;
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        #cerrar-sesion {
+            background-color: #333;
+        }
+        #cerrar-sesion:hover {
+            background-color: #555;
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .loading p {
+            color: white;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid #E50914;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .ads-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #2d2d2d;
+            border-radius: 5px;
+            display: none;
+        }
+        .ad-frame {
+            margin: 10px 0;
+            border: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .progress {
+            height: 100%;
+            background-color: #E50914;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 1s linear;
+        }
+        .ad-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            background-color: #2d2d2d;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        .bar {
+            fill: #E50914;
+            transition: height 0.5s ease;
+        }
+        .bar:hover {
+            fill: #FF5F5F;
+        }
+        .chart-label {
+            font-size: 12px;
+            fill: #fff;
+            text-anchor: middle;
+        }
+        .chart-value {
+            font-size: 12px;
+            fill: #fff;
+            text-anchor: middle;
+        }
+        .axis-label {
+            font-size: 14px;
+            fill: #999;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            color: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        th {
+            background-color: #2d2d2d;
+            color: #E50914;
+        }
+        tr:hover {
+            background-color: #2d2d2d;
         }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>Bienvenido a tu Dashboard</h2>
-        <p>Gana dinero interactuando con anuncios o viendo películas.</p>
-        <p><strong>Saldo actual: $<span id="saldo">0.000</span></strong></p>
+    <div class="container">
+        <div class="box">
+            <h2>Dashboard de Ganancias</h2>
+            <p>Gana dinero interactuando con anuncios o viendo películas.</p>
+            <div class="saldo">Saldo actual: $<span id="saldo">0.000</span></div>
+            
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-title">Clics hoy</div>
+                    <div class="stat-value" id="clics-hoy">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-title">Ganancia hoy</div>
+                    <div class="stat-value">$<span id="ganancia-hoy">0.000</span></div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-title">Películas vistas</div>
+                    <div class="stat-value" id="peliculas-vistas">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-title">Total acumulado</div>
+                    <div class="stat-value">$<span id="total-acumulado">0.000</span></div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Ganancias diarias (últimos 7 días)</h3>
+                <svg id="chart" width="100%" height="250"></svg>
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button onclick="mostrarAnuncios()">Pago por clic a anuncio ($0.001 por 20s)</button>
+            <button onclick="pagarPorPelicula()">Pago por ver películas ($0.003 por 5 min)</button>
+            <button id="cerrar-sesion" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+        
+        <div class="box">
+            <h3>Historial de actividad</h3>
+            <table id="historial-tabla">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Actividad</th>
+                        <th>Tiempo</th>
+                        <th>Ganancia</th>
+                    </tr>
+                </thead>
+                <tbody id="historial-body">
+                    <!-- El historial se llenará dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="ads-container" id="ads-container">
+            <h3>Anuncios - Espera 20 segundos para recibir tu pago</h3>
+            <div class="progress-bar">
+                <div class="progress" id="ad-progress"></div>
+            </div>
+            <p id="timer-display">Tiempo restante: 20s</p>
+            
+            <div class="ad-frame" id="ad-container">
+                <!-- Aquí se cargarán los anuncios -->
+                <script type="text/javascript"> atOptions = { 'key' : 'b330ccd204185aee9ef640adccf896d2', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} }; </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+                
+                <script type="text/javascript"> atOptions = { 'key' : 'a55c7cdc78df0520f71c2b00e4046167', 'format' : 'iframe', 'height' : 300, 'width' : 160, 'params' : {} }; </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
+                
+                <script type='text/javascript' src='//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'></script>
+                
+                <script type='text/javascript' src='//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js'></script>
+                
+                <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+                <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+            </div>
+            
+            <div class="ad-controls">
+                <button onclick="cancelarAnuncio()" id="cancelar-btn">Cancelar (sin pago)</button>
+                <button onclick="siguienteAnuncio()" id="siguiente-btn" disabled>Siguiente anuncio</button>
+            </div>
+        </div>
     </div>
     
-    <button onclick="pagarPorAnuncio()">Pago por clic a anuncio ($0.001 por 20s)</button>
-    <button onclick="pagarPorPelicula()">Pago por ver películas ($0.003 por 5 min)</button>
-    <button onclick="cerrarSesion()">Cerrar Sesión</button>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p id="loading-text">Procesando, por favor espera...</p>
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -48,55 +311,358 @@
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         const usuarioEmail = "usuario@email.com"; // Reemplázalo con el usuario actual
+        let isProcessing = false;
+        let timerInterval = null;
+        let secondsLeft = 0;
+        
+        // Estadísticas simuladas - en producción esto vendría de Supabase
+        let estadisticas = {
+            clicsHoy: 0,
+            gananciaHoy: 0,
+            peliculasVistas: 0,
+            totalAcumulado: 0,
+            historial: [],
+            gananciasSemanales: [
+                { dia: "Lun", valor: 0.012 },
+                { dia: "Mar", valor: 0.025 },
+                { dia: "Mié", valor: 0.018 },
+                { dia: "Jue", valor: 0.031 },
+                { dia: "Vie", valor: 0.024 },
+                { dia: "Sáb", valor: 0.042 },
+                { dia: "Dom", valor: 0.015 }
+            ]
+        };
+        
+        // Prevenir navegación hacia atrás/adelante
+        function prevenirNavegacion() {
+            window.history.pushState(null, "", window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, "", window.location.href);
+                alert("Navegación deshabilitada. Debes cerrar sesión para salir.");
+            };
+        }
+        
+        // Prevenir F5
+        document.onkeydown = function(e) {
+            if (e.key === "F5" || (e.ctrlKey && e.key === 'r')) {
+                e.preventDefault();
+                alert("Navegación deshabilitada. No puedes recargar la página.");
+                return false;
+            }
+        };
+        
+        // Prevenir clic derecho
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            alert("Menú contextual deshabilitado.");
+            return false;
+        });
+        
+        // Cargar estadísticas desde el almacenamiento local (simulando base de datos)
+        function cargarEstadisticasLocales() {
+            const estadisticasGuardadas = localStorage.getItem('estadisticas');
+            if (estadisticasGuardadas) {
+                estadisticas = JSON.parse(estadisticasGuardadas);
+            }
+            actualizarInterfazEstadisticas();
+        }
+        
+        // Guardar estadísticas en almacenamiento local
+        function guardarEstadisticasLocales() {
+            localStorage.setItem('estadisticas', JSON.stringify(estadisticas));
+        }
+        
+        // Actualizar la interfaz con las estadísticas actuales
+        function actualizarInterfazEstadisticas() {
+            document.getElementById("clics-hoy").innerText = estadisticas.clicsHoy;
+            document.getElementById("ganancia-hoy").innerText = estadisticas.gananciaHoy.toFixed(3);
+            document.getElementById("peliculas-vistas").innerText = estadisticas.peliculasVistas;
+            document.getElementById("total-acumulado").innerText = estadisticas.totalAcumulado.toFixed(3);
+            
+            // Actualizar el historial
+            const historialBody = document.getElementById("historial-body");
+            historialBody.innerHTML = '';
+            
+            estadisticas.historial.slice(0, 10).forEach(item => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${item.fecha}</td>
+                    <td>${item.actividad}</td>
+                    <td>${item.tiempo}</td>
+                    <td>$${item.ganancia.toFixed(3)}</td>
+                `;
+                historialBody.appendChild(fila);
+            });
+            
+            // Actualizar el gráfico
+            actualizarGrafico();
+        }
+        
+        // Crear gráfico de barras para ganancias semanales
+        function actualizarGrafico() {
+            const svg = document.getElementById('chart');
+            svg.innerHTML = '';
+            
+            const width = svg.clientWidth;
+            const height = svg.clientHeight;
+            const padding = 40;
+            const barWidth = (width - 2 * padding) / estadisticas.gananciasSemanales.length - 10;
+            
+            // Encontrar el valor máximo para escalar
+            const maxValue = Math.max(...estadisticas.gananciasSemanales.map(d => d.valor));
+            const escala = (altura) => (altura / maxValue) * (height - 2 * padding);
+            
+            // Crear un eje X
+            const ejeX = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            ejeX.setAttribute("x1", padding);
+            ejeX.setAttribute("y1", height - padding);
+            ejeX.setAttribute("x2", width - padding);
+            ejeX.setAttribute("y2", height - padding);
+            ejeX.setAttribute("stroke", "#666");
+            ejeX.setAttribute("stroke-width", "2");
+            svg.appendChild(ejeX);
+            
+            // Crear un eje Y
+            const ejeY = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            ejeY.setAttribute("x1", padding);
+            ejeY.setAttribute("y1", padding);
+            ejeY.setAttribute("x2", padding);
+            ejeY.setAttribute("y2", height - padding);
+            ejeY.setAttribute("stroke", "#666");
+            ejeY.setAttribute("stroke-width", "2");
+            svg.appendChild(ejeY);
+            
+            // Crear las barras
+            estadisticas.gananciasSemanales.forEach((dato, index) => {
+                const barHeight = escala(dato.valor);
+                const x = padding + index * ((width - 2 * padding) / estadisticas.gananciasSemanales.length);
+                const y = height - padding - barHeight;
+                
+                // Barra
+                const barra = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                barra.setAttribute("class", "bar");
+                barra.setAttribute("x", x + 5);
+                barra.setAttribute("y", y);
+                barra.setAttribute("width", barWidth);
+                barra.setAttribute("height", barHeight);
+                barra.setAttribute("rx", "3");
+                svg.appendChild(barra);
+                
+                // Etiqueta del día
+                const etiquetaDia = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                etiquetaDia.setAttribute("class", "chart-label");
+                etiquetaDia.setAttribute("x", x + barWidth/2 + 5);
+                etiquetaDia.setAttribute("y", height - padding + 20);
+                etiquetaDia.textContent = dato.dia;
+                svg.appendChild(etiquetaDia);
+                
+                // Valor
+                const valorTexto = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                valorTexto.setAttribute("class", "chart-value");
+                valorTexto.setAttribute("x", x + barWidth/2 + 5);
+                valorTexto.setAttribute("y", y - 5);
+                valorTexto.textContent = "$" + dato.valor.toFixed(3);
+                svg.appendChild(valorTexto);
+            });
+        }
         
         async function cargarSaldo() {
-            const { data, error } = await supabase
-                .from("usuarios")
-                .select("saldo")
-                .eq("email", usuarioEmail)
-                .single();
-            
-            if (error) {
-                console.error("Error al obtener saldo", error);
-                return;
+            try {
+                const { data, error } = await supabase
+                    .from("usuarios")
+                    .select("saldo")
+                    .eq("email", usuarioEmail)
+                    .single();
+                
+                if (error) {
+                    console.error("Error al obtener saldo", error);
+                    return;
+                }
+                document.getElementById("saldo").innerText = data.saldo.toFixed(3);
+                
+                // Actualizamos también el total acumulado en las estadísticas
+                estadisticas.totalAcumulado = data.saldo;
+                actualizarInterfazEstadisticas();
+            } catch (err) {
+                console.error("Error al cargar saldo:", err);
             }
-            document.getElementById("saldo").innerText = data.saldo.toFixed(3);
         }
         
         async function actualizarSaldo(monto) {
-            const { error } = await supabase
-                .from("usuarios")
-                .update({ saldo: supabase.raw("saldo + ?", [monto]) })
-                .eq("email", usuarioEmail);
-            
-            if (error) {
-                console.error("Error al actualizar saldo", error);
-                return;
+            try {
+                const { error } = await supabase
+                    .from("usuarios")
+                    .update({ saldo: supabase.raw("saldo + ?", [monto]) })
+                    .eq("email", usuarioEmail);
+                
+                if (error) {
+                    console.error("Error al actualizar saldo", error);
+                    return;
+                }
+                
+                // Actualizar estadísticas locales
+                estadisticas.gananciaHoy += monto;
+                estadisticas.totalAcumulado += monto;
+                
+                // Actualizar el valor del día actual en el gráfico
+                const hoy = new Date().getDay();
+                const diaIndice = hoy === 0 ? 6 : hoy - 1; // Convertir a índice 0-6 (Lun-Dom)
+                estadisticas.gananciasSemanales[diaIndice].valor += monto;
+                
+                guardarEstadisticasLocales();
+                cargarSaldo();
+            } catch (err) {
+                console.error("Error al actualizar saldo:", err);
             }
-            cargarSaldo();
         }
         
-        function pagarPorAnuncio() {
-            setTimeout(() => actualizarSaldo(0.001), 20000);
-            alert("Has hecho clic en un anuncio. Debes esperar 20 segundos para recibir el pago.");
+        function mostrarCargando(mensaje) {
+            document.getElementById("loading-text").innerText = mensaje;
+            document.getElementById("loading").style.display = "flex";
+        }
+        
+        function ocultarCargando() {
+            document.getElementById("loading").style.display = "none";
+        }
+        
+        function mostrarAnuncios() {
+            if (isProcessing) {
+                alert("Ya estás realizando una acción. Por favor, espera a que termine.");
+                return;
+            }
+            
+            document.getElementById("ads-container").style.display = "flex";
+            iniciarContadorAnuncio();
+        }
+        
+        function iniciarContadorAnuncio() {
+            isProcessing = true;
+            secondsLeft = 20;
+            document.getElementById("timer-display").innerText = `Tiempo restante: ${secondsLeft}s`;
+            document.getElementById("ad-progress").style.width = "0%";
+            document.getElementById("siguiente-btn").disabled = true;
+            
+            timerInterval = setInterval(() => {
+                secondsLeft--;
+                const porcentaje = ((20 - secondsLeft) / 20) * 100;
+                document.getElementById("ad-progress").style.width = `${porcentaje}%`;
+                document.getElementById("timer-display").innerText = `Tiempo restante: ${secondsLeft}s`;
+                
+                if (secondsLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById("siguiente-btn").disabled = false;
+                    completarAnuncio();
+                }
+            }, 1000);
+        }
+        
+        function completarAnuncio() {
+            const monto = 0.001;
+            actualizarSaldo(monto);
+            
+            // Actualizar estadísticas
+            estadisticas.clicsHoy++;
+            
+            // Agregar al historial
+            const ahora = new Date();
+            const fechaFormateada = `${ahora.getDate()}/${ahora.getMonth()+1}/${ahora.getFullYear()} ${ahora.getHours()}:${ahora.getMinutes().toString().padStart(2, '0')}`;
+            
+            estadisticas.historial.unshift({
+                fecha: fechaFormateada,
+                actividad: "Ver anuncio",
+                tiempo: "20s",
+                ganancia: monto
+            });
+            
+            guardarEstadisticasLocales();
+            actualizarInterfazEstadisticas();
+            
+            alert("¡Felicidades! Has ganado $0.001 por ver el anuncio completo.");
+        }
+        
+        function cancelarAnuncio() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            document.getElementById("ads-container").style.display = "none";
+            isProcessing = false;
+        }
+        
+        function siguienteAnuncio() {
+            if (confirm("¿Quieres ver otro anuncio para ganar más dinero?")) {
+                iniciarContadorAnuncio();
+            } else {
+                document.getElementById("ads-container").style.display = "none";
+                isProcessing = false;
+            }
         }
         
         function pagarPorPelicula() {
-            setTimeout(() => actualizarSaldo(0.003), 300000);
-            alert("Has iniciado una película. Debes verla al menos 5 minutos para recibir el pago.");
+            if (isProcessing) {
+                alert("Ya estás realizando una acción. Por favor, espera a que termine.");
+                return;
+            }
+            
+            isProcessing = true;
+            mostrarCargando("Viendo película... 5 minutos restantes");
+            
+            let segundosRestantes = 300;
+            const interval = setInterval(() => {
+                segundosRestantes--;
+                const minutos = Math.floor(segundosRestantes / 60);
+                const segundos = segundosRestantes % 60;
+                document.getElementById("loading-text").innerText = `Viendo película... ${minutos}:${segundos < 10 ? '0' + segundos : segundos} restantes`;
+                
+                if (segundosRestantes <= 0) {
+                    clearInterval(interval);
+                    ocultarCargando();
+                    isProcessing = false;
+                    
+                    const monto = 0.003;
+                    actualizarSaldo(monto);
+                    
+                    // Actualizar estadísticas
+                    estadisticas.peliculasVistas++;
+                    
+                    // Agregar al historial
+                    const ahora = new Date();
+                    const fechaFormateada = `${ahora.getDate()}/${ahora.getMonth()+1}/${ahora.getFullYear()} ${ahora.getHours()}:${ahora.getMinutes().toString().padStart(2, '0')}`;
+                    
+                    estadisticas.historial.unshift({
+                        fecha: fechaFormateada,
+                        actividad: "Ver película",
+                        tiempo: "5min",
+                        ganancia: monto
+                    });
+                    
+                    guardarEstadisticasLocales();
+                    actualizarInterfazEstadisticas();
+                    
+                    alert("¡Felicidades! Has ganado $0.003 por ver la película.");
+                }
+            }, 1000);
         }
         
         function cerrarSesion() {
-            window.location.href = "index.html";
+            if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
+                window.location.href = "index.html";
+            }
         }
         
-        // Evitar retroceder o avanzar con las flechas del navegador
-        window.history.pushState(null, "", window.location.href);
-        window.onpopstate = function () {
-            window.history.pushState(null, "", window.location.href);
-        };
+        // Inicialización
+        document.addEventListener("DOMContentLoaded", function() {
+            prevenirNavegacion();
+            cargarSaldo();
+            cargarEstadisticasLocales();
+            actualizarGrafico();
+        });
         
+        // Aplicar prevención de navegación inmediatamente
+        prevenirNavegacion();
+        
+        // Cargar datos iniciales
         cargarSaldo();
+        cargarEstadisticasLocales();
     </script>
 </body>
 </html>

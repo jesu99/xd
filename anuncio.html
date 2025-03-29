@@ -19,6 +19,17 @@
             font-size: 24px;
             margin-top: 20px;
         }
+        #reintentar {
+            display: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -29,6 +40,7 @@
     </div>
     
     <div id="cronometro">20</div>
+    <button id="reintentar" onclick="location.reload()">Intentar otra vez</button>
     
     <script>
         let tiempo = 20;
@@ -65,6 +77,7 @@
                 if (ventanaAnuncio.closed) {
                     clearInterval(chequeo);
                     clearInterval(intervalo);
+                    document.getElementById("reintentar").style.display = "block";
                     alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
                 }
             }, 1000);

@@ -1,47 +1,96 @@
-<!-- player.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Película</title>
+    <title>Reproductor de Películas</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        video { width: 80%; max-width: 800px; }
-    </style>
 </head>
 <body>
-    <h1 id="titulo"></h1>
-    <video id="player" controls></video>
-    
+    <h1>Reproductor de Películas</h1>
+    <video id="player" controls width="640">
+        Tu navegador no soporta videos.
+    </video>
+    <p id="status">Tiempo visto: 0 minutos</p>
+
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function getUser() {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error || !user) {
+                alert("Debes iniciar sesión para ver esta película.");
+                window.location.href = "login.html";
+                return null;
+            }
+            return user;
+        }
+
+        async function init() {
+            const user = await getUser();
+            if (!user) return;
+
+            const usuarioId = user.id; // ID del usuario autenticado en Supabase
             const urlParams = new URLSearchParams(window.location.search);
-            const peliculaId = urlParams.get('id');
-            if (!peliculaId) {
-                alert("Película no encontrada");
-                return;
+            const peliculaUrl = urlParams.get("url");
+            const peliculaId = urlParams.get("id");
+
+            const API_URL = `${supabaseUrl}/rest/v1/historial_vistas`;
+
+            const video = document.getElementById("player");
+            const status = document.getElementById("status");
+
+            if (peliculaUrl) {
+                video.src = peliculaUrl;
             }
-            
-            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-            const supabaseKey = "TU_SUPABASE_KEY";
-            const supabase = window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
-            
-            let { data: pelicula, error } = await supabase
-                .from('peliculas')
-                .select('*')
-                .eq('id', peliculaId)
-                .single();
-            
-            if (error || !pelicula) {
-                alert("Error cargando la película");
-                return;
-            }
-            
-            document.getElementById("titulo").innerText = pelicula.nombre;
-            document.getElementById("player").src = pelicula.link;
-        });
+
+            let tiempoVisto = 0;
+            let intervalo;
+
+            video.addEventListener("play", () => {
+                intervalo = setInterval(() => {
+                    tiempoVisto++;
+                    status.innerText = `Tiempo visto: ${Math.floor(tiempoVisto / 60)} minutos`;
+                }, 1000);
+            });
+
+            video.addEventListener("pause", () => {
+                clearInterval(intervalo);
+            });
+
+            video.addEventListener("ended", async () => {
+                clearInterval(intervalo);
+                if (tiempoVisto >= 3600) { // Si vio más de 1 hora
+                    try {
+                        const { error } = await supabase
+                            .from("historial_vistas")
+                            .insert([
+                                {
+                                    usuario_id: usuarioId,
+                                    pelicula_id: peliculaId,
+                                    tiempo_visto: `PT${Math.floor(tiempoVisto)}S`,
+                                    visto_completo: true,
+                                    fecha_vista: new Date().toISOString()
+                                }
+                            ]);
+
+                        if (error) {
+                            console.error("Error al registrar la vista:", error);
+                        } else {
+                            console.log("Vista registrada en Supabase.");
+                        }
+                    } catch (error) {
+                        console.error("Error en la solicitud:", error);
+                    }
+                } else {
+                    console.log("No se registra la vista porque no se alcanzó 1 hora.");
+                }
+            });
+        }
+
+        init();
     </script>
 </body>
 </html>

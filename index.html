@@ -14,15 +14,42 @@
     <button onclick="signIn()">Iniciar Sesión</button>
     <p id="message"></p>
     <script>
+        // Asegurarse que supabaseJs está disponible
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof supabaseJs === 'undefined') {
+                document.getElementById("message").innerText = "Error: La biblioteca Supabase no se ha cargado correctamente";
+            }
+        });
+
         // La forma correcta de inicializar Supabase.js v2
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         
-        // Esta es la forma de acceder a createClient desde la librería cargada
-        const supabase = supabaseJs.createClient(supabaseUrl, supabaseKey);
+        let supabase;
+        
+        // Inicializar supabase solo después de que la página haya cargado
+        window.onload = function() {
+            try {
+                if (typeof supabaseJs !== 'undefined') {
+                    supabase = supabaseJs.createClient(supabaseUrl, supabaseKey);
+                    console.log("Supabase inicializado correctamente");
+                } else {
+                    document.getElementById("message").innerText = "Error: No se pudo inicializar Supabase";
+                    console.error("supabaseJs no está definido");
+                }
+            } catch (err) {
+                document.getElementById("message").innerText = "Error al inicializar Supabase: " + err.message;
+                console.error("Error al inicializar Supabase:", err);
+            }
+        };
         
         async function signUp() {
             try {
+                if (!supabase) {
+                    document.getElementById("message").innerText = "Error: Supabase no está inicializado";
+                    return;
+                }
+                
                 let email = document.getElementById("email").value;
                 let password = document.getElementById("password").value;
                 
@@ -59,6 +86,11 @@
         
         async function signIn() {
             try {
+                if (!supabase) {
+                    document.getElementById("message").innerText = "Error: Supabase no está inicializado";
+                    return;
+                }
+                
                 let email = document.getElementById("email").value;
                 let password = document.getElementById("password").value;
                 
@@ -77,13 +109,6 @@
                 console.error(err);
             }
         }
-        
-        // Verificar que Supabase se haya cargado correctamente
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof supabaseJs === 'undefined') {
-                document.getElementById("message").innerText = "Error: La biblioteca Supabase no se ha cargado correctamente";
-            }
-        });
     </script>
 </body>
 </html>

@@ -32,45 +32,38 @@
         <option value="binance">Binance</option>
         <option value="yape">Yape</option>
     </select>
-    <button id="registerBtn">Registrarse</button>
+    <button onclick="registerUser()">Registrarse</button>
     <p id="message"></p>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Verifica que Supabase se haya cargado correctamente
-            if (typeof supabase === "undefined") {
-                console.error("Supabase no se cargó correctamente.");
-                return;
-            }
-
+        document.addEventListener("DOMContentLoaded", () => {
             const supabaseUrl = "https://tusupabaseurl.supabase.co";
             const supabaseKey = "tu-clave-secreta";
-            const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
-            async function registerUser() {
-                const email = document.getElementById("email").value;
-                const password = document.getElementById("password").value;
-                const dni = document.getElementById("dni").value;
-                const payment_method = document.getElementById("payment_method").value;
-
-                try {
-                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
-
-                    if (error) {
-                        document.getElementById("message").innerText = "Error: " + error.message;
-                        return;
-                    }
-
-                    await supabaseClient.from("usuarios").insert([{ email, dni, payment_method, saldo: 0 }]);
-
-                    document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
-                } catch (err) {
-                    document.getElementById("message").innerText = "Error inesperado: " + err.message;
-                }
-            }
-
-            document.getElementById("registerBtn").addEventListener("click", registerUser);
+            const supabase = window.supabase = Supabase.createClient(supabaseUrl, supabaseKey);
         });
+
+        async function registerUser() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const dni = document.getElementById("dni").value;
+            const payment_method = document.getElementById("payment_method").value;
+            const messageElement = document.getElementById("message");
+
+            try {
+                const { data, error } = await window.supabase.auth.signUp({ email, password });
+
+                if (error) {
+                    messageElement.innerText = "Error: " + error.message;
+                    return;
+                }
+
+                await window.supabase.from("usuarios").insert([{ email, dni, payment_method, saldo: 0 }]);
+                messageElement.innerText = "Registro exitoso. Revisa tu correo.";
+            } catch (err) {
+                console.error("Error en el registro:", err);
+                messageElement.innerText = "Ocurrió un error, intenta nuevamente.";
+            }
+        }
     </script>
 </body>
 </html>

@@ -19,6 +19,12 @@
             font-size: 24px;
             margin-top: 20px;
         }
+        #mensaje-error {
+            display: none;
+            color: red;
+            font-size: 18px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -29,6 +35,7 @@
     </div>
 
     <div id="cronometro">20</div>
+    <div id="mensaje-error">❌ No se pudo abrir el anuncio. Desactiva el bloqueador de ventanas emergentes.</div>
 
     <script>
         let tiempo = 20;
@@ -36,7 +43,11 @@
 
         document.getElementById("anuncio-container").addEventListener("click", function() {
             let ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Cambia por el enlace real del anuncio
-            if (ventanaAnuncio) {
+            
+            if (ventanaAnuncio === null || ventanaAnuncio.closed) {
+                document.getElementById("mensaje-error").style.display = "block";
+            } else {
+                document.getElementById("mensaje-error").style.display = "none";
                 iniciarCronometro();
             }
         });

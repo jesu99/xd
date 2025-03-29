@@ -22,8 +22,9 @@
     <div id="peliculas"></div>
 
     <script>
+        // 🔹 Mueve la inicialización de Supabase al inicio
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "SUPABASE_PUBLIC_ANON_KEY"; // Debe estar protegida en producción
+        const supabaseKey = "SUPABASE_PUBLIC_ANON_KEY"; // Proteger en producción
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -38,17 +39,21 @@
                 let query = supabase.from('peliculas').select('*');
                 if (filtro.trim()) query = query.ilike('nombre', `%${filtro}%`);
 
-                const { data, error } = await query;
+                try {
+                    const { data, error } = await query;
+                    loader.style.display = "none";
 
-                loader.style.display = "none";
+                    if (error) {
+                        console.error("Error al obtener películas:", error.message);
+                        peliculasContainer.innerHTML = "<p>Error al cargar películas.</p>";
+                        return;
+                    }
 
-                if (error) {
-                    console.error("Error al obtener películas:", error.message);
-                    peliculasContainer.innerHTML = "<p>Error al cargar películas.</p>";
-                    return;
+                    mostrarPeliculas(data);
+                } catch (err) {
+                    console.error("Error en la consulta:", err);
+                    loader.style.display = "none";
                 }
-
-                mostrarPeliculas(data);
             }
 
             function mostrarPeliculas(peliculas) {

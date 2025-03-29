@@ -35,8 +35,10 @@
 <body>
     <h2>Visualiza el anuncio</h2>
     <div id="anuncio-container">
-        <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-        <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+        <a href="#" id="anuncio-link" target="_blank">
+            <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+            <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+        </a>
     </div>
     
     <div id="cronometro">20</div>
@@ -47,6 +49,16 @@
         let intervalo;
         let ventanaAnuncio;
         let enAnuncio = false;
+
+        document.getElementById("anuncio-link").addEventListener("click", function(event) {
+            event.preventDefault();
+            ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Reemplázalo con el enlace real del anuncio
+            if (ventanaAnuncio) {
+                enAnuncio = true;
+                iniciarCronometro();
+                verificarVentana();
+            }
+        });
 
         function iniciarCronometro() {
             intervalo = setInterval(() => {
@@ -74,18 +86,6 @@
                 }
             }, 1000);
         }
-
-        window.addEventListener("focus", () => {
-            if (ventanaAnuncio && !ventanaAnuncio.closed) {
-                enAnuncio = false;
-            }
-        });
-
-        window.addEventListener("blur", () => {
-            if (ventanaAnuncio && !ventanaAnuncio.closed) {
-                enAnuncio = true;
-            }
-        });
     </script>
 </body>
 </html>

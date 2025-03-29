@@ -47,19 +47,51 @@
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        let usuarioId = 1;
+        // Obtener el ID de usuario desde localStorage o URL (ejemplo)
+        let usuarioId = getUsuarioId();
+        
+        function getUsuarioId() {
+            // Obtener de URL o localStorage (puedes adaptarlo según tu implementación)
+            const urlParams = new URLSearchParams(window.location.search);
+            const idFromUrl = urlParams.get('id');
+            
+            // Si hay un ID en la URL, úsalo y guárdalo
+            if (idFromUrl) {
+                localStorage.setItem('usuarioId', idFromUrl);
+                return idFromUrl;
+            }
+            
+            // Si no, intenta obtenerlo del localStorage
+            const storedId = localStorage.getItem('usuarioId');
+            return storedId || 1; // Valor predeterminado 1 si no hay ID
+        }
         
         async function contarClickEnSupabase() {
+            console.log("Intentando registrar clic para usuario ID:", usuarioId);
             try {
+                // Primero obtenemos el valor actual
+                const { data: userData, error: fetchError } = await supabase
+                    .from('usuarios')
+                    .select('anuncios_clickeados')
+                    .eq('id', usuarioId)
+                    .single();
+                
+                if (fetchError) {
+                    console.error("Error al obtener datos del usuario:", fetchError);
+                    return;
+                }
+                
+                // Incrementamos el valor y actualizamos
+                const nuevoValor = (userData.anuncios_clickeados || 0) + 1;
                 const { data, error } = await supabase
                     .from('usuarios')
-                    .update({ anuncios_clickeados: supabase.sql`anuncios_clickeados + 1` })
+                    .update({ anuncios_clickeados: nuevoValor })
                     .eq('id', usuarioId);
                 
                 if (error) {
                     console.error("Error al actualizar clics:", error);
                 } else {
-                    console.log("Clic registrado en Supabase:", data);
+                    console.log("Clic registrado en Supabase, nuevo valor:", nuevoValor);
                 }
             } catch (e) {
                 console.error("Excepción al actualizar clics:", e);
@@ -143,13 +175,6 @@
                 }
             }, 2000);
         });
-        
-        // Para pruebas - un botón que inicia el cronómetro manualmente
-        const botonTest = document.createElement("button");
-        botonTest.innerText = "Probar Cronómetro";
-        botonTest.style.marginTop = "20px";
-        botonTest.addEventListener("click", iniciarCronometro);
-        document.body.appendChild(botonTest);
     </script>
 </body>
 </html>

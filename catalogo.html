@@ -9,7 +9,8 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
         #buscador { margin: 10px; padding: 5px; }
-        .pelicula { cursor: pointer; margin: 10px; }
+        .pelicula { cursor: pointer; margin: 10px; padding: 10px; border: 1px solid #ccc; display: inline-block; width: 200px; }
+        .pelicula img { width: 100%; height: auto; }
     </style>
 </head>
 <body>
@@ -35,8 +36,9 @@
                 peliculas.forEach(peli => {
                     let div = document.createElement("div");
                     div.className = "pelicula";
-                    div.innerHTML = `<h3>${peli.nombre}</h3>`;
-                    div.onclick = () => location.href = `player.html?id=${peli.id}`;
+                    div.innerHTML = `<img src="${peli.imagen_url}" alt="${peli.nombre}"><h3>${peli.nombre}</h3>
+                                    <p>${peli.descripcion}</p>
+                                    <a href="player.html?id=${peli.id}">Ver Película</a>`;
                     contenedor.appendChild(div);
                 });
             }

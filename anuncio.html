@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anuncios</title>
+    <title>Anuncio</title>
     <style>
         body {
             display: flex;
@@ -19,76 +19,40 @@
             font-size: 24px;
             margin-top: 20px;
         }
-        #reintentar {
-            display: none;
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: red;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
-    <h2>Visualiza el anuncio</h2>
+
     <div id="anuncio-container">
         <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
         <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
     </div>
-    
+
     <div id="cronometro">20</div>
-    <button id="reintentar" onclick="location.reload()">Intentar otra vez</button>
-    
+
     <script>
         let tiempo = 20;
         let intervalo;
-        let ventanaAnuncio;
 
         document.getElementById("anuncio-container").addEventListener("click", function() {
-            ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Reemplaza con el enlace real del anuncio
+            let ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Cambia por el enlace real del anuncio
             if (ventanaAnuncio) {
                 iniciarCronometro();
-                verificarVentana();
-            } else {
-                alert("Permite las ventanas emergentes para ver el anuncio.");
             }
         });
 
         function iniciarCronometro() {
             clearInterval(intervalo);
             intervalo = setInterval(() => {
-                if (tiempo > 0 && ventanaAnuncio && !ventanaAnuncio.closed) {
+                if (tiempo > 0) {
                     tiempo--;
                     document.getElementById("cronometro").innerText = tiempo;
                 } else {
                     clearInterval(intervalo);
-                    if (tiempo === 0) {
-                        alert("¡Felicidades! Has completado el tiempo requerido en el anuncio.");
-                    } else {
-                        document.getElementById("reintentar").style.display = "block";
-                        document.getElementById("cronometro").innerText = "20";
-                        tiempo = 20;
-                        alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
-                    }
-                }
-            }, 1000);
-        }
-
-        function verificarVentana() {
-            let chequeo = setInterval(() => {
-                if (!ventanaAnuncio || ventanaAnuncio.closed) {
-                    clearInterval(chequeo);
-                    clearInterval(intervalo);
-                    document.getElementById("reintentar").style.display = "block";
-                    document.getElementById("cronometro").innerText = "20";
-                    tiempo = 20;
-                    alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
                 }
             }, 1000);
         }
     </script>
+
 </body>
 </html>

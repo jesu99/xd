@@ -1,0 +1,47 @@
+<!-- player.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Película</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        video { width: 80%; max-width: 800px; }
+    </style>
+</head>
+<body>
+    <h1 id="titulo"></h1>
+    <video id="player" controls></video>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const peliculaId = urlParams.get('id');
+            if (!peliculaId) {
+                alert("Película no encontrada");
+                return;
+            }
+            
+            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+            const supabaseKey = "TU_SUPABASE_KEY";
+            const supabase = window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+            
+            let { data: pelicula, error } = await supabase
+                .from('peliculas')
+                .select('*')
+                .eq('id', peliculaId)
+                .single();
+            
+            if (error || !pelicula) {
+                alert("Error cargando la película");
+                return;
+            }
+            
+            document.getElementById("titulo").innerText = pelicula.nombre;
+            document.getElementById("player").src = pelicula.link;
+        });
+    </script>
+</body>
+</html>

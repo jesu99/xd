@@ -14,64 +14,120 @@
             background-color: #f4f4f4;
             font-family: Arial, sans-serif;
             text-align: center;
+            padding: 20px;
         }
         #cronometro {
             font-size: 24px;
             margin-top: 20px;
         }
-        #mensaje-error, #mensaje-limite, #mensaje-espera {
+        .mensaje {
             display: none;
-            color: red;
             font-size: 18px;
             margin-top: 20px;
             padding: 10px;
-            border: 1px solid red;
             border-radius: 5px;
+            width: 90%;
+            max-width: 500px;
+        }
+        #mensaje-error, #mensaje-limite, #mensaje-espera {
+            color: red;
+            border: 1px solid red;
             background-color: #ffeeee;
         }
         #mensaje-instruccion {
-            display: none;
             color: #0066cc;
-            font-size: 18px;
-            margin-top: 20px;
-            padding: 10px;
             border: 1px solid #0066cc;
-            border-radius: 5px;
             background-color: #e6f2ff;
         }
         #mensaje-exito {
-            display: none;
             color: green;
-            font-size: 18px;
-            margin-top: 20px;
-            padding: 10px;
             border: 1px solid green;
-            border-radius: 5px;
             background-color: #e6ffe6;
         }
         #info-usuario {
             margin-top: 20px;
-            padding: 10px;
+            padding: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
             background-color: #f9f9f9;
+            width: 90%;
+            max-width: 500px;
+        }
+        #temporizador-container {
+            display: none;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 500px;
+        }
+        #temporizador-barra {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        #temporizador-progreso {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 1s linear;
+        }
+        .titulo-seccion {
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .explicacion {
+            background-color: #fffde7;
+            border: 1px solid #ffd54f;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+            width: 90%;
+            max-width: 500px;
         }
     </style>
     <!-- Importar Supabase correctamente -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
 </head>
 <body>
+    <h1>Visualizador de Anuncios</h1>
+    
+    <div class="explicacion">
+        <strong>¿Cómo funciona?</strong>
+        <ul style="text-align: left;">
+            <li>Haz clic en el anuncio y mantenlo abierto durante 20 segundos</li>
+            <li>Debes esperar 3 horas entre cada anuncio visto</li>
+            <li>El sistema te mostrará cuánto tiempo falta para poder ver el siguiente anuncio</li>
+        </ul>
+    </div>
+    
+    <div id="info-usuario">Cargando información...</div>
+    
+    <div id="temporizador-container">
+        <div class="titulo-seccion">Tiempo restante para el próximo anuncio:</div>
+        <div id="temporizador-barra">
+            <div id="temporizador-progreso"></div>
+        </div>
+        <div id="temporizador-texto">00:00:00</div>
+    </div>
+    
     <div id="anuncio-container">
+        <div class="titulo-seccion">Anuncio:</div>
         <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
         <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
     </div>
-    <div id="cronometro">20</div>
-    <div id="info-usuario">Cargando información...</div>
-    <div id="mensaje-error">❌ No se pudo abrir el anuncio. Desactiva el bloqueador de ventanas emergentes.</div>
-    <div id="mensaje-limite">❌ Has alcanzado el límite de 3 clics por sesión. Vuelve más tarde.</div>
-    <div id="mensaje-espera">❌ Debes esperar 3 horas entre clics. Podrás hacer clic de nuevo en: <span id="tiempo-espera"></span></div>
-    <div id="mensaje-instruccion">Por favor, mantén abierta la ventana del anuncio durante 20 segundos. No la cierres ni cambies de pestaña.</div>
-    <div id="mensaje-exito">✅ ¡Anuncio visto correctamente! Tu clic ha sido registrado.</div>
+    
+    <div id="cronometro" style="display: none;">20</div>
+    
+    <div id="mensaje-error" class="mensaje">❌ No se pudo abrir el anuncio. Desactiva el bloqueador de ventanas emergentes.</div>
+    <div id="mensaje-limite" class="mensaje">❌ Has alcanzado el límite de visualizaciones. Debes esperar 3 horas desde tu último clic.</div>
+    <div id="mensaje-espera" class="mensaje">❌ Debes esperar para ver otro anuncio. Tiempo restante: <span id="tiempo-espera"></span></div>
+    <div id="mensaje-instruccion" class="mensaje">Por favor, mantén abierta la ventana del anuncio durante 20 segundos. No la cierres ni cambies de pestaña.</div>
+    <div id="mensaje-exito" class="mensaje">✅ ¡Anuncio visto correctamente! Tu visualización ha sido registrada.</div>
     
     <script>
         let tiempo = 20;
@@ -79,22 +135,24 @@
         let anuncioAbierto = false;
         let ventanaAnuncio = null;
         let clickValido = false;
-        let clicsEnSesion = 0;
         
         // Inicializar Supabase correctamente
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        // Obtener el ID de usuario desde localStorage o URL
+        // Obtener el ID de usuario desde URL
         let usuarioId = getUsuarioId();
         let ultimoClick = null;
         let anunciosClickeados = 0;
+        let tiempoEsperaMs = 0;
+        let intervaloTemporizador = null;
         
         // Cargar información del usuario al inicio
         document.addEventListener('DOMContentLoaded', async function() {
             await cargarInfoUsuario();
             agregarEventoAlContenedor();
+            iniciarTemporizadorSiNecesario();
         });
         
         function getUsuarioId() {
@@ -102,12 +160,10 @@
             const idFromUrl = urlParams.get('id');
             
             if (idFromUrl) {
-                localStorage.setItem('usuarioId', idFromUrl);
                 return idFromUrl;
             }
             
-            const storedId = localStorage.getItem('usuarioId');
-            return storedId || 1;
+            return 1; // ID por defecto si no se proporciona
         }
         
         async function cargarInfoUsuario() {
@@ -126,21 +182,6 @@
                 anunciosClickeados = userData.anuncios_clickeados || 0;
                 ultimoClick = userData.ultimo_click ? new Date(userData.ultimo_click) : null;
                 
-                // Recuperar clics de sesión desde localStorage o inicializar
-                const clicksStoredStr = localStorage.getItem('clicsEnSesion');
-                if (clicksStoredStr) {
-                    const clicksData = JSON.parse(clicksStoredStr);
-                    // Solo usar si es del mismo día
-                    const ahora = new Date();
-                    if (clicksData.fecha && new Date(clicksData.fecha).toDateString() === ahora.toDateString()) {
-                        clicsEnSesion = clicksData.clicks || 0;
-                    } else {
-                        // Es un nuevo día, restablecer contador
-                        clicsEnSesion = 0;
-                        guardarClicsEnSesion();
-                    }
-                }
-                
                 actualizarInfoUsuario();
             } catch (e) {
                 console.error("Error al cargar información del usuario:", e);
@@ -149,22 +190,74 @@
         
         function actualizarInfoUsuario() {
             const infoElement = document.getElementById("info-usuario");
-            let html = `Total de anuncios vistos: ${anunciosClickeados}<br>`;
-            html += `Anuncios vistos en esta sesión: ${clicsEnSesion}/3<br>`;
+            let html = `<div class="titulo-seccion">Estado de tu cuenta:</div>`;
+            html += `Total de anuncios vistos: <strong>${anunciosClickeados}</strong><br>`;
             
-            if (ultimoClick) {
-                const tiempoEspera = puedeHacerClick();
-                if (tiempoEspera > 0) {
-                    const minutosRestantes = Math.ceil(tiempoEspera / 60000);
-                    html += `Próximo anuncio disponible en: ${formatearTiempoEspera(tiempoEspera)}`;
-                } else {
-                    html += "Puedes ver un anuncio ahora";
-                }
+            tiempoEsperaMs = puedeHacerClick();
+            if (tiempoEsperaMs > 0) {
+                html += `<div style="margin-top: 10px; color: #e65100;">Debes esperar antes de ver otro anuncio</div>`;
+                document.getElementById("anuncio-container").style.opacity = "0.5";
+                document.getElementById("anuncio-container").style.pointerEvents = "none";
             } else {
-                html += "Puedes ver un anuncio ahora";
+                html += `<div style="margin-top: 10px; color: #2e7d32;">✅ Puedes ver un anuncio ahora</div>`;
+                document.getElementById("anuncio-container").style.opacity = "1";
+                document.getElementById("anuncio-container").style.pointerEvents = "auto";
             }
             
             infoElement.innerHTML = html;
+        }
+        
+        function iniciarTemporizadorSiNecesario() {
+            const tiempoEsperaMs = puedeHacerClick();
+            
+            if (tiempoEsperaMs > 0) {
+                // Hay que esperar, mostrar el temporizador
+                document.getElementById("temporizador-container").style.display = "block";
+                
+                // Establecer la duración total (3 horas en milisegundos)
+                const duracionTotal = 3 * 60 * 60 * 1000;
+                const tiempoPasado = duracionTotal - tiempoEsperaMs;
+                const porcentajeCompletado = (tiempoPasado / duracionTotal) * 100;
+                
+                // Actualizar la barra de progreso
+                document.getElementById("temporizador-progreso").style.width = porcentajeCompletado + "%";
+                
+                // Actualizar el texto del temporizador
+                actualizarTextoTemporizador(tiempoEsperaMs);
+                
+                // Actualizar cada segundo
+                clearInterval(intervaloTemporizador);
+                intervaloTemporizador = setInterval(() => {
+                    const nuevoTiempoEspera = puedeHacerClick();
+                    
+                    if (nuevoTiempoEspera <= 0) {
+                        // Ya no hay que esperar
+                        clearInterval(intervaloTemporizador);
+                        document.getElementById("temporizador-container").style.display = "none";
+                        actualizarInfoUsuario();
+                        return;
+                    }
+                    
+                    const nuevoPorcentaje = ((duracionTotal - nuevoTiempoEspera) / duracionTotal) * 100;
+                    document.getElementById("temporizador-progreso").style.width = nuevoPorcentaje + "%";
+                    actualizarTextoTemporizador(nuevoTiempoEspera);
+                }, 1000);
+            } else {
+                // No hay que esperar, ocultar el temporizador
+                document.getElementById("temporizador-container").style.display = "none";
+                clearInterval(intervaloTemporizador);
+            }
+        }
+        
+        function actualizarTextoTemporizador(tiempoMs) {
+            const horas = Math.floor(tiempoMs / 3600000);
+            const minutos = Math.floor((tiempoMs % 3600000) / 60000);
+            const segundos = Math.floor((tiempoMs % 60000) / 1000);
+            
+            const textoFormateado = 
+                `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            
+            document.getElementById("temporizador-texto").textContent = textoFormateado;
         }
         
         function formatearTiempoEspera(tiempoMs) {
@@ -195,13 +288,6 @@
             return 0;
         }
         
-        function guardarClicsEnSesion() {
-            localStorage.setItem('clicsEnSesion', JSON.stringify({
-                clicks: clicsEnSesion,
-                fecha: new Date().toString()
-            }));
-        }
-        
         async function contarClickEnSupabase() {
             if (!clickValido) return;
             
@@ -223,10 +309,6 @@
                     anunciosClickeados++;
                     ultimoClick = new Date(ahora);
                     
-                    // Incrementar clics en sesión
-                    clicsEnSesion++;
-                    guardarClicsEnSesion();
-                    
                     console.log("Clic registrado exitosamente");
                     
                     // Mostrar mensaje de éxito
@@ -237,6 +319,7 @@
                     
                     // Actualizar info
                     actualizarInfoUsuario();
+                    iniciarTemporizadorSiNecesario();
                 }
             } catch (e) {
                 console.error("Excepción al actualizar clics:", e);
@@ -246,15 +329,6 @@
         function manejarClicAnuncio(event) {
             console.log("Clic en anuncio detectado");
             event.preventDefault();
-            
-            // Verificar límites de clics
-            if (clicsEnSesion >= 3) {
-                document.getElementById("mensaje-limite").style.display = "block";
-                setTimeout(() => {
-                    document.getElementById("mensaje-limite").style.display = "none";
-                }, 3000);
-                return false;
-            }
             
             // Verificar tiempo de espera
             const tiempoEspera = puedeHacerClick();
@@ -271,7 +345,8 @@
                 anuncioAbierto = true;
                 clickValido = false; // Inicialmente no es válido hasta que pasen 20 segundos
                 
-                // Mostrar instrucciones
+                // Mostrar cronómetro e instrucciones
+                document.getElementById("cronometro").style.display = "block";
                 document.getElementById("mensaje-instruccion").style.display = "block";
                 
                 // Obtener la URL del anuncio
@@ -281,6 +356,7 @@
                 if (!urlDestino) {
                     console.error("No se pudo determinar la URL del anuncio");
                     anuncioAbierto = false;
+                    document.getElementById("cronometro").style.display = "none";
                     return false;
                 }
                 
@@ -300,6 +376,7 @@
                             clearInterval(verificadorVentana);
                             document.getElementById("mensaje-instruccion").style.display = "none";
                             document.getElementById("cronometro").innerText = "20";
+                            document.getElementById("cronometro").style.display = "none";
                             anuncioAbierto = false;
                             clickValido = false;
                         }
@@ -312,6 +389,7 @@
                             clearInterval(intervalo);
                             document.getElementById("mensaje-instruccion").style.display = "none";
                             document.getElementById("cronometro").innerText = "20";
+                            document.getElementById("cronometro").style.display = "none";
                             anuncioAbierto = false;
                             clickValido = false;
                             
@@ -326,6 +404,7 @@
                         document.getElementById("mensaje-error").style.display = "none";
                     }, 3000);
                     anuncioAbierto = false;
+                    document.getElementById("cronometro").style.display = "none";
                 }
             }
             
@@ -345,6 +424,7 @@
                 } else {
                     clearInterval(intervalo);
                     document.getElementById("mensaje-instruccion").style.display = "none";
+                    document.getElementById("cronometro").style.display = "none";
                     console.log("Cronómetro finalizado");
                     
                     // El clic es válido si completó los 20 segundos
@@ -394,7 +474,9 @@
         });
         
         // Actualizar la información del usuario cada minuto para mostrar tiempos de espera actualizados
-        setInterval(actualizarInfoUsuario, 60000);
+        setInterval(() => {
+            actualizarInfoUsuario();
+        }, 60000);
     </script>
 </body>
 </html>

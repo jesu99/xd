@@ -25,6 +25,32 @@
             font-size: 18px;
             margin-top: 20px;
         }
+        #mensaje-focus {
+            display: none;
+            color: red;
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            display: none;
+        }
+        .overlay p {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
     </style>
     <!-- Importar Supabase correctamente -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
@@ -36,11 +62,19 @@
     </div>
     <div id="cronometro">20</div>
     <div id="mensaje-error">❌ No se pudo abrir el anuncio. Desactiva el bloqueador de ventanas emergentes.</div>
+    <div id="mensaje-focus">⚠️ ¡VUELVE A LA VENTANA PARA CONTINUAR CON LA CUENTA REGRESIVA!</div>
+    
+    <!-- Overlay para cuando el usuario abandona la ventana -->
+    <div id="focus-overlay" class="overlay">
+        <p>⚠️ ¡DEBES MANTENER ESTA VENTANA ACTIVA!</p>
+        <p>El cronómetro está pausado</p>
+    </div>
     
     <script>
         let tiempo = 20;
         let intervalo;
         let anuncioAbierto = false;
+        let ventanaActiva = true;
         
         // Inicializar Supabase correctamente
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
@@ -124,19 +158,56 @@
             clearInterval(intervalo);
             tiempo = 20;
             document.getElementById("cronometro").innerText = tiempo;
+            ventanaActiva = true;
             
             intervalo = setInterval(() => {
-                console.log("Tiempo restante:", tiempo);
-                if (tiempo > 0) {
-                    tiempo--;
-                    document.getElementById("cronometro").innerText = tiempo;
-                } else {
-                    clearInterval(intervalo);
-                    anuncioAbierto = false;
-                    console.log("Cronómetro finalizado");
+                if (ventanaActiva) {
+                    console.log("Tiempo restante:", tiempo);
+                    if (tiempo > 0) {
+                        tiempo--;
+                        document.getElementById("cronometro").innerText = tiempo;
+                    } else {
+                        clearInterval(intervalo);
+                        anuncioAbierto = false;
+                        console.log("Cronómetro finalizado");
+                        document.getElementById("focus-overlay").style.display = "none";
+                        document.getElementById("mensaje-focus").style.display = "none";
+                    }
                 }
             }, 1000);
         }
+        
+        // Detectar cuando el usuario cambia de pestaña o minimiza la ventana
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // El usuario ha cambiado de pestaña o minimizado la ventana
+                ventanaActiva = false;
+                document.getElementById("focus-overlay").style.display = "flex";
+                document.getElementById("mensaje-focus").style.display = "block";
+                console.log("Usuario ha abandonado la ventana");
+            } else {
+                // El usuario ha vuelto a la pestaña
+                ventanaActiva = true;
+                document.getElementById("focus-overlay").style.display = "none";
+                document.getElementById("mensaje-focus").style.display = "none";
+                console.log("Usuario ha vuelto a la ventana");
+            }
+        });
+        
+        // También detectar si el usuario pierde el enfoque de la ventana
+        window.addEventListener('blur', function() {
+            ventanaActiva = false;
+            document.getElementById("focus-overlay").style.display = "flex";
+            document.getElementById("mensaje-focus").style.display = "block";
+            console.log("Ventana perdió el enfoque");
+        });
+        
+        window.addEventListener('focus', function() {
+            ventanaActiva = true;
+            document.getElementById("focus-overlay").style.display = "none";
+            document.getElementById("mensaje-focus").style.display = "none";
+            console.log("Ventana recuperó el enfoque");
+        });
         
         // Función para agregar el evento de clic al contenedor de anuncios
         function agregarEventoAlContenedor() {

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h2>Bienvenido a tu Dashboard</h2>
+    <p><strong>Correo:</strong> <span id="user-email"></span></p>
+    <p><strong>Saldo:</strong> $<span id="saldo">0.0000</span> USDT</p>
+    <p><strong>Películas vistas:</strong> <span id="peliculas-vistas">0</span></p>
+    <p><strong>Anuncios clickeados:</strong> <span id="anuncios-clickeados">0</span></p>
+    <button onclick="solicitarRetiro()">Solicitar Retiro</button>
+    <p id="message"></p>
+
+    <h3>Películas Disponibles</h3>
+    <div id="lista-peliculas"></div>
+    
+    <h3>Anuncios</h3>
+    <div id="lista-anuncios"></div>
+
+    <script>
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function cargarUsuario() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = "index.html";
+                return;
+            }
+            document.getElementById("user-email").innerText = user.email;
+            
+            let { data, error } = await supabase.from("usuarios").select("saldo, peliculas_vistas, anuncios_clickeados").eq("email", user.email).single();
+            if (error) {
+                document.getElementById("message").innerText = "Error al cargar datos";
+                return;
+            }
+            
+            document.getElementById("saldo").innerText = data.saldo.toFixed(4);
+            document.getElementById("peliculas-vistas").innerText = data.peliculas_vistas;
+            document.getElementById("anuncios-clickeados").innerText = data.anuncios_clickeados;
+        }
+
+        async function solicitarRetiro() {
+            let saldo = parseFloat(document.getElementById("saldo").innerText);
+            if (saldo < 5) {
+                document.getElementById("message").innerText = "Saldo insuficiente para retiro.";
+                return;
+            }
+            document.getElementById("message").innerText = "Solicitud de retiro enviada.";
+        }
+
+        function cargarPeliculas() {
+            let peliculas = [
+                { titulo: "Película 1", url: "https://streamtape.com/v/2a6VZgbGRbcZvGy/137785--d3208a35-5676-4a65-830f-1a8047d1ac49--xqnr--1092987-1fichier.mp4" }
+            ];
+            
+            let lista = document.getElementById("lista-peliculas");
+            peliculas.forEach(pelicula => {
+                let btn = document.createElement("button");
+                btn.innerText = "Ver " + pelicula.titulo;
+                btn.onclick = () => verPelicula(pelicula.url);
+                lista.appendChild(btn);
+            });
+        }
+
+        async function verPelicula(url) {
+            window.open(url, "_blank");
+            const { data: { user } } = await supabase.auth.getUser();
+            await supabase.from("usuarios").update({ 
+                saldo: supabase.raw("saldo + 0.002"), 
+                peliculas_vistas: supabase.raw("peliculas_vistas + 1") 
+            }).eq("email", user.email);
+            setTimeout(() => location.reload(), 2000);
+        }
+
+        function cargarAnuncios() {
+            let lista = document.getElementById("lista-anuncios");
+            let script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = "//pl26244401.effectiveratecpm.com/26/32/33/263233f09bf7d97e3bcf97a0e796d6f5.js";
+            lista.appendChild(script);
+        }
+
+        async function verAnuncio(url) {
+            let nuevaVentana = window.open(url, "_blank");
+            setTimeout(async () => {
+                if (!nuevaVentana.closed) {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    await supabase.from("usuarios").update({ 
+                        saldo: supabase.raw("saldo + 0.001"), 
+                        anuncios_clickeados: supabase.raw("anuncios_clickeados + 1") 
+                    }).eq("email", user.email);
+                    nuevaVentana.close();
+                    location.reload();
+                }
+            }, 20000);
+        }
+
+        cargarUsuario();
+        cargarPeliculas();
+        cargarAnuncios();
+    </script>
+</body>
+</html>

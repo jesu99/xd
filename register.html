@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Registro</h2>
+    <input type="email" id="email" placeholder="Correo" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+    <input type="text" id="dni" placeholder="DNI" required>
+    <select id="payment_method">
+        <option value="paypal">PayPal</option>
+        <option value="binance">Binance</option>
+        <option value="yape">Yape</option>
+    </select>
+    <button onclick="registerUser()">Registrarse</button>
+    <p id="message"></p>
+
+    <script>
+        const supabaseUrl = "https://tusupabaseurl.supabase.co";
+        const supabaseKey = "tu-clave-secreta";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function registerUser() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const dni = document.getElementById("dni").value;
+            const payment_method = document.getElementById("payment_method").value;
+
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            if (error) {
+                document.getElementById("message").innerText = "Error: " + error.message;
+                return;
+            }
+
+            await supabase.from("usuarios").insert([{ email, dni, payment_method, saldo: 0 }]);
+            document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
+        }
+    </script>
+</body>
+</html>

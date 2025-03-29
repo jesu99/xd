@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Iniciar Sesión</h2>
+    <input type="email" id="email" placeholder="Correo" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+    <button onclick="signIn()">Iniciar Sesión</button>
+    <p id="message"></p>
+
+    <script>
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function signIn() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            
+            if (error) {
+                document.getElementById("message").innerText = "Error: " + error.message;
+            } else {
+                window.location.href = "dashboard.html";
+            }
+        }
+    </script>
+</body>
+</html>

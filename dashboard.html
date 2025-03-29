@@ -89,8 +89,36 @@
         function cerrarSesion() {
             window.location.href = "index.html";
         }
-        
-        // Evitar retroceder o avanzar con las flechas del navegador
+
+        // Bloquear teclas de navegación y recarga
+        document.addEventListener("keydown", function (event) {
+            if (
+                event.key === "F5" ||
+                event.key === "ArrowLeft" ||
+                event.key === "ArrowRight" ||
+                (event.ctrlKey && event.key === "r") ||
+                (event.ctrlKey && event.shiftKey && event.key === "R") ||
+                event.key === "Backspace"
+            ) {
+                event.preventDefault();
+            }
+        });
+
+        // Bloquear F12, Ctrl+Shift+I y el menú de clic derecho
+        document.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (
+                event.key === "F12" ||
+                (event.ctrlKey && event.shiftKey && event.key === "I")
+            ) {
+                event.preventDefault();
+            }
+        });
+
+        // Evitar que se use el botón de retroceso del navegador
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = function () {
             window.history.pushState(null, "", window.location.href);

@@ -26,8 +26,7 @@
             margin-top: 20px;
         }
     </style>
-    <!-- Cargar Supabase primero para asegurar que esté disponible -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8"></script>
 </head>
 <body>
     <div id="anuncio-container">
@@ -40,22 +39,20 @@
     <script>
         let tiempo = 20;
         let intervalo;
-        let anuncioAbierto = false; // Para evitar múltiples aperturas
+        let anuncioAbierto = false;
         
-        // Configuración de Supabase
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Reemplaza con tu clave pública segura
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
         
-        let usuarioId = 1; // Reemplaza con el ID del usuario que está logueado
+        let usuarioId = 1;
         
         async function contarClickEnSupabase() {
             try {
                 const { data, error } = await supabase
                     .from('usuarios')
-                    .update({ anuncios_clickeados: supabase.rpc('increment', { x: 1 }) })
-                    .eq('id', usuarioId)
-                    .select();
+                    .update({ anuncios_clickeados: supabase.sql`anuncios_clickeados + 1` })
+                    .eq('id', usuarioId);
                 
                 if (error) {
                     console.error("Error al actualizar clics:", error);
@@ -68,29 +65,20 @@
         }
         
         function manejarClicAnuncio(event) {
-            // Evitamos la propagación del evento para que no interfiera con el anuncio
             event.stopPropagation();
             
             if (!anuncioAbierto) { 
-                anuncioAbierto = true; // Marcamos que ya se abrió
-                
-                // Intentar registrar el clic en Supabase
+                anuncioAbierto = true;
                 contarClickEnSupabase();
-                
-                // Iniciamos el cronómetro
                 iniciarCronometro();
                 
-                // El script del anuncio debería abrir su propia ventana/redirección
-                // Si después de un tiempo no detectamos la apertura, mostramos el error
                 setTimeout(function() {
-                    // Comprobar si realmente se abrió una ventana (esto es aproximado)
                     if (!document.hidden) {
                         document.getElementById("mensaje-error").style.display = "block";
-                        // Ocultamos el mensaje de error después de 3 segundos
-                        setTimeout(function() {
+                        setTimeout(() => {
                             document.getElementById("mensaje-error").style.display = "none";
                         }, 3000);
-                        anuncioAbierto = false; // Permitir otro intento
+                        anuncioAbierto = false;
                     }
                 }, 1000);
             }
@@ -98,7 +86,7 @@
         
         function iniciarCronometro() {
             clearInterval(intervalo);
-            tiempo = 20; // Reiniciamos el tiempo
+            tiempo = 20;
             document.getElementById("cronometro").innerText = tiempo;
             
             intervalo = setInterval(() => {
@@ -107,15 +95,12 @@
                     document.getElementById("cronometro").innerText = tiempo;
                 } else {
                     clearInterval(intervalo);
-                    // Reiniciamos para permitir otro clic cuando termine el tiempo
                     anuncioAbierto = false;
                 }
             }, 1000);
         }
         
-        // Esperar a que el DOM esté completamente cargado
         document.addEventListener('DOMContentLoaded', function() {
-            // Aseguramos que el contenedor existe antes de asignar el evento
             const container = document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098");
             if (container) {
                 container.addEventListener("click", manejarClicAnuncio);
@@ -125,16 +110,14 @@
             }
         });
         
-        // Respaldo para cuando el script de anuncios se carga después del DOM
         window.addEventListener('load', function() {
             setTimeout(function() {
                 const container = document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098");
                 if (container) {
-                    // Verificar si ya tiene el evento asignado
                     container.addEventListener("click", manejarClicAnuncio);
                     console.log("Evento de clic asignado al contenedor de anuncios (respaldo)");
                 }
-            }, 1000); // Esperamos un segundo adicional para asegurar que todo está cargado
+            }, 1000);
         });
     </script>
 </body>

@@ -36,10 +36,16 @@
     <p id="message"></p>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", function() {
+            // Verifica que Supabase se haya cargado correctamente
+            if (typeof supabase === "undefined") {
+                console.error("Supabase no se cargó correctamente.");
+                return;
+            }
+
             const supabaseUrl = "https://tusupabaseurl.supabase.co";
             const supabaseKey = "tu-clave-secreta";
-            const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
             async function registerUser() {
                 const email = document.getElementById("email").value;
@@ -48,14 +54,14 @@
                 const payment_method = document.getElementById("payment_method").value;
 
                 try {
-                    const { data, error } = await supabase.auth.signUp({ email, password });
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
 
                     if (error) {
                         document.getElementById("message").innerText = "Error: " + error.message;
                         return;
                     }
 
-                    await supabase.from("usuarios").insert([{ email, dni, payment_method, saldo: 0 }]);
+                    await supabaseClient.from("usuarios").insert([{ email, dni, payment_method, saldo: 0 }]);
 
                     document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
                 } catch (err) {

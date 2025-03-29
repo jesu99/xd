@@ -35,7 +35,8 @@
 <body>
     <h2>Visualiza el anuncio</h2>
     <div id="anuncio-container">
-        <a href="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js" target="_blank" id="anuncio-link">Ver Anuncio</a>
+        <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+        <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
     </div>
     
     <div id="cronometro">20</div>
@@ -46,16 +47,6 @@
         let intervalo;
         let ventanaAnuncio;
         let enAnuncio = false;
-
-        document.getElementById("anuncio-link").addEventListener("click", function(event) {
-            event.preventDefault();
-            ventanaAnuncio = window.open(event.target.href, "_blank");
-            if (ventanaAnuncio) {
-                enAnuncio = true;
-                iniciarCronometro();
-                verificarVentana();
-            }
-        });
 
         function iniciarCronometro() {
             intervalo = setInterval(() => {
@@ -73,7 +64,7 @@
 
         function verificarVentana() {
             let chequeo = setInterval(() => {
-                if (ventanaAnuncio.closed) {
+                if (ventanaAnuncio && ventanaAnuncio.closed) {
                     clearInterval(chequeo);
                     clearInterval(intervalo);
                     document.getElementById("reintentar").style.display = "block";

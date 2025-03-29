@@ -13,17 +13,16 @@
     <button onclick="signUp()">Registrarse</button>
     <button onclick="signIn()">Iniciar Sesión</button>
     <p id="message"></p>
-
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
         async function signUp() {
             let email = document.getElementById("email").value;
             let password = document.getElementById("password").value;
             
-            const { user, error } = await supabase.auth.signUp({ email, password });
+            const { data, error } = await supabase.auth.signUp({ email, password });
             if (error) {
                 document.getElementById("message").innerText = error.message;
             } else {
@@ -31,12 +30,12 @@
                 document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
             }
         }
-
+        
         async function signIn() {
             let email = document.getElementById("email").value;
             let password = document.getElementById("password").value;
             
-            const { user, error } = await supabase.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) {
                 document.getElementById("message").innerText = error.message;
             } else {

@@ -23,9 +23,29 @@
 </head>
 <body>
     <h2>Visualiza el anuncio</h2>
-    <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-    <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+    <div id="anuncio-container">
+        <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+        <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+    </div>
     
     <div id="cronometro">20</div>
+    
+    <script>
+        let tiempo = 20;
+        let intervalo;
+        
+        document.getElementById("anuncio-container").addEventListener("click", function() {
+            if (!intervalo) {
+                intervalo = setInterval(() => {
+                    if (tiempo > 0) {
+                        tiempo--;
+                        document.getElementById("cronometro").innerText = tiempo;
+                    } else {
+                        clearInterval(intervalo);
+                    }
+                }, 1000);
+            }
+        });
+    </script>
 </body>
 </html>

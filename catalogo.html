@@ -8,54 +8,59 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
         #buscador { margin: 10px; padding: 5px; width: 80%; max-width: 400px; }
-        .pelicula { cursor: pointer; margin: 10px; padding: 10px; border: 1px solid #ccc; display: inline-block; width: 200px; }
+        #peliculas { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+        .pelicula { cursor: pointer; padding: 10px; border: 1px solid #ccc; width: 200px; text-align: center; }
         .pelicula img { width: 100%; height: auto; }
+        #loader { display: none; font-size: 18px; margin-top: 20px; }
     </style>
 </head>
 <body>
     <h1>Catálogo de Películas</h1>
     <input type="text" id="buscador" placeholder="Buscar película...">
+    <p id="loader">Cargando películas...</p>
     <div id="peliculas"></div>
 
     <script>
-        // Primero, aseguramos la correcta inicialización de Supabase
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Usa una variable de entorno en producción
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         document.addEventListener("DOMContentLoaded", async () => {
-            async function cargarPeliculas() {
-                try {
-                    let { data, error } = await supabase.from('peliculas').select('*');
-                    if (error) throw error;
-                    mostrarPeliculas(data);
-                } catch (err) {
-                    console.error("Error al obtener películas:", err.message);
+            const buscador = document.getElementById("buscador");
+            const peliculasContainer = document.getElementById("peliculas");
+            const loader = document.getElementById("loader");
+
+            async function cargarPeliculas(filtro = "") {
+                loader.style.display = "block";
+                peliculasContainer.innerHTML = "";
+                
+                let query = supabase.from('peliculas').select('*');
+                if (filtro) query = query.ilike('nombre', `%${filtro}%`);
+
+                let { data, error } = await query;
+
+                loader.style.display = "none";
+
+                if (error) {
+                    console.error("Error al obtener películas:", error.message);
+                    return;
                 }
+                
+                mostrarPeliculas(data);
             }
 
             function mostrarPeliculas(peliculas) {
-                const contenedor = document.getElementById("peliculas");
-                contenedor.innerHTML = "";
-                peliculas.forEach(peli => {
-                    let div = document.createElement("div");
-                    div.className = "pelicula";
-                    div.innerHTML = `
+                peliculasContainer.innerHTML = peliculas.map(peli => `
+                    <div class="pelicula" onclick="location.href='player.html?id=${peli.id}'">
                         <img src="${peli.imagen}" alt="${peli.nombre}">
                         <h3>${peli.nombre}</h3>
                         <p>${peli.resena}</p>
-                    `;
-                    div.onclick = () => location.href = `player.html?id=${peli.id}`;
-                    contenedor.appendChild(div);
-                });
+                    </div>
+                `).join('');
             }
 
-            document.getElementById("buscador").addEventListener("input", function() {
-                let filtro = this.value.toLowerCase();
-                let peliculas = document.querySelectorAll(".pelicula");
-                peliculas.forEach(peli => {
-                    peli.style.display = peli.innerText.toLowerCase().includes(filtro) ? "block" : "none";
-                });
+            buscador.addEventListener("input", () => {
+                cargarPeliculas(buscador.value.toLowerCase());
             });
 
             await cargarPeliculas();

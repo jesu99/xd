@@ -22,21 +22,24 @@
     <div id="lista-anuncios"></div>
 
     <script>
+        // Importar correctamente la función createClient
+        const { createClient } = supabase;
+        
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
         async function cargarUsuario() {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) {
                 window.location.href = "index.html";
                 return;
             }
             document.getElementById("user-email").innerText = user.email;
             
-            let { data, error } = await supabase.from("usuarios").select("saldo, peliculas_vistas, anuncios_clickeados").eq("email", user.email).single();
+            let { data, error } = await supabaseClient.from("usuarios").select("saldo, peliculas_vistas, anuncios_clickeados").eq("email", user.email).single();
             if (error) {
-                document.getElementById("message").innerText = "Error al cargar datos";
+                document.getElementById("message").innerText = "Error al cargar datos: " + error.message;
                 return;
             }
             
@@ -70,11 +73,25 @@
 
         async function verPelicula(url) {
             window.open(url, "_blank");
-            const { data: { user } } = await supabase.auth.getUser();
-            await supabase.from("usuarios").update({ 
-                saldo: supabase.rpc("increment", { x: 0.002 }), 
-                peliculas_vistas: supabase.rpc("increment", { x: 1 }) 
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            
+            // Primero obtenemos los valores actuales
+            const { data, error } = await supabaseClient.from("usuarios")
+                .select("saldo, peliculas_vistas")
+                .eq("email", user.email)
+                .single();
+                
+            if (error) {
+                document.getElementById("message").innerText = "Error al actualizar datos: " + error.message;
+                return;
+            }
+                
+            // Luego actualizamos con los nuevos valores
+            await supabaseClient.from("usuarios").update({ 
+                saldo: data.saldo + 0.002,
+                peliculas_vistas: (data.peliculas_vistas || 0) + 1
             }).eq("email", user.email);
+            
             setTimeout(() => location.reload(), 2000);
         }
 
@@ -96,20 +113,37 @@
             let nuevaVentana = window.open(url, "_blank");
             setTimeout(async () => {
                 if (nuevaVentana && !nuevaVentana.closed) {
-                    const { data: { user } } = await supabase.auth.getUser();
-                    await supabase.from("usuarios").update({ 
-                        saldo: supabase.rpc("increment", { x: 0.001 }), 
-                        anuncios_clickeados: supabase.rpc("increment", { x: 1 }) 
+                    const { data: { user } } = await supabaseClient.auth.getUser();
+                    
+                    // Primero obtenemos los valores actuales
+                    const { data, error } = await supabaseClient.from("usuarios")
+                        .select("saldo, anuncios_clickeados")
+                        .eq("email", user.email)
+                        .single();
+                        
+                    if (error) {
+                        document.getElementById("message").innerText = "Error al actualizar datos: " + error.message;
+                        return;
+                    }
+                    
+                    // Luego actualizamos con los nuevos valores
+                    await supabaseClient.from("usuarios").update({ 
+                        saldo: data.saldo + 0.001,
+                        anuncios_clickeados: (data.anuncios_clickeados || 0) + 1
                     }).eq("email", user.email);
+                    
                     nuevaVentana.close();
                     location.reload();
                 }
             }, 20000);
         }
 
-        cargarUsuario();
-        cargarPeliculas();
-        cargarAnuncios();
+        // Iniciar carga cuando el documento esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarUsuario();
+            cargarPeliculas();
+            cargarAnuncios();
+        });
     </script>
 </body>
 </html>

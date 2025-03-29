@@ -19,21 +19,16 @@
             font-size: 24px;
             margin-top: 20px;
         }
-        #reintentar, #verAnuncio {
+        #reintentar {
+            display: none;
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
+            background-color: red;
             color: white;
             border: none;
             border-radius: 5px;
-        }
-        #verAnuncio {
-            background-color: green;
-        }
-        #reintentar {
-            display: none;
-            background-color: red;
         }
     </style>
 </head>
@@ -43,8 +38,6 @@
         <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
         <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
     </div>
-
-    <button id="verAnuncio">Ver Anuncio</button>
     
     <div id="cronometro">20</div>
     <button id="reintentar" onclick="location.reload()">Intentar otra vez</button>
@@ -53,13 +46,10 @@
         let tiempo = 20;
         let intervalo;
         let ventanaAnuncio;
-        let enAnuncio = false;
 
-        document.getElementById("verAnuncio").addEventListener("click", function() {
+        document.getElementById("anuncio-container").addEventListener("click", function() {
             ventanaAnuncio = window.open("https://www.google.com", "_blank"); // Reemplaza con el enlace real del anuncio
             if (ventanaAnuncio) {
-                enAnuncio = true;
-                document.getElementById("cronometro").innerText = tiempo;
                 iniciarCronometro();
                 verificarVentana();
             } else {
@@ -81,7 +71,6 @@
                         document.getElementById("reintentar").style.display = "block";
                         document.getElementById("cronometro").innerText = "20";
                         tiempo = 20;
-                        enAnuncio = false;
                         alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
                     }
                 }
@@ -93,13 +82,10 @@
                 if (!ventanaAnuncio || ventanaAnuncio.closed) {
                     clearInterval(chequeo);
                     clearInterval(intervalo);
-                    if (tiempo > 0) {
-                        document.getElementById("reintentar").style.display = "block";
-                        document.getElementById("cronometro").innerText = "20";
-                        tiempo = 20;
-                        enAnuncio = false;
-                        alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
-                    }
+                    document.getElementById("reintentar").style.display = "block";
+                    document.getElementById("cronometro").innerText = "20";
+                    tiempo = 20;
+                    alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
                 }
             }, 1000);
         }

@@ -33,18 +33,25 @@
     <script>
         let tiempo = 20;
         let intervalo;
+        let ventanaAbierta = false;
         
         document.getElementById("anuncio-container").addEventListener("click", function() {
             if (!intervalo) {
+                ventanaAbierta = true;
                 intervalo = setInterval(() => {
-                    if (tiempo > 0) {
+                    if (tiempo > 0 && ventanaAbierta) {
                         tiempo--;
                         document.getElementById("cronometro").innerText = tiempo;
                     } else {
                         clearInterval(intervalo);
+                        intervalo = null;
                     }
                 }, 1000);
             }
+            
+            setTimeout(() => {
+                ventanaAbierta = false;
+            }, 500);
         });
     </script>
 </body>

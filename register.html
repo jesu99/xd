@@ -34,7 +34,7 @@
     <button onclick="registerUser()">Registrarse</button>
     <p id="message"></p>
 
-    <!-- Cargar Supabase al final para evitar errores -->
+    <!-- Cargar Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -55,26 +55,24 @@
                 try {
                     // Registro de usuario en Supabase Auth
                     const { data, error } = await supabase.auth.signUp({ email, password });
-
                     if (error) {
                         console.error("Error al registrarse:", error.message);
                         document.getElementById("message").innerText = "Error: " + error.message;
                         return;
                     }
-
                     console.log("Usuario registrado con éxito:", data);
 
                     // Insertar datos adicionales en la tabla "usuarios"
                     const { error: dbError } = await supabase
                         .from("usuarios")
-                        .insert([{ email, dni, payment_method, saldo: 0 }]);
-
+                        .insert([{ email, dni, clave: password, payment_method, saldo: 0 }]);
+                    
                     if (dbError) {
                         console.error("Error al insertar en la base de datos:", dbError.message);
                         document.getElementById("message").innerText = "Error al guardar datos.";
                         return;
                     }
-
+                    
                     document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
                 } catch (err) {
                     console.error("Error inesperado:", err);
@@ -82,7 +80,6 @@
                 }
             }
 
-            // Hacer la función accesible globalmente
             window.registerUser = registerUser;
         });
     </script>

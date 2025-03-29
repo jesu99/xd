@@ -28,11 +28,14 @@
     <input type="text" id="dni" placeholder="DNI" required>
     <button onclick="registrarUsuario()">Registrarse</button>
     <p id="mensaje"></p>
+    
+    <!-- Botón para ir a index -->
+    <button onclick="window.location.href='index.html'">Ir a Inicio</button>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";  // Asegúrate de usar la clave correcta
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";  
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         async function registrarUsuario() {
@@ -47,7 +50,6 @@
             }
 
             try {
-                // Insertar usuario en la tabla
                 const { error } = await supabase
                     .from("usuarios")
                     .insert([{ email, clave, dni }]);
@@ -59,6 +61,12 @@
                 }
 
                 mensaje.innerText = "Usuario registrado correctamente.";
+                
+                // Redirección al dashboard después de 2 segundos
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 2000);
+
             } catch (err) {
                 console.error("Error inesperado:", err);
                 mensaje.innerText = "Error inesperado.";

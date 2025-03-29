@@ -11,7 +11,7 @@
 
     <script>
         const API_URL = "https://tihvqxujcqladqxucugf.supabase.co/rest/v1/peliculas";
-        const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // ⚠️ Reemplaza esto con tu API key correcta
+        const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; 
 
         async function cargarPeliculas() {
             try {
@@ -27,10 +27,10 @@
                 }
 
                 const peliculas = await respuesta.json();
-                console.log("Películas recibidas:", peliculas); // Para depuración en consola
+                console.log("Películas recibidas:", peliculas);
 
                 const catalogoDiv = document.getElementById("catalogo");
-                catalogoDiv.innerHTML = ""; // Limpiar antes de agregar
+                catalogoDiv.innerHTML = "";
 
                 peliculas.forEach(pelicula => {
                     const peliculaDiv = document.createElement("div");
@@ -38,7 +38,7 @@
                         <h3>${pelicula.nombre}</h3>
                         <img src="${pelicula.imagen}" alt="${pelicula.nombre}" style="width:150px;">
                         <p>${pelicula.resena}</p>
-                        <a href="${pelicula.url}" target="_blank">Ver Película</a>
+                        <a href="player.html?id=${pelicula.id}&url=${encodeURIComponent(pelicula.url)}">Ver Película</a>
                         <hr>
                     `;
                     catalogoDiv.appendChild(peliculaDiv);
@@ -49,7 +49,6 @@
             }
         }
 
-        // Ejecutar función al cargar la página
         cargarPeliculas();
     </script>
 </body>

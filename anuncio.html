@@ -35,8 +35,7 @@
 <body>
     <h2>Visualiza el anuncio</h2>
     <div id="anuncio-container">
-        <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-        <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+        <a href="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js" target="_blank" id="anuncio-link">Ver Anuncio</a>
     </div>
     
     <div id="cronometro">20</div>
@@ -48,7 +47,7 @@
         let ventanaAnuncio;
         let enAnuncio = false;
 
-        document.getElementById("anuncio-container").addEventListener("click", function(event) {
+        document.getElementById("anuncio-link").addEventListener("click", function(event) {
             event.preventDefault();
             ventanaAnuncio = window.open(event.target.href, "_blank");
             if (ventanaAnuncio) {
@@ -78,6 +77,8 @@
                     clearInterval(chequeo);
                     clearInterval(intervalo);
                     document.getElementById("reintentar").style.display = "block";
+                    document.getElementById("cronometro").innerText = "20";
+                    tiempo = 20;
                     alert("Debes permanecer 20 segundos en la página del anunciante para recibir la recompensa.");
                 }
             }, 1000);

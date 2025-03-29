@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             display: flex;
@@ -35,35 +34,57 @@
     <button onclick="registerUser()">Registrarse</button>
     <p id="message"></p>
 
+    <!-- Cargar Supabase al final para evitar errores -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-            const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-            const supabase = window.supabase = Supabase.createClient(supabaseUrl, supabaseKey);
-        });
+            console.log("Documento cargado, inicializando Supabase...");
+            
+            const supabaseUrl = "https://tusupabaseurl.supabase.co";
+            const supabaseKey = "tu-clave-secreta";
+            const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function registerUser() {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const dni = document.getElementById("dni").value;
-            const payment_method = document.getElementById("payment_method").value;
-            const messageElement = document.getElementById("message");
+            async function registerUser() {
+                console.log("Intentando registrar usuario...");
+                
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                const dni = document.getElementById("dni").value;
+                const payment_method = document.getElementById("payment_method").value;
 
-            try {
-                const { data, error } = await window.supabase.auth.signUp({ email, password });
+                try {
+                    // Registro de usuario en Supabase Auth
+                    const { data, error } = await supabase.auth.signUp({ email, password });
 
-                if (error) {
-                    messageElement.innerText = "Error: " + error.message;
-                    return;
+                    if (error) {
+                        console.error("Error al registrarse:", error.message);
+                        document.getElementById("message").innerText = "Error: " + error.message;
+                        return;
+                    }
+
+                    console.log("Usuario registrado con éxito:", data);
+
+                    // Insertar datos adicionales en la tabla "usuarios"
+                    const { error: dbError } = await supabase
+                        .from("usuarios")
+                        .insert([{ email, dni, payment_method, saldo: 0 }]);
+
+                    if (dbError) {
+                        console.error("Error al insertar en la base de datos:", dbError.message);
+                        document.getElementById("message").innerText = "Error al guardar datos.";
+                        return;
+                    }
+
+                    document.getElementById("message").innerText = "Registro exitoso. Revisa tu correo.";
+                } catch (err) {
+                    console.error("Error inesperado:", err);
+                    document.getElementById("message").innerText = "Ocurrió un error inesperado.";
                 }
-
-                await window.supabase.from("usuarios").insert([{ email, dni, payment_method, saldo: 0 }]);
-                messageElement.innerText = "Registro exitoso. Revisa tu correo.";
-            } catch (err) {
-                console.error("Error en el registro:", err);
-                messageElement.innerText = "Ocurrió un error, intenta nuevamente.";
             }
-        }
+
+            // Hacer la función accesible globalmente
+            window.registerUser = registerUser;
+        });
     </script>
 </body>
 </html>

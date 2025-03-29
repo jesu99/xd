@@ -21,9 +21,8 @@
     <div id="peliculas"></div>
 
     <script>
-        // Configuración de Supabase
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Usa una variable de entorno en producción
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Reemplázalo con tu clave real
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -35,10 +34,7 @@
                 loader.style.display = "block";
                 peliculasContainer.innerHTML = "";
                 
-                let { data, error } = await supabase
-                    .from('peliculas')
-                    .select('*')
-                    .ilike('nombre', `%${filtro}%`); // Filtrar por nombre
+                let { data, error } = await supabase.from('peliculas').select('*');
 
                 loader.style.display = "none";
 
@@ -48,26 +44,28 @@
                     return;
                 }
 
-                mostrarPeliculas(data);
-            }
-
-            function mostrarPeliculas(peliculas) {
-                if (peliculas.length === 0) {
-                    peliculasContainer.innerHTML = "<p>No se encontraron películas.</p>";
+                if (!data || data.length === 0) {
+                    peliculasContainer.innerHTML = "<p>No hay películas disponibles.</p>";
                     return;
                 }
 
-                peliculasContainer.innerHTML = peliculas.map(peli => `
-                    <div class="pelicula" onclick="location.href='player.html?id=${peli.id}'">
-                        <img src="${peli.imagen}" alt="${peli.nombre}">
-                        <h3>${peli.nombre}</h3>
-                        <p>${peli.resena || 'Sin reseña disponible'}</p>
-                    </div>
-                `).join('');
+                mostrarPeliculas(data, filtro);
+            }
+
+            function mostrarPeliculas(peliculas, filtro) {
+                peliculasContainer.innerHTML = peliculas
+                    .filter(peli => peli.nombre.toLowerCase().includes(filtro.toLowerCase()))
+                    .map(peli => `
+                        <div class="pelicula" onclick="location.href='player.html?id=${peli.id}'">
+                            <img src="${peli.imagen}" alt="${peli.nombre}">
+                            <h3>${peli.nombre}</h3>
+                            <p>${peli.resena || "Sin reseña disponible."}</p>
+                        </div>
+                    `).join('');
             }
 
             buscador.addEventListener("input", () => {
-                cargarPeliculas(buscador.value.trim().toLowerCase());
+                cargarPeliculas(buscador.value);
             });
 
             await cargarPeliculas();

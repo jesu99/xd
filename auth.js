@@ -64,7 +64,7 @@ async function obtenerDatosUsuario() {
             const { data, error } = await supabaseClient
                 .from("usuarios")
                 .select("*")
-                .eq("correo electrónico", user.email)
+                .eq("email", user.email)
                 .single();
             
             if (error) {

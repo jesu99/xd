@@ -4,52 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .user-info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            background-color: #ff4c4c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h2>Bienvenido al Dashboard</h2>
-    <p id="user-email"></p>
-    <p>Anuncios Clickeados: <span id="clicks"></span></p>
-    <button onclick="cerrarSesion()">Cerrar Sesión</button>
+    <h1>Dashboard</h1>
+    <div class="user-info">
+        <p>Cargando información del usuario...</p>
+    </div>
+    <button class="logout-btn" onclick="cerrarSesion()">Cerrar Sesión</button>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Asegúrate de usar la clave completa
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-        async function cargarDatosUsuario() {
+        
+        // Verificar la sesión al cargar la página
+        document.addEventListener('DOMContentLoaded', async function() {
             const { data: { session } } = await supabase.auth.getSession();
             
             if (!session) {
-                window.location.href = "login.html"; // Si no hay sesión, redirigir a login
+                // Si no hay sesión, redirigir al login
+                window.location.href = "login.html";
                 return;
             }
-
-            const email = session.user.email;
-            document.getElementById("user-email").innerText = `Usuario: ${email}`;
-
-            // Buscar en la tabla 'usuarios' los anuncios clickeados del usuario logueado
-            const { data, error } = await supabase
-                .from("usuarios")
-                .select("anuncios_clickeados")
-                .eq("email", email)
+            
+            // Obtener información del usuario desde la tabla users
+            const { data: usuario, error } = await supabase
+                .from('usuarios') // Reemplaza 'usuarios' con el nombre real de tu tabla
+                .select('*')
+                .eq('email', session.user.email)
                 .single();
-
-            if (error || !data) {
-                document.getElementById("clicks").innerText = "Error al cargar datos";
+                
+            if (error) {
+                console.error("Error al obtener datos del usuario:", error);
                 return;
             }
-
-            // Mostrar el número de anuncios clickeados
-            document.getElementById("clicks").innerText = data.anuncios_clickeados;
-        }
-
+            
+            // Mostrar la información del usuario
+            const userInfoDiv = document.querySelector('.user-info');
+            userInfoDiv.innerHTML = `
+                <h3>Bienvenido, ${usuario.email}</h3>
+                <p>DNI: ${usuario.dni}</p>
+                <p>Balance: $${usuario.balance}</p>
+                <p>Anuncios clickeados: ${usuario.anuncios_clickeados}</p>
+                <p>Películas vistas: ${usuario.peliculas_vistas}</p>
+                <p>Último click: ${usuario.ultimo_click || 'N/A'}</p>
+            `;
+        });
+        
         async function cerrarSesion() {
-            await supabase.auth.signOut();
-            window.location.href = "login.html"; // Redirigir a login tras cerrar sesión
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error("Error al cerrar sesión:", error);
+                return;
+            }
+            window.location.href = "login.html";
         }
-
-        cargarDatosUsuario();
     </script>
 </body>
 </html>

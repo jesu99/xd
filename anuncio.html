@@ -346,6 +346,45 @@
             ultimoClick = new Date(ahora);
             
             console.log("Clic registrado exitosamente. Nuevo balance:", nuevoBalance);
+            async function contarClickEnSupabase() {
+    if (!clickValido || !usuarioId) return;
+    
+    console.log("Registrando clic válido para usuario ID:", usuarioId);
+    try {
+        // Primero obtenemos el balance actual
+        const { data: userData, error: fetchError } = await supabase
+            .from('usuarios')
+            .select('balance')
+            .eq('id', usuarioId)
+            .single();
+            
+        if (fetchError) {
+            console.error("Error al obtener el balance actual:", fetchError);
+            return;
+        }
+        
+        // Calculamos el nuevo balance
+        const balanceActual = parseFloat(userData.balance) || 0;
+        const nuevoBalance = balanceActual + 0.001;
+        
+        // Ahora actualizamos todos los campos
+        const ahora = new Date().toISOString();
+        const { data, error } = await supabase
+            .from('usuarios')
+            .update({ 
+                anuncios_clickeados: anunciosClickeados + 1,
+                ultimo_click: ahora,
+                balance: nuevoBalance
+            })
+            .eq('id', usuarioId);
+        
+        if (error) {
+            console.error("Error al actualizar clics:", error);
+        } else {
+            anunciosClickeados++;
+            ultimoClick = new Date(ahora);
+            
+            console.log("Clic registrado exitosamente. Nuevo balance:", nuevoBalance);
             
             // Mostrar mensaje de éxito
             document.getElementById("mensaje-exito").style.display = "block";

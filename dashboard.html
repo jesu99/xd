@@ -4,94 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
             font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        .user-info {
-            background-color: #f0f0f0;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .logout-btn {
-            background-color: #ff4c4c;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <div class="user-info">
-        <p>Cargando información del usuario...</p>
-    </div>
-    <button class="logout-btn" onclick="cerrarSesion()">Cerrar Sesión</button>
+    <h2>Bienvenido</h2>
+    <p id="user-email"></p>
+    <p id="clicks"></p>
+    <button onclick="cerrarSesion()">Cerrar Sesión</button>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Asegúrate de usar la clave completa
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        
-        // Verificar datos guardados al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            const userDataString = localStorage.getItem('userData');
-            
-            if (!userDataString) {
-                // Si no hay datos guardados, redirigir al login
-                window.location.href = "login.html";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function cargarDatosUsuario() {
+            const token = sessionStorage.getItem("token");
+            const user_id = sessionStorage.getItem("user_id");
+
+            if (!token || !user_id) {
+                window.location.href = "login.html"; // Redirigir si no hay sesión
                 return;
             }
-            
-            try {
-                // Convertir string a objeto JavaScript
-                const usuario = JSON.parse(userDataString);
-                
-                // Mostrar la información del usuario
-                const userInfoDiv = document.querySelector('.user-info');
-                userInfoDiv.innerHTML = `
-                    <h3>Bienvenido, ${usuario.email}</h3>
-                    <p>DNI: ${usuario.dni}</p>
-                    <p>Balance: $${usuario.balance}</p>
-                    <p>Anuncios clickeados: ${usuario.anuncios_clickeados}</p>
-                    <p>Películas vistas: ${usuario.peliculas_vistas}</p>
-                    <p>Último click: ${usuario.ultimo_click || 'N/A'}</p>
-                `;
-                
-                // También podríamos actualizar los datos desde la base de datos aquí
-                // para tener la información más reciente
-                actualizarDatosUsuario(usuario.email);
-                
-            } catch (error) {
-                console.error("Error al procesar datos del usuario:", error);
-                localStorage.removeItem('userData');
-                window.location.href = "login.html";
-            }
-        });
-        
-        async function actualizarDatosUsuario(email) {
-            // Obtener datos actualizados del usuario
+
+            // Obtener información del usuario desde Supabase
             const { data, error } = await supabase
-                .from('usuarios')
-                .select('*')
-                .eq('email', email)
+                .from("usuarios")
+                .select("email, anuncios_clickeados")
+                .eq("id", user_id)
                 .single();
-                
-            if (!error && data) {
-                localStorage.setItem('userData', JSON.stringify(data));
-                // Si quieres, puedes actualizar la UI aquí también
+
+            if (error || !data) {
+                console.error("Error al obtener usuario:", error);
+                window.location.href = "login.html"; // Si hay error, forzar logout
+                return;
             }
+
+            document.getElementById("user-email").innerText = `Usuario: ${data.email}`;
+            document.getElementById("clicks").innerText = `Anuncios clickeados: ${data.anuncios_clickeados}`;
         }
-        
+
         function cerrarSesion() {
-            localStorage.removeItem('userData');
+            sessionStorage.clear();
             window.location.href = "login.html";
         }
+
+        cargarDatosUsuario();
     </script>
 </body>
 </html>

@@ -35,6 +35,8 @@
         <h2>Bienvenido a tu Dashboard</h2>
         <p>Gana dinero interactuando con anuncios o viendo películas.</p>
         <p><strong>Saldo actual: $<span id="saldo">0.000</span></strong></p>
+        <p>Anuncios clickeados: <span id="anuncios_clickeados">0</span></p>
+        <p>Películas vistas: <span id="peliculas_vistas">0</span></p>
     </div>
     
     <button onclick="pagarPorAnuncio()">Pago por clic a anuncio ($0.001 por 20s)</button>
@@ -44,89 +46,51 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "TU_SUPABASE_KEY"; // Sustituye por tu clave válida
+        const supabaseKey = "TU_SUPABASE_KEY";
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        const usuarioEmail = "usuario@email.com"; // Reemplázalo con el usuario actual
+        const usuarioEmail = "usuario@email.com";
         
-        async function cargarSaldo() {
+        async function cargarDatosUsuario() {
             const { data, error } = await supabase
                 .from("usuarios")
-                .select("saldo")
+                .select("saldo, usuarios_clickeados, peliculas_vistas")
                 .eq("email", usuarioEmail)
                 .single();
             
             if (error) {
-                console.error("Error al obtener saldo", error);
+                console.error("Error al obtener datos", error);
                 return;
             }
             document.getElementById("saldo").innerText = data.saldo.toFixed(3);
+            document.getElementById("anuncios_clickeados").innerText = data.usuarios_clickeados;
+            document.getElementById("peliculas_vistas").innerText = data.peliculas_vistas;
         }
         
-        async function actualizarSaldo(monto) {
+        async function actualizarSaldoYClicks(monto, columna) {
             const { error } = await supabase
                 .from("usuarios")
-                .update({ saldo: supabase.raw("saldo + ?", [monto]) })
+                .update({ saldo: supabase.raw("saldo + ?", [monto]), [columna]: supabase.raw(`${columna} + 1`) })
                 .eq("email", usuarioEmail);
             
             if (error) {
                 console.error("Error al actualizar saldo", error);
                 return;
             }
-            cargarSaldo();
+            cargarDatosUsuario();
         }
         
-       function pagarPorAnuncio() {
-    window.location.href = "anuncio.html";
-
-        }
-        
-        function pagarPorPelicula() {
-            setTimeout(() => actualizarSaldo(0.003), 300000);
-            alert("Has iniciado una película. Debes verla al menos 5 minutos para recibir el pago.");
+        function pagarPorAnuncio() {
+            actualizarSaldoYClicks(0.001, "usuarios_clickeados");
+            window.location.href = "anuncio.html";
         }
         
         function pagarPorPelicula() {
-    window.location.href = "catalogo.html";
-}
-
-        // Bloquear navegación con flechas y F5, redirigir a index.html
-        window.onload = function() {
-            history.pushState(null, null, location.href);
-            window.onpopstate = function() {
-                history.pushState(null, null, location.href);
-                window.location.href = "index.html";
-            };
-        };
+            actualizarSaldoYClicks(0.003, "peliculas_vistas");
+            window.location.href = "catalogo.html";
+        }
         
-        document.addEventListener("keydown", function (event) {
-            if (
-                event.key === "F5" ||
-                event.key === "ArrowLeft" ||
-                event.key === "Backspace" ||
-                (event.ctrlKey && event.key === "r") ||
-                (event.ctrlKey && event.shiftKey && event.key === "R")
-            ) {
-                event.preventDefault();
-                window.location.href = "index.html";
-            }
-        });
-        
-        // Bloquear F12, Ctrl+Shift+I y el menú de clic derecho
-        document.addEventListener("contextmenu", function (event) {
-            event.preventDefault();
-        });
-
-        document.addEventListener("keydown", function (event) {
-            if (
-                event.key === "F12" ||
-                (event.ctrlKey && event.shiftKey && event.key === "I")
-            ) {
-                event.preventDefault();
-            }
-        });
-        
-        cargarSaldo();
+        cargarDatosUsuario();
     </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 const supabaseClient = supabase.createClient(
     "https://TUSUPABASEURL.supabase.co",  // Reemplaza con tu URL de Supabase
-    "TU_SUPABASE_API_KEY"  // Reemplaza con tu API Key
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"  // Reemplaza con tu API Key
 );
 
 // Función para iniciar sesión

@@ -44,15 +44,15 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Sustituye por tu clave válida
+        const supabaseKey = "TU_SUPABASE_KEY"; // 🔴 Usa aquí tu clave real
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        const usuarioEmail = "usuario@email.com"; // Reemplázalo con el usuario actual
+        const usuarioEmail = "usuario@email.com"; // 🔴 Cambia esto por el email del usuario logueado
         
         async function cargarSaldo() {
             const { data, error } = await supabase
                 .from("usuarios")
-                .select("balance")  // Cambié "saldo" por "balance"
+                .select("balance")  
                 .eq("email", usuarioEmail)
                 .single();
             
@@ -66,7 +66,7 @@
         async function actualizarSaldo(monto) {
             const { error } = await supabase
                 .from("usuarios")
-                .update({ balance: supabase.raw("balance + ?", [monto]) }) // Cambié "saldo" por "balance"
+                .update({ balance: supabase.raw("balance + ?", [monto]) })
                 .eq("email", usuarioEmail);
             
             if (error) {
@@ -77,13 +77,19 @@
         }
         
         function pagarPorAnuncio() {
-            setTimeout(() => actualizarSaldo(0.001), 20000);
-            alert("Debes esperar 20s para recibir el pago.");
+            actualizarSaldo(0.001); // Suma el dinero
+            setTimeout(() => {
+                window.location.href = "anuncio.html"; // Redirige después de 20s
+            }, 20000);
+            alert("Espere 20 segundos para recibir el pago.");
         }
 
         function pagarPorPelicula() {
-            setTimeout(() => actualizarSaldo(0.003), 300000);
-            alert("Debes ver la película al menos 5 minutos para recibir el pago.");
+            actualizarSaldo(0.003); // Suma el dinero
+            setTimeout(() => {
+                window.location.href = "catalogo.html"; // Redirige después de 5 min
+            }, 300000);
+            alert("Debes ver la película durante al menos 5 minutos para recibir el pago.");
         }
         
         function cerrarSesion() {
@@ -97,7 +103,7 @@
                 history.pushState(null, null, location.href);
                 window.location.href = "index.html";
             };
-            cargarSaldo(); // Cargar saldo al cargar la página
+            cargarSaldo(); // Cargar saldo al inicio
         };
         
         document.addEventListener("keydown", function (event) {

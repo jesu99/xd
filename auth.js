@@ -1,3 +1,11 @@
+const { data, error } = await supabase.auth.signUp({
+    email: "usuario@ejemplo.com",
+    password: "ContraseñaSegura123"
+});
+
+console.log(data, error);
+
+
 const supabaseClient = supabase.createClient(
     "https://tihvqxujcqladqxucugf.supabase.co",  // Reemplaza con tu URL de Supabase
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"  // Reemplaza con tu API Key

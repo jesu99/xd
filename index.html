@@ -9,18 +9,23 @@
 <body>
     <h2>Login</h2>
     <input type="email" id="email" placeholder="Ingrese su correo">
-    <button onclick="validarLogin()">Ingresar</button>
+    <button id="loginBtn">Ingresar</button>
     <p id="resultado"></p>
 
     <script>
-        // Configurar conexión con Supabase
+        // Configurar conexión con Supabase antes de usarla
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co"; 
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function validarLogin() {
+        document.getElementById("loginBtn").addEventListener("click", async function () {
             const email = document.getElementById("email").value;
             const resultado = document.getElementById("resultado");
+
+            if (!email) {
+                resultado.textContent = "⚠️ Ingresa un correo";
+                return;
+            }
 
             // Verificar si el correo existe en la tabla 'usuarios'
             let { data, error } = await supabase
@@ -29,7 +34,8 @@
                 .eq("email", email);
 
             if (error) {
-                resultado.textContent = "Error en la consulta";
+                resultado.textContent = "❌ Error en la consulta";
+                console.error(error);
                 return;
             }
 
@@ -38,7 +44,7 @@
             } else {
                 resultado.textContent = "❌ Error: Correo no registrado";
             }
-        }
+        });
     </script>
 </body>
 </html>

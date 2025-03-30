@@ -70,42 +70,71 @@
         }
         
         async function actualizarSaldoYClicks(monto, columna) {
-            const { data, error } = await supabase
-                .from("usuarios")
-                .select(columna)
-                .eq("email", usuarioEmail)
-                .single();
-            
-            if (error) {
-                console.error("Error al obtener el valor actual", error);
-                return;
+            try {
+                // Primero obtenemos los datos actuales
+                const { data, error } = await supabase
+                    .from("usuarios")
+                    .select("balance, " + columna)
+                    .eq("email", usuarioEmail)
+                    .single();
+                
+                if (error) {
+                    console.error("Error al obtener los datos actuales", error);
+                    return;
+                }
+                
+                // Calculamos los nuevos valores
+                const nuevoValor = (data[columna] || 0) + 1;
+                const nuevoSaldo = parseFloat(data.balance) + monto;
+                
+                // Actualizamos los datos con los nuevos valores calculados
+                const { error: updateError } = await supabase
+                    .from("usuarios")
+                    .update({ 
+                        balance: nuevoSaldo,
+                        [columna]: nuevoValor 
+                    })
+                    .eq("email", usuarioEmail);
+                
+                if (updateError) {
+                    console.error("Error al actualizar datos", updateError);
+                    return;
+                }
+                
+                // Recargamos los datos para mostrar la información actualizada
+                await cargarDatosUsuario();
+                
+                console.log("Actualización exitosa:", {
+                    balance: nuevoSaldo,
+                    [columna]: nuevoValor
+                });
+                
+            } catch (e) {
+                console.error("Error inesperado:", e);
             }
-            
-            const nuevoValor = (data[columna] || 0) + 1;
-            const nuevoSaldo = monto;
-            
-            const { error: updateError } = await supabase
-                .from("usuarios")
-                .update({ balance: supabase.raw("balance + ?", [nuevoSaldo]), [columna]: nuevoValor })
-                .eq("email", usuarioEmail);
-            
-            if (updateError) {
-                console.error("Error al actualizar datos", updateError);
-                return;
-            }
-            cargarDatosUsuario();
         }
         
         function pagarPorAnuncio() {
             actualizarSaldoYClicks(0.001, "anuncios_clickeados");
-            window.location.href = "anuncio.html";
+            setTimeout(() => {
+                window.location.href = "anuncio.html";
+            }, 500); // Pequeña espera para asegurar que la actualización se complete
         }
         
         function pagarPorPelicula() {
             actualizarSaldoYClicks(0.003, "peliculas_vistas");
-            window.location.href = "catalogo.html";
+            setTimeout(() => {
+                window.location.href = "catalogo.html";
+            }, 500); // Pequeña espera para asegurar que la actualización se complete
         }
         
+        function cerrarSesion() {
+            // Implementar lógica de cierre de sesión
+            alert("Sesión cerrada");
+            // window.location.href = "login.html";
+        }
+        
+        // Cargar datos al iniciar
         cargarDatosUsuario();
     </script>
 </body>

@@ -28,13 +28,10 @@
     <button onclick="iniciarSesion()">Ingresar</button>
     <p id="mensaje"></p>
     
-    <!-- Botón para ir a index -->
-    <button onclick="window.location.href='index.html'">Ir a Inicio</button>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         async function iniciarSesion() {
@@ -47,37 +44,22 @@
                 return;
             }
 
-            try {
-                // Buscar usuario en la tabla
-                const { data, error } = await supabase
-                    .from("usuarios")
-                    .select("email, clave")
-                    .eq("email", email)
-                    .single();
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: clave
+            });
 
-                if (error || !data) {
-                    console.error("Error al buscar usuario:", error?.message);
-                    mensaje.innerText = "Usuario no encontrado.";
-                    return;
-                }
-
-                // Validar clave
-                if (data.clave !== clave) {
-                    mensaje.innerText = "Clave incorrecta. Revisa tus datos.";
-                    return;
-                }
-
-                mensaje.innerText = "Inicio de sesión exitoso.";
-
-                // Redirección al dashboard después de 2 segundos
-                setTimeout(() => {
-                    window.location.href = "dashboard.html";
-                }, 2000);
-
-            } catch (err) {
-                console.error("Error inesperado:", err);
-                mensaje.innerText = "Error inesperado.";
+            if (error) {
+                mensaje.innerText = "Error al iniciar sesión: " + error.message;
+                return;
             }
+
+            mensaje.innerText = "Inicio de sesión exitoso.";
+            
+            // Redirigir al dashboard
+            setTimeout(() => {
+                window.location.href = "dashboard.html";
+            }, 2000);
         }
     </script>
 </body>

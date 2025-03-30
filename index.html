@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login con Supabase</title>
+    <title>Buscar Usuario</title>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-    <h2>Login</h2>
+    <h2>Buscar Usuario</h2>
     <input type="email" id="email" placeholder="Ingrese su correo">
-    <button id="loginBtn">Ingresar</button>
+    <button id="buscarBtn">Buscar</button>
     <p id="resultado"></p>
 
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
-            // ✅ Esperar a que la librería se cargue
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // ✅ Ahora inicializamos Supabase
+            await new Promise(resolve => setTimeout(resolve, 500)); // Espera antes de inicializar Supabase
+            
+            // ✅ Inicializar Supabase
             const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
             const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
             const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-            // ✅ Agregar evento al botón de login
-            document.getElementById("loginBtn").addEventListener("click", async function () {
+            // ✅ Función para buscar el usuario
+            async function obtenerUsuario() {
                 const email = document.getElementById("email").value;
                 const resultado = document.getElementById("resultado");
 
@@ -35,20 +34,24 @@
                 try {
                     let { data, error } = await supabase
                         .from("usuarios")
-                        .select("email")
-                        .eq("email", email);
+                        .select("*")  // 🔹 Obtener todos los campos
+                        .eq("email", email);  // 🔹 Filtrar por correo
 
                     if (error) throw error;
 
-                    resultado.textContent = data.length > 0 
-                        ? "✅ Éxito: Usuario encontrado" 
-                        : "❌ Error: Correo no registrado";
-
+                    if (data.length > 0) {
+                        resultado.textContent = `✅ Usuario encontrado: ${JSON.stringify(data[0])}`;
+                    } else {
+                        resultado.textContent = "❌ Error: Correo no registrado";
+                    }
                 } catch (err) {
                     resultado.textContent = "❌ Error en la consulta";
                     console.error(err);
                 }
-            });
+            }
+
+            // ✅ Asignar evento al botón
+            document.getElementById("buscarBtn").addEventListener("click", obtenerUsuario);
         });
     </script>
 </body>

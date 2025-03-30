@@ -173,6 +173,25 @@
             visibility: visible;
             opacity: 1;
         }
+        
+        .earnings-breakdown {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .earnings-breakdown h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .earnings-detail {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +215,7 @@
             
             <div class="stats-container">
                 <div class="stat-card">
-                    <div class="stat-value" id="balance">0.00</div>
+                    <div class="stat-value" id="balance">0.000</div>
                     <div class="stat-label">Balance (USD)</div>
                     <div class="tooltip">
                         <span class="stat-info">?</span>
@@ -213,6 +232,22 @@
                 </div>
             </div>
             
+            <div class="earnings-breakdown">
+                <h3>Detalle de Ganancias</h3>
+                <div class="earnings-detail">
+                    <span>Anuncios:</span>
+                    <span id="anuncios-ganancia">$0.000</span>
+                </div>
+                <div class="earnings-detail">
+                    <span>Películas:</span>
+                    <span id="peliculas-ganancia">$0.000</span>
+                </div>
+                <div class="earnings-detail" style="font-weight: bold; margin-top: 10px; border-top: 1px solid #ccc; padding-top: 5px;">
+                    <span>Total:</span>
+                    <span id="ganancia-total">$0.000</span>
+                </div>
+            </div>
+            
             <div class="payment-info">
                 <p id="payment-method">Método de Pago: <span id="payment-method-text">No configurado</span></p>
             </div>
@@ -224,6 +259,7 @@
             
             <div class="action-buttons">
                 <button class="action-button" onclick="window.location.href='pagos.html'">Configurar Pagos</button>
+                <button class="action-button" onclick="actualizarDatos()">Actualizar Datos</button>
                 <button class="action-button logout-button" onclick="cerrarSesion()">Cerrar Sesión</button>
             </div>
         </div>
@@ -264,10 +300,24 @@
                 document.getElementById("user-dni").textContent = `DNI: ${data.dni || "No registrado"}`;
                 document.getElementById("avatar-initial").textContent = (data.email || "U")[0].toUpperCase();
                 
+                // Asegurar que el balance tenga 3 decimales para mostrar los $0.001 por clic
+                const balance = data.balance || 0;
+                document.getElementById("balance").textContent = balance.toFixed(3);
+                
                 // Actualizar estadísticas directamente de las columnas en la tabla usuarios
-                document.getElementById("balance").textContent = (data.balance || 0).toFixed(3);
-                document.getElementById("anuncios-clickeados").textContent = data.anuncios_clickeados || 0;
-                document.getElementById("peliculas-vistas").textContent = data.peliculas_vistas || 0;
+                const anunciosClickeados = data.anuncios_clickeados || 0;
+                const peliculasVistas = data.peliculas_vistas || 0;
+                
+                document.getElementById("anuncios-clickeados").textContent = anunciosClickeados;
+                document.getElementById("peliculas-vistas").textContent = peliculasVistas;
+                
+                // Calcular las ganancias detalladas
+                const gananciaAnuncios = anunciosClickeados * 0.001;
+                const gananciaPeliculas = peliculasVistas * 0.003;
+                
+                document.getElementById("anuncios-ganancia").textContent = `$${gananciaAnuncios.toFixed(3)}`;
+                document.getElementById("peliculas-ganancia").textContent = `$${gananciaPeliculas.toFixed(3)}`;
+                document.getElementById("ganancia-total").textContent = `$${balance.toFixed(3)}`;
                 
                 // Mostrar método de pago si existe
                 if (data.payment_method) {
@@ -304,6 +354,13 @@
             }
         }
         
+        // Función para actualizar los datos sin recargar la página
+        async function actualizarDatos() {
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("dashboard-content").style.display = "none";
+            await cargarDatosUsuario();
+        }
+        
         function cerrarSesion() {
             // Limpiar la sesión
             sessionStorage.removeItem("token");
@@ -316,6 +373,9 @@
         // Cargar datos al iniciar
         window.onload = function() {
             cargarDatosUsuario();
+            
+            // Configurar actualización periódica cada 60 segundos
+            setInterval(actualizarDatos, 60000);
         };
     </script>
 </body>

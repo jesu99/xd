@@ -14,48 +14,50 @@
     <p id="resultado"></p>
 
     <script>
-        // ✅ Conexión a Supabase
-        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // ✅ Inicializar Supabase antes de usarlo
+        document.addEventListener("DOMContentLoaded", function () {
+            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+            const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+            window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // ✅ Función de Login
-        async function login() {
-            const email = document.getElementById("email").value.trim().toLowerCase();
-            const clave = document.getElementById("clave").value.trim();
-            const resultado = document.getElementById("resultado");
+            // ✅ Función de Login
+            async function login() {
+                const email = document.getElementById("email").value.trim().toLowerCase();
+                const clave = document.getElementById("clave").value.trim();
+                const resultado = document.getElementById("resultado");
 
-            if (!email || !clave) {
-                resultado.textContent = "⚠️ Ingresa correo y contraseña";
-                return;
+                if (!email || !clave) {
+                    resultado.textContent = "⚠️ Ingresa correo y contraseña";
+                    return;
+                }
+
+                let { data, error } = await supabase
+                    .from("usuarios")
+                    .select("email, clave")
+                    .eq("email", email)
+                    .single();
+
+                if (error) {
+                    resultado.textContent = "❌ Error en la consulta";
+                    return;
+                }
+
+                if (!data) {
+                    resultado.textContent = "❌ Usuario no encontrado";
+                    return;
+                }
+
+                if (data.clave !== clave) {
+                    resultado.textContent = "❌ Contraseña incorrecta";
+                    return;
+                }
+
+                resultado.textContent = "✅ Inicio de sesión exitoso";
             }
 
-            let { data, error } = await supabase
-                .from("usuarios")
-                .select("email, clave")
-                .eq("email", email)
-                .single();
-
-            if (error) {
-                resultado.textContent = "❌ Error en la consulta";
-                return;
-            }
-
-            if (!data) {
-                resultado.textContent = "❌ Usuario no encontrado";
-                return;
-            }
-
-            if (data.clave !== clave) {
-                resultado.textContent = "❌ Contraseña incorrecta";
-                return;
-            }
-
-            resultado.textContent = "✅ Inicio de sesión exitoso";
-        }
-
-        // ✅ Evento del botón
-        document.getElementById("loginBtn").addEventListener("click", login);
+            // ✅ Evento del botón (se agrega después de cargar Supabase)
+            document.getElementById("loginBtn").addEventListener("click", login);
+        });
     </script>
 </body>
 </html>

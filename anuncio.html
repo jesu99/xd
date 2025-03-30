@@ -142,33 +142,36 @@
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        // Obtener el ID de usuario desde URL
-        let usuarioId = getUsuarioId();
+        // Obtener el ID de usuario desde el sessionStorage
+        let usuarioId = null;
         let ultimoClick = null;
         let anunciosClickeados = 0;
         let tiempoEsperaMs = 0;
         let intervaloTemporizador = null;
         
-        // Cargar información del usuario al inicio
+        // Verificar autenticación al inicio
         document.addEventListener('DOMContentLoaded', async function() {
+            // Verificar si hay un usuario logueado
+            const userId = sessionStorage.getItem("user_id");
+            if (!userId) {
+                // No hay usuario en sesión, redirigir al login
+                window.location.href = "login.html";
+                return;
+            }
+            
+            usuarioId = userId;
             await cargarInfoUsuario();
             agregarEventoAlContenedor();
             iniciarTemporizadorSiNecesario();
         });
         
-        function getUsuarioId() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const idFromUrl = urlParams.get('id');
-            
-            if (idFromUrl) {
-                return idFromUrl;
-            }
-            
-            return 1; // ID por defecto si no se proporciona
-        }
-        
         async function cargarInfoUsuario() {
             try {
+                if (!usuarioId) {
+                    console.error("No hay ID de usuario disponible");
+                    return;
+                }
+                
                 const { data: userData, error } = await supabase
                     .from('usuarios')
                     .select('anuncios_clickeados, ultimo_click')
@@ -290,7 +293,7 @@
         }
         
         async function contarClickEnSupabase() {
-            if (!clickValido) return;
+            if (!clickValido || !usuarioId) return;
             
             console.log("Registrando clic válido para usuario ID:", usuarioId);
             try {
@@ -300,7 +303,8 @@
                     .from('usuarios')
                     .update({ 
                         anuncios_clickeados: anunciosClickeados + 1,
-                        ultimo_click: ahora
+                        ultimo_click: ahora,
+                        balance: supabase.rpc('incrementar_balance', { usuario_id: usuarioId, incremento: 0.001 })
                     })
                     .eq('id', usuarioId);
                 
@@ -330,6 +334,12 @@
         function manejarClicAnuncio(event) {
             console.log("Clic en anuncio detectado");
             event.preventDefault();
+            
+            // Verificar que hay un usuario en sesión
+            if (!usuarioId) {
+                window.location.href = "login.html";
+                return false;
+            }
             
             // Verificar tiempo de espera
             const tiempoEspera = puedeHacerClick();

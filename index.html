@@ -14,8 +14,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
-            await new Promise(resolve => setTimeout(resolve, 500)); // Espera antes de inicializar Supabase
-            
             // ✅ Inicializar Supabase
             const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
             const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
@@ -23,8 +21,11 @@
 
             // ✅ Función para buscar el usuario
             async function obtenerUsuario() {
-                const email = document.getElementById("email").value;
+                const emailInput = document.getElementById("email");
                 const resultado = document.getElementById("resultado");
+
+                // 🔹 Normalizar el correo (quitar espacios y pasar a minúsculas)
+                const email = emailInput.value.trim().toLowerCase();
 
                 if (!email) {
                     resultado.textContent = "⚠️ Ingresa un correo";
@@ -34,8 +35,8 @@
                 try {
                     let { data, error } = await supabase
                         .from("usuarios")
-                        .select("*")  // 🔹 Obtener todos los campos
-                        .eq("email", email);  // 🔹 Filtrar por correo
+                        .select("*")  
+                        .eq("email", email);
 
                     if (error) throw error;
 

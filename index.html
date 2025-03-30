@@ -19,30 +19,42 @@
         const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         document.getElementById("loginBtn").addEventListener("click", async function () {
-            const email = document.getElementById("email").value;
-            const resultado = document.getElementById("resultado");
+            try {
+                const email = document.getElementById("email").value;
+                const resultado = document.getElementById("resultado");
 
-            if (!email) {
-                resultado.textContent = "⚠️ Ingresa un correo";
-                return;
-            }
+                if (!email) {
+                    resultado.textContent = "⚠️ Ingresa un correo";
+                    return;
+                }
 
-            // Verificar si el correo existe en la tabla 'usuarios'
-            let { data, error } = await supabase
-                .from("usuarios")
-                .select("email")
-                .eq("email", email);
+                // Validación de correo electrónico
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(email)) {
+                    resultado.textContent = "⚠️ Ingresa un correo válido";
+                    return;
+                }
 
-            if (error) {
-                resultado.textContent = "❌ Error en la consulta";
+                // Verificar si el correo existe en la tabla 'usuarios'
+                let { data, error } = await supabase
+                    .from("usuarios")
+                    .select("email")
+                    .eq("email", email);
+
+                if (error) {
+                    resultado.textContent = "❌ Error en la consulta";
+                    console.error(error);
+                    return;
+                }
+
+                if (data.length > 0) {
+                    resultado.textContent = "✅ Éxito: Usuario encontrado";
+                } else {
+                    resultado.textContent = "❌ Error: Correo no registrado";
+                }
+            } catch (error) {
                 console.error(error);
-                return;
-            }
-
-            if (data.length > 0) {
-                resultado.textContent = "✅ Éxito: Usuario encontrado";
-            } else {
-                resultado.textContent = "❌ Error: Correo no registrado";
+                resultado.textContent = "❌ Error desconocido";
             }
         });
     </script>

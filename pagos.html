@@ -120,6 +120,26 @@
             text-align: center;
             margin: 10px 0;
         }
+        
+        .verification-container {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .file-upload {
+            margin-top: 10px;
+        }
+        
+        .notification {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -131,6 +151,10 @@
             <p>Monto mínimo para solicitar pago: 5.00 USD</p>
         </div>
         
+        <div class="notification">
+            <p><strong>Importante:</strong> Para verificar tu cuenta y procesar pagos, necesitamos validar tu identidad. Por favor, sube una foto de tu DNI y envía este formulario al correo: <strong>verificacion@ejemplo.com</strong></p>
+        </div>
+        
         <form id="payment-form">
             <div class="form-group">
                 <label for="payment-method">Selecciona tu método de pago:</label>
@@ -138,7 +162,8 @@
                     <option value="">-- Seleccionar método --</option>
                     <option value="paypal">PayPal</option>
                     <option value="bank">Transferencia Bancaria</option>
-                    <option value="crypto">Criptomoneda</option>
+                    <option value="binance">Binance</option>
+                    <option value="yape">Yape</option>
                 </select>
             </div>
             
@@ -164,19 +189,36 @@
                 </div>
             </div>
             
-            <div id="crypto-details" class="payment-method-details">
+            <div id="binance-details" class="payment-method-details">
                 <div class="form-group">
-                    <label for="crypto-type">Tipo de Criptomoneda:</label>
-                    <select id="crypto-type">
-                        <option value="btc">Bitcoin (BTC)</option>
-                        <option value="eth">Ethereum (ETH)</option>
-                        <option value="usdt">Tether (USDT)</option>
-                    </select>
+                    <label for="binance-id">ID de Binance:</label>
+                    <input type="text" id="binance-id" placeholder="Tu ID de Binance">
                 </div>
                 <div class="form-group">
-                    <label for="wallet-address">Dirección de Billetera:</label>
-                    <input type="text" id="wallet-address" placeholder="Tu dirección de billetera">
+                    <label for="binance-email">Correo electrónico asociado (opcional):</label>
+                    <input type="email" id="binance-email" placeholder="tucorreo@ejemplo.com">
                 </div>
+            </div>
+            
+            <div id="yape-details" class="payment-method-details">
+                <div class="form-group">
+                    <label for="yape-number">Número de celular Yape:</label>
+                    <input type="tel" id="yape-number" placeholder="999999999">
+                </div>
+                <div class="form-group">
+                    <label for="yape-name">Nombre completo asociado a Yape:</label>
+                    <input type="text" id="yape-name" placeholder="Tu nombre completo">
+                </div>
+            </div>
+            
+            <div class="verification-container">
+                <h4>Verificación de identidad</h4>
+                <p>Para procesar tus pagos, necesitamos verificar tu identidad y confirmar que eres mayor de edad.</p>
+                <div class="form-group">
+                    <label for="dni-upload">Sube una foto de tu DNI (ambos lados):</label>
+                    <input type="file" id="dni-upload" class="file-upload" accept="image/*">
+                </div>
+                <p><small>Asegúrate que la imagen sea clara y legible. Tu información personal será tratada con confidencialidad.</small></p>
             </div>
             
             <div id="message-container"></div>
@@ -212,6 +254,7 @@
         
         let userData = null;
         let userEmail = null;
+        let dniFile = null;
         
         // Al cargar la página
         window.onload = async function() {
@@ -271,9 +314,12 @@
                             if (paymentData.bankName) document.getElementById("bank-name").value = paymentData.bankName;
                             if (paymentData.accountNumber) document.getElementById("account-number").value = paymentData.accountNumber;
                             if (paymentData.accountHolder) document.getElementById("account-holder").value = paymentData.accountHolder;
-                        } else if (data.payment_method === "crypto") {
-                            if (paymentData.cryptoType) document.getElementById("crypto-type").value = paymentData.cryptoType;
-                            if (paymentData.walletAddress) document.getElementById("wallet-address").value = paymentData.walletAddress;
+                        } else if (data.payment_method === "binance") {
+                            if (paymentData.binanceId) document.getElementById("binance-id").value = paymentData.binanceId;
+                            if (paymentData.email) document.getElementById("binance-email").value = paymentData.email;
+                        } else if (data.payment_method === "yape") {
+                            if (paymentData.phoneNumber) document.getElementById("yape-number").value = paymentData.phoneNumber;
+                            if (paymentData.fullName) document.getElementById("yape-name").value = paymentData.fullName;
                         }
                     }
                 }
@@ -287,6 +333,14 @@
             }
         };
         
+        // Manejar la carga del DNI
+        document.getElementById("dni-upload").addEventListener("change", function(e) {
+            dniFile = e.target.files[0];
+            if (dniFile) {
+                mostrarMensaje("Imagen de DNI cargada correctamente: " + dniFile.name, "success");
+            }
+        });
+        
         // Función para alternar la visualización de los detalles del método de pago
         function togglePaymentDetails() {
             const method = document.getElementById("payment-method").value;
@@ -298,14 +352,14 @@
             
             // Mostrar los detalles del método seleccionado
             if (method) {
-                document.getElementById(${method}-details).style.display = "block";
+                document.getElementById(`${method}-details`).style.display = "block";
             }
         }
         
         // Función para mostrar mensajes
         function mostrarMensaje(mensaje, tipo) {
             const container = document.getElementById("message-container");
-            container.innerHTML = <p class="${tipo === 'error' ? 'error-message' : 'success-message'}">${mensaje}</p>;
+            container.innerHTML = `<p class="${tipo === 'error' ? 'error-message' : 'success-message'}">${mensaje}</p>`;
             
             // Limpiar mensaje después de 5 segundos
             setTimeout(() => {
@@ -321,6 +375,11 @@
             
             if (!method) {
                 mostrarMensaje("Por favor, selecciona un método de pago.", "error");
+                return;
+            }
+            
+            if (!dniFile) {
+                mostrarMensaje("Por favor, sube una foto de tu DNI para verificación.", "error");
                 return;
             }
             
@@ -345,25 +404,41 @@
                 }
                 
                 paymentData = { bankName, accountNumber, accountHolder };
-            } else if (method === "crypto") {
-                const cryptoType = document.getElementById("crypto-type").value;
-                const walletAddress = document.getElementById("wallet-address").value;
+            } else if (method === "binance") {
+                const binanceId = document.getElementById("binance-id").value;
+                const email = document.getElementById("binance-email").value;
                 
-                if (!cryptoType || !walletAddress) {
-                    mostrarMensaje("Por favor, completa todos los campos de criptomoneda.", "error");
+                if (!binanceId) {
+                    mostrarMensaje("Por favor, ingresa tu ID de Binance.", "error");
                     return;
                 }
                 
-                paymentData = { cryptoType, walletAddress };
+                paymentData = { binanceId, email };
+            } else if (method === "yape") {
+                const phoneNumber = document.getElementById("yape-number").value;
+                const fullName = document.getElementById("yape-name").value;
+                
+                if (!phoneNumber || !fullName) {
+                    mostrarMensaje("Por favor, completa todos los campos de Yape.", "error");
+                    return;
+                }
+                
+                paymentData = { phoneNumber, fullName };
             }
             
             try {
+                // Simular subida del DNI a Supabase Storage (en una implementación real)
+                // const { data, error } = await supabase.storage
+                //     .from('verificaciones')
+                //     .upload(`${userEmail}/dni.jpg`, dniFile);
+                
                 // Actualizar el perfil del usuario con el método de pago
                 const { error } = await supabase
                     .from("usuarios")
                     .update({
                         payment_method: method,
-                        payment_data: JSON.stringify(paymentData)
+                        payment_data: JSON.stringify(paymentData),
+                        verification_status: "pending"  // Indicar que la verificación está pendiente
                     })
                     .eq("id", sessionStorage.getItem("user_id"));
                 
@@ -371,7 +446,25 @@
                     throw error;
                 }
                 
-                mostrarMensaje("Método de pago guardado correctamente.", "success");
+                // Preparar el correo para el usuario (simulado)
+                const emailContent = `
+                    Asunto: Verificación de cuenta para pagos
+                    
+                    Estimado/a usuario/a,
+                    
+                    Hemos recibido tu solicitud de configuración de método de pago:
+                    - Método: ${capitalizeFirstLetter(method)}
+                    - Email asociado: ${userEmail}
+                    
+                    Por favor envía este formulario junto con tu DNI a verificacion@ejemplo.com para completar el proceso.
+                    
+                    Saludos,
+                    El equipo de soporte
+                `;
+                
+                console.log("Email que se enviaría:", emailContent);
+                
+                mostrarMensaje("Método de pago guardado correctamente. Por favor, envía un correo electrónico a verificacion@ejemplo.com con una copia de tu DNI para completar la verificación.", "success");
                 
             } catch (err) {
                 console.error("Error al guardar método de pago:", err);
@@ -396,6 +489,12 @@
                     return;
                 }
                 
+                // Verificar si el usuario ha sido verificado (en un sistema real)
+                if (!userData.verification_status || userData.verification_status !== "approved") {
+                    mostrarMensaje("Tu cuenta aún no ha sido verificada. Por favor, envía tu DNI a verificacion@ejemplo.com para completar el proceso.", "error");
+                    return;
+                }
+                
                 // Obtener los datos de pago según el método
                 let datosPago = "";
                 
@@ -405,11 +504,13 @@
                     const banco = document.getElementById("bank-name").value;
                     const cuenta = document.getElementById("account-number").value;
                     const titular = document.getElementById("account-holder").value;
-                    datosPago = Banco: ${banco}, Cuenta: ${cuenta}, Titular: ${titular};
-                } else if (paymentMethod === "crypto") {
-                    const tipo = document.getElementById("crypto-type").value;
-                    const wallet = document.getElementById("wallet-address").value;
-                    datosPago = ${tipo.toUpperCase()}: ${wallet};
+                    datosPago = `Banco: ${banco}, Cuenta: ${cuenta}, Titular: ${titular}`;
+                } else if (paymentMethod === "binance") {
+                    const binanceId = document.getElementById("binance-id").value;
+                    datosPago = `ID Binance: ${binanceId}`;
+                } else if (paymentMethod === "yape") {
+                    const numero = document.getElementById("yape-number").value;
+                    datosPago = `Número Yape: ${numero}`;
                 }
                 
                 // Crear el registro de pago
@@ -474,24 +575,24 @@
                         
                         // Formatear fecha
                         const fecha = new Date(pago.fecha);
-                        const fechaFormateada = ${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()};
+                        const fechaFormateada = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
                         
                         // Estado (simulado, en un sistema real habría un campo para esto)
                         const estado = pago.estado || "Pendiente";
                         const estadoClase = estado === "Completado" ? "status-completed" : "status-pending";
                         
-                        row.innerHTML = 
+                        row.innerHTML = `
                             <td>${fechaFormateada}</td>
                             <td>$${parseFloat(pago.monto).toFixed(2)}</td>
                             <td>${capitalizeFirstLetter(pago.metodo_pago)}</td>
                             <td class="${estadoClase}">${estado}</td>
-                        ;
+                        `;
                         
                         historyBody.appendChild(row);
                     });
                 } else {
                     const row = document.createElement("tr");
-                    row.innerHTML = <td colspan="4" style="text-align: center;">No hay registros de pagos todavía.</td>;
+                    row.innerHTML = `<td colspan="4" style="text-align: center;">No hay registros de pagos todavía.</td>`;
                     historyBody.appendChild(row);
                 }
                 

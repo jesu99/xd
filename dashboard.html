@@ -246,7 +246,7 @@
                     return;
                 }
                 
-                // Obtener todos los datos del usuario desde Supabase
+                // Obtener datos del usuario directamente de la tabla usuarios
                 const { data, error } = await supabase
                     .from("usuarios")
                     .select("*")
@@ -256,7 +256,7 @@
                 if (error || !data) {
                     console.error("Error al obtener usuario:", error);
                     window.location.href = "login.html"; // Si hay error, forzar logout
-return;
+                    return;
                 }
                 
                 // Mostrar los datos del usuario en la interfaz
@@ -264,69 +264,35 @@ return;
                 document.getElementById("user-dni").textContent = `DNI: ${data.dni || "No registrado"}`;
                 document.getElementById("avatar-initial").textContent = (data.email || "U")[0].toUpperCase();
                 
-                // Obtener datos de anuncios y películas
-                const { data: dataAdClicks, error: errorAdClicks } = await supabase
-                    .from("clicks_anuncios")
-                    .select("*")
-                    .eq("user_id", user_id);
+                // Actualizar estadísticas directamente de las columnas en la tabla usuarios
+                document.getElementById("balance").textContent = (data.balance || 0).toFixed(3);
+                document.getElementById("anuncios-clickeados").textContent = data.anuncios_clickeados || 0;
+                document.getElementById("peliculas-vistas").textContent = data.peliculas_vistas || 0;
                 
-                const { data: dataMovies, error: errorMovies } = await supabase
-                    .from("peliculas_vistas")
-                    .select("*")
-                    .eq("user_id", user_id);
-                
-                // Obtener datos de pagos
-                const { data: dataPagos, error: errorPagos } = await supabase
-                    .from("pagos")
-                    .select("*")
-                    .eq("user_id", user_id);
-                
-                if (errorAdClicks || errorMovies || errorPagos) {
-                    console.error("Error al obtener datos:", errorAdClicks || errorMovies || errorPagos);
+                // Mostrar método de pago si existe
+                if (data.payment_method) {
+                    document.getElementById("payment-method-text").textContent = data.payment_method;
                 }
                 
-                // Calcular estadísticas
-                const numAnuncios = dataAdClicks ? dataAdClicks.length : 0;
-                const numPeliculas = dataMovies ? dataMovies.length : 0;
-                
-                // Calcular saldo: $0.001 por anuncio y $0.003 por película
-                const saldoAnuncios = numAnuncios * 0.001;
-                const saldoPeliculas = numPeliculas * 0.003;
-                const saldoTotal = saldoAnuncios + saldoPeliculas;
-                
-                // Restar pagos realizados
-                const pagosTotales = dataPagos ? dataPagos.reduce((sum, pago) => sum + (pago.monto || 0), 0) : 0;
-                const saldoFinal = saldoTotal - pagosTotales;
-                
-                // Actualizar la interfaz con los datos
-                document.getElementById("balance").textContent = saldoFinal.toFixed(3);
-                document.getElementById("anuncios-clickeados").textContent = numAnuncios;
-                document.getElementById("peliculas-vistas").textContent = numPeliculas;
-                
-                // Mostrar información del último anuncio y película
-                if (dataAdClicks && dataAdClicks.length > 0) {
-                    const ultimoAnuncio = dataAdClicks.sort((a, b) => 
-                        new Date(b.fecha_click) - new Date(a.fecha_click)
-                    )[0];
-                    
-                    const fechaAnuncio = new Date(ultimoAnuncio.fecha_click);
+                // Mostrar información del último click en anuncio
+                if (data.ultimo_click) {
+                    const fechaAnuncio = new Date(data.ultimo_click);
                     document.getElementById("ultimo-anuncio").textContent = 
                         `Último anuncio: ${fechaAnuncio.toLocaleDateString()} ${fechaAnuncio.toLocaleTimeString()}`;
                 }
                 
-                if (dataMovies && dataMovies.length > 0) {
-                    const ultimaPelicula = dataMovies.sort((a, b) => 
-                        new Date(b.fecha_vista) - new Date(a.fecha_vista)
-                    )[0];
-                    
-                    const fechaPelicula = new Date(ultimaPelicula.fecha_vista);
+                // Obtener la última película vista desde historial_vistas
+                const { data: historialData, error: historialError } = await supabase
+                    .from("historial_vistas")
+                    .select("fecha_vista")
+                    .eq("usuario_id", user_id)
+                    .order("fecha_vista", { ascending: false })
+                    .limit(1);
+                
+                if (!historialError && historialData && historialData.length > 0) {
+                    const fechaPelicula = new Date(historialData[0].fecha_vista);
                     document.getElementById("ultima-pelicula").textContent = 
                         `Última película: ${fechaPelicula.toLocaleDateString()} ${fechaPelicula.toLocaleTimeString()}`;
-                }
-                
-                // Mostrar método de pago si existe
-                if (data.metodo_pago) {
-                    document.getElementById("payment-method-text").textContent = data.metodo_pago;
                 }
                 
                 // Mostrar el dashboard y ocultar indicador de carga

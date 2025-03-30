@@ -47,6 +47,14 @@
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         const supabase = createClient(supabaseUrl, supabaseKey);
         
+        // Verificar si ya hay una sesión activa
+        async function checkSession() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                window.location.href = 'dashboard.html';
+            }
+        }
+        
         // Función de inicio de sesión
         async function login() {
             const email = document.getElementById('email').value;
@@ -74,6 +82,9 @@
                 alert("Error en la conexión: " + e.message);
             }
         }
+        
+        // Verificar sesión al cargar la página
+        checkSession();
         
         // Agregar evento al botón
         document.getElementById('loginButton').addEventListener('click', login);

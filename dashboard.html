@@ -75,6 +75,7 @@
             padding: 15px;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: relative;
         }
         
         .stat-value {
@@ -89,14 +90,25 @@
             font-size: 0.9em;
         }
         
+        .stat-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #777;
+            font-size: 0.8em;
+            cursor: help;
+        }
+        
         .action-buttons {
             display: flex;
             justify-content: center;
+            gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         
-        button {
-            background-color: #e74c3c;
+        .action-button {
+            background-color: #3498db;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -106,15 +118,26 @@
             transition: background-color 0.3s;
         }
         
-        button:hover {
+        .action-button:hover {
+            background-color: #2980b9;
+        }
+        
+        .logout-button {
+            background-color: #e74c3c;
+        }
+        
+        .logout-button:hover {
             background-color: #c0392b;
         }
         
-        .last-activity {
+        .activity-info {
             font-style: italic;
             text-align: center;
             color: #777;
             margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
         }
         
         .loading {
@@ -123,13 +146,42 @@
             font-size: 1.2em;
             color: #777;
         }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
     <h2>Panel de Usuario</h2>
 
-     <button onclick="window.location.href='anuncio.html'">Ganar con Anuncio</button>
-     <button onclick="window.location.href='catalogo.html'">Gnar con Pelicula</button>
+    <div class="action-buttons" style="margin-bottom: 20px;">
+        <button class="action-button" onclick="window.location.href='anuncio.html'">Ganar con Anuncio</button>
+        <button class="action-button" onclick="window.location.href='catalogo.html'">Ganar con Película</button>
+    </div>
     
     <div class="dashboard-container">
         <div id="loading" class="loading">Cargando datos de usuario...</div>
@@ -146,6 +198,10 @@
                 <div class="stat-card">
                     <div class="stat-value" id="balance">0.00</div>
                     <div class="stat-label">Balance (USD)</div>
+                    <div class="tooltip">
+                        <span class="stat-info">?</span>
+                        <span class="tooltiptext">Ganas $0.001 por cada anuncio y $0.003 por cada película</span>
+                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="anuncios-clickeados">0</div>
@@ -158,13 +214,17 @@
             </div>
             
             <div class="payment-info">
-                <p id="payment-method">Método de Pago: No configurado</p>
+                <p id="payment-method">Método de Pago: <span id="payment-method-text">No configurado</span></p>
             </div>
             
-            <p class="last-activity" id="ultimo-click">Último click: Nunca</p>
+            <div class="activity-info">
+                <p id="ultimo-anuncio">Último anuncio: Nunca</p>
+                <p id="ultima-pelicula">Última película: Nunca</p>
+            </div>
             
             <div class="action-buttons">
-                <button onclick="cerrarSesion()">Cerrar Sesión</button>
+                <button class="action-button" onclick="window.location.href='configuracion-pagos.html'">Configurar Pagos</button>
+                <button class="action-button logout-button" onclick="cerrarSesion()">Cerrar Sesión</button>
             </div>
         </div>
     </div>
@@ -196,50 +256,101 @@
                 if (error || !data) {
                     console.error("Error al obtener usuario:", error);
                     window.location.href = "login.html"; // Si hay error, forzar logout
-                    return;
+return;
                 }
                 
-                // Mostrar los datos en el dashboard
+                // Mostrar los datos del usuario en la interfaz
+                document.getElementById("user-email").textContent = data.email || "Sin email";
+                document.getElementById("user-dni").textContent = `DNI: ${data.dni || "No registrado"}`;
+                document.getElementById("avatar-initial").textContent = (data.email || "U")[0].toUpperCase();
+                
+                // Obtener datos de anuncios y películas
+                const { data: dataAdClicks, error: errorAdClicks } = await supabase
+                    .from("clicks_anuncios")
+                    .select("*")
+                    .eq("user_id", user_id);
+                
+                const { data: dataMovies, error: errorMovies } = await supabase
+                    .from("peliculas_vistas")
+                    .select("*")
+                    .eq("user_id", user_id);
+                
+                // Obtener datos de pagos
+                const { data: dataPagos, error: errorPagos } = await supabase
+                    .from("pagos")
+                    .select("*")
+                    .eq("user_id", user_id);
+                
+                if (errorAdClicks || errorMovies || errorPagos) {
+                    console.error("Error al obtener datos:", errorAdClicks || errorMovies || errorPagos);
+                }
+                
+                // Calcular estadísticas
+                const numAnuncios = dataAdClicks ? dataAdClicks.length : 0;
+                const numPeliculas = dataMovies ? dataMovies.length : 0;
+                
+                // Calcular saldo: $0.001 por anuncio y $0.003 por película
+                const saldoAnuncios = numAnuncios * 0.001;
+                const saldoPeliculas = numPeliculas * 0.003;
+                const saldoTotal = saldoAnuncios + saldoPeliculas;
+                
+                // Restar pagos realizados
+                const pagosTotales = dataPagos ? dataPagos.reduce((sum, pago) => sum + (pago.monto || 0), 0) : 0;
+                const saldoFinal = saldoTotal - pagosTotales;
+                
+                // Actualizar la interfaz con los datos
+                document.getElementById("balance").textContent = saldoFinal.toFixed(3);
+                document.getElementById("anuncios-clickeados").textContent = numAnuncios;
+                document.getElementById("peliculas-vistas").textContent = numPeliculas;
+                
+                // Mostrar información del último anuncio y película
+                if (dataAdClicks && dataAdClicks.length > 0) {
+                    const ultimoAnuncio = dataAdClicks.sort((a, b) => 
+                        new Date(b.fecha_click) - new Date(a.fecha_click)
+                    )[0];
+                    
+                    const fechaAnuncio = new Date(ultimoAnuncio.fecha_click);
+                    document.getElementById("ultimo-anuncio").textContent = 
+                        `Último anuncio: ${fechaAnuncio.toLocaleDateString()} ${fechaAnuncio.toLocaleTimeString()}`;
+                }
+                
+                if (dataMovies && dataMovies.length > 0) {
+                    const ultimaPelicula = dataMovies.sort((a, b) => 
+                        new Date(b.fecha_vista) - new Date(a.fecha_vista)
+                    )[0];
+                    
+                    const fechaPelicula = new Date(ultimaPelicula.fecha_vista);
+                    document.getElementById("ultima-pelicula").textContent = 
+                        `Última película: ${fechaPelicula.toLocaleDateString()} ${fechaPelicula.toLocaleTimeString()}`;
+                }
+                
+                // Mostrar método de pago si existe
+                if (data.metodo_pago) {
+                    document.getElementById("payment-method-text").textContent = data.metodo_pago;
+                }
+                
+                // Mostrar el dashboard y ocultar indicador de carga
                 document.getElementById("loading").style.display = "none";
                 document.getElementById("dashboard-content").style.display = "block";
                 
-                // Información básica del perfil
-                document.getElementById("user-email").innerText = data.email;
-                document.getElementById("user-dni").innerText = `DNI: ${data.dni || 'No registrado'}`;
-                
-                // Iniciales para el avatar
-                const initials = data.email.charAt(0).toUpperCase();
-                document.getElementById("avatar-initial").innerText = initials;
-                
-                // Estadísticas
-                document.getElementById("balance").innerText = parseFloat(data.balance || 0).toFixed(2);
-                document.getElementById("anuncios-clickeados").innerText = data.anuncios_clickeados || 0;
-                document.getElementById("peliculas-vistas").innerText = data.peliculas_vistas || 0;
-                
-                // Método de pago
-                if (data.payment_method) {
-                    document.getElementById("payment-method").innerText = `Método de Pago: ${data.payment_method}`;
-                }
-                
-                // Último click
-                if (data.ultimo_click) {
-                    const fecha = new Date(data.ultimo_click);
-                    document.getElementById("ultimo-click").innerText = `Último click: ${fecha.toLocaleString()}`;
-                }
-                
-            } catch (err) {
-                console.error("Error al cargar datos:", err);
-                alert("Ocurrió un error al cargar los datos. Por favor, intente nuevamente.");
+            } catch (error) {
+                console.error("Error en la carga de datos:", error);
             }
         }
         
         function cerrarSesion() {
-            sessionStorage.clear();
+            // Limpiar la sesión
+            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("user_id");
+            
+            // Redirigir al login
             window.location.href = "login.html";
         }
         
-        // Cargar datos al iniciar la página
-        window.onload = cargarDatosUsuario;
+        // Cargar datos al iniciar
+        window.onload = function() {
+            cargarDatosUsuario();
+        };
     </script>
 </body>
 </html>

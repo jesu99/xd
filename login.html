@@ -19,6 +19,23 @@
             margin: 10px;
             padding: 10px;
             font-size: 16px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #mensaje {
+            margin-top: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -28,51 +45,62 @@
     <input type="password" id="clave" placeholder="Contraseña" required>
     <button onclick="iniciarSesion()">Ingresar</button>
     <p id="mensaje"></p>
-
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
+        
+        // Inicializar el cliente de Supabase correctamente
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
         async function iniciarSesion() {
             const email = document.getElementById("email").value;
             const clave = document.getElementById("clave").value;
             const mensaje = document.getElementById("mensaje");
-
+            
+            mensaje.innerText = "Procesando...";
+            
             if (!email || !clave) {
                 mensaje.innerText = "Todos los campos son obligatorios.";
                 return;
             }
-
-            // Buscar usuario en la base de datos
-            const { data, error } = await supabase
-                .from("usuarios")
-                .select("id, email, clave")
-                .eq("email", email)
-                .single();
-
-            if (error || !data) {
-                mensaje.innerText = "Usuario no encontrado.";
-                return;
+            
+            try {
+                // Buscar usuario en la base de datos
+                const { data, error } = await supabase
+                    .from("usuarios")
+                    .select("id, email, clave")
+                    .eq("email", email)
+                    .single();
+                
+                if (error || !data) {
+                    mensaje.innerText = "Usuario no encontrado.";
+                    console.error("Error:", error);
+                    return;
+                }
+                
+                if (data.clave !== clave) {
+                    mensaje.innerText = "Clave incorrecta.";
+                    return;
+                }
+                
+                // Generar un token único (UUID)
+                const token = crypto.randomUUID();
+                
+                // Guardar en sessionStorage
+                sessionStorage.setItem("token", token);
+                sessionStorage.setItem("user_id", data.id);
+                
+                mensaje.innerText = "Inicio de sesión exitoso.";
+                mensaje.style.color = "green";
+                
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 2000);
+            } catch (err) {
+                console.error("Error en inicio de sesión:", err);
+                mensaje.innerText = "Error en el servidor. Intente nuevamente.";
+                mensaje.style.color = "red";
             }
-
-            if (data.clave !== clave) {
-                mensaje.innerText = "Clave incorrecta.";
-                return;
-            }
-
-            // Generar un token único (UUID)
-            const token = crypto.randomUUID();
-
-            // Guardar en sessionStorage
-            sessionStorage.setItem("token", token);
-            sessionStorage.setItem("user_id", data.id);
-
-            mensaje.innerText = "Inicio de sesión exitoso.";
-
-            setTimeout(() => {
-                window.location.href = "dashboard.html";
-            }, 2000);
         }
     </script>
 </body>

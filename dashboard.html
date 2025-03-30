@@ -28,20 +28,33 @@
             font-size: 16px;
             cursor: pointer;
         }
+        select {
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
+    <select id="selector-usuario" onchange="cambiarUsuario()">
+        <option value="">Seleccionar usuario</option>
+        <!-- Se llenará con la lista de usuarios desde Supabase -->
+    </select>
+    
     <div class="box">
         <h2>Bienvenido a tu Dashboard</h2>
         <p>Gana dinero interactuando con anuncios o viendo películas.</p>
+        <p><strong>Email: <span id="email_usuario">Seleccione un usuario</span></strong></p>
+        <p><strong>DNI: <span id="dni_usuario">-</span></strong></p>
         <p><strong>Saldo actual: $<span id="saldo">0.000</span></strong></p>
         <p>Anuncios clickeados: <span id="anuncios_clickeados">0</span></p>
         <p>Películas vistas: <span id="peliculas_vistas">0</span></p>
+        <p>Último click: <span id="ultimo_click">Ninguno</span></p>
     </div>
     
-    <button onclick="pagarPorAnuncio()">Pago por clic a anuncio ($0.001 por 20s)</button>
-    <button onclick="pagarPorPelicula()">Pago por ver películas ($0.003 por 5 min)</button>
-    <button onclick="cerrarSesion()">Cerrar Sesión</button>
+    <button id="btn-anuncio" onclick="pagarPorAnuncio()" disabled>Pago por clic a anuncio ($0.001 por 20s)</button>
+    <button id="btn-pelicula" onclick="pagarPorPelicula()" disabled>Pago por ver películas ($0.003 por 5 min)</button>
+    <button onclick="window.location.href='login.html'">Ir a Login</button>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -49,27 +62,81 @@
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        const usuarioEmail = "usuario@email.com";
+        let usuarioEmail = "";
         
-        async function cargarDatosUsuario() {
+        // Cargar la lista de usuarios al iniciar
+        async function cargarListaUsuarios() {
             const { data, error } = await supabase
                 .from("usuarios")
-                .select("balance, anuncios_clickeados, peliculas_vistas")
+                .select("id, email");
+            
+            if (error) {
+                console.error("Error al obtener usuarios:", error);
+                return;
+            }
+            
+            const selector = document.getElementById("selector-usuario");
+            
+            data.forEach(usuario => {
+                const option = document.createElement("option");
+                option.value = usuario.email;
+                option.textContent = usuario.email;
+                selector.appendChild(option);
+            });
+        }
+        
+        function cambiarUsuario() {
+            usuarioEmail = document.getElementById("selector-usuario").value;
+            
+            if (usuarioEmail) {
+                cargarDatosUsuario();
+                document.getElementById("btn-anuncio").disabled = false;
+                document.getElementById("btn-pelicula").disabled = false;
+            } else {
+                document.getElementById("email_usuario").innerText = "Seleccione un usuario";
+                document.getElementById("dni_usuario").innerText = "-";
+                document.getElementById("saldo").innerText = "0.000";
+                document.getElementById("anuncios_clickeados").innerText = "0";
+                document.getElementById("peliculas_vistas").innerText = "0";
+                document.getElementById("ultimo_click").innerText = "Ninguno";
+                document.getElementById("btn-anuncio").disabled = true;
+                document.getElementById("btn-pelicula").disabled = true;
+            }
+        }
+        
+        async function cargarDatosUsuario() {
+            if (!usuarioEmail) return;
+            
+            const { data, error } = await supabase
+                .from("usuarios")
+                .select("email, dni, balance, anuncios_clickeados, peliculas_vistas, ultimo_click")
                 .eq("email", usuarioEmail)
                 .single();
             
             if (error) {
-                console.error("Error al obtener datos", error);
+                console.error("Error al obtener datos:", error);
                 return;
             }
-            console.log("Datos recibidos:", data);
             
+            // Actualizar la interfaz con los datos del usuario
+            document.getElementById("email_usuario").innerText = data.email;
+            document.getElementById("dni_usuario").innerText = data.dni || "-";
             document.getElementById("saldo").innerText = parseFloat(data.balance).toFixed(3);
             document.getElementById("anuncios_clickeados").innerText = data.anuncios_clickeados;
             document.getElementById("peliculas_vistas").innerText = data.peliculas_vistas;
+            
+            // Formatear y mostrar la fecha del último click si existe
+            if (data.ultimo_click) {
+                const fecha = new Date(data.ultimo_click);
+                document.getElementById("ultimo_click").innerText = fecha.toLocaleString();
+            } else {
+                document.getElementById("ultimo_click").innerText = "Ninguno";
+            }
         }
         
         async function actualizarSaldoYClicks(monto, columna) {
+            if (!usuarioEmail) return;
+            
             try {
                 // Primero obtenemos los datos actuales
                 const { data, error } = await supabase
@@ -79,25 +146,29 @@
                     .single();
                 
                 if (error) {
-                    console.error("Error al obtener los datos actuales", error);
+                    console.error("Error al obtener los datos actuales:", error);
                     return;
                 }
                 
                 // Calculamos los nuevos valores
                 const nuevoValor = (data[columna] || 0) + 1;
-                const nuevoSaldo = parseFloat(data.balance) + monto;
+                const nuevoSaldo = parseFloat(data.balance || 0) + monto;
+                
+                // Obtenemos la fecha y hora actual
+                const ahora = new Date().toISOString();
                 
                 // Actualizamos los datos con los nuevos valores calculados
                 const { error: updateError } = await supabase
                     .from("usuarios")
                     .update({ 
                         balance: nuevoSaldo,
-                        [columna]: nuevoValor 
+                        [columna]: nuevoValor,
+                        ultimo_click: ahora
                     })
                     .eq("email", usuarioEmail);
                 
                 if (updateError) {
-                    console.error("Error al actualizar datos", updateError);
+                    console.error("Error al actualizar datos:", updateError);
                     return;
                 }
                 
@@ -118,24 +189,18 @@
             actualizarSaldoYClicks(0.001, "anuncios_clickeados");
             setTimeout(() => {
                 window.location.href = "anuncio.html";
-            }, 500); // Pequeña espera para asegurar que la actualización se complete
+            }, 500);
         }
         
         function pagarPorPelicula() {
             actualizarSaldoYClicks(0.003, "peliculas_vistas");
             setTimeout(() => {
                 window.location.href = "catalogo.html";
-            }, 500); // Pequeña espera para asegurar que la actualización se complete
+            }, 500);
         }
         
-        function cerrarSesion() {
-            // Implementar lógica de cierre de sesión
-            alert("Sesión cerrada");
-            // window.location.href = "login.html";
-        }
-        
-        // Cargar datos al iniciar
-        cargarDatosUsuario();
+        // Iniciar carga de usuarios
+        cargarListaUsuarios();
     </script>
 </body>
 </html>

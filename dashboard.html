@@ -37,8 +37,8 @@
         <p><strong>Saldo actual: $<span id="saldo">0.000</span></strong></p>
     </div>
     
-    <button onclick="pagarPorAnuncio()">Pago por clic a anuncio ($0.001 por 20s)</button>
-    <button onclick="pagarPorPelicula()">Pago por ver películas ($0.003 por 5 min)</button>
+    <button onclick="verAnuncio()">Ver anuncio ($0.001 por 20s)</button>
+    <button onclick="verPelicula()">Ver película ($0.003 por 5 min)</button>
     <button onclick="cerrarSesion()">Cerrar Sesión</button>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -75,20 +75,16 @@
             }
             cargarSaldo();
         }
-        
-       function pagarPorAnuncio() {
-    window.location.href = "anuncio.html";
 
+        function verAnuncio() {
+            window.location.href = "anuncio.html";
+            setTimeout(() => actualizarSaldo(0.001), 20000);
         }
         
-        function pagarPorPelicula() {
+        function verPelicula() {
+            window.location.href = "catalogo.html";
             setTimeout(() => actualizarSaldo(0.003), 300000);
-            alert("Has iniciado una película. Debes verla al menos 5 minutos para recibir el pago.");
         }
-        
-        function pagarPorPelicula() {
-    window.location.href = "catalogo.html";
-}
 
         // Bloquear navegación con flechas y F5, redirigir a index.html
         window.onload = function() {

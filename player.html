@@ -8,18 +8,28 @@
 <body>
     <h1>Reproductor</h1>
     <video id="videoPlayer" width="640" controls></video>
+    <iframe id="iframePlayer" width="640" height="360" style="display:none;"></iframe>
     <p id="mensaje"></p>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const idPelicula = urlParams.get("id");
-        const urlVideo = urlParams.get("url");
+        const urlVideo = decodeURIComponent(urlParams.get("url"));
 
         const video = document.getElementById("videoPlayer");
+        const iframe = document.getElementById("iframePlayer");
         const mensaje = document.getElementById("mensaje");
 
+        console.log("URL de la película:", urlVideo);
+
         if (urlVideo) {
-            video.src = decodeURIComponent(urlVideo);
+            if (urlVideo.includes("mp4") || urlVideo.includes("webm")) {
+                video.src = urlVideo;
+            } else {
+                video.style.display = "none";
+                iframe.style.display = "block";
+                iframe.src = urlVideo;
+            }
         } else {
             mensaje.textContent = "Error: No se encontró la película.";
         }
@@ -27,7 +37,6 @@
         let tiempoVisto = 0;
         let intervalo;
 
-        // Iniciar conteo al reproducir
         video.addEventListener("play", () => {
             intervalo = setInterval(() => {
                 tiempoVisto++;
@@ -35,19 +44,17 @@
             }, 1000);
         });
 
-        // Pausar conteo si se detiene
         video.addEventListener("pause", () => clearInterval(intervalo));
         video.addEventListener("ended", () => clearInterval(intervalo));
 
-        // Antes de salir, verificar si vio más de 1 hora
         window.addEventListener("beforeunload", async () => {
             clearInterval(intervalo);
             if (tiempoVisto >= 3600) {
                 await fetch("https://tihvqxujcqladqxucugf.supabase.co/rest/v1/vistas", {
                     method: "POST",
                     headers: {
-                        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g",
-                        "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g`,
+                        "apikey": "TU_API_KEY",
+                        "Authorization": `Bearer TU_API_KEY`,
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({ pelicula_id: idPelicula, tiempo_visto: tiempoVisto })

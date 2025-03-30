@@ -3,57 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscar Usuario</title>
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <title>Login con Supabase</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-    <h2>Buscar Usuario</h2>
-    <input type="email" id="email" placeholder="Ingrese su correo">
-    <button id="buscarBtn">Buscar</button>
+    <h2>Iniciar Sesión</h2>
+    <input type="email" id="email" placeholder="Correo">
+    <input type="password" id="clave" placeholder="Contraseña">
+    <button id="loginBtn">Iniciar Sesión</button>
     <p id="resultado"></p>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async function () {
-            // ✅ Inicializar Supabase
-            const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-            const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-            const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        // ✅ Conexión a Supabase
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-            // ✅ Función para buscar el usuario
-            async function obtenerUsuario() {
-                const emailInput = document.getElementById("email");
-                const resultado = document.getElementById("resultado");
+        // ✅ Función de Login
+        async function login() {
+            const email = document.getElementById("email").value.trim().toLowerCase();
+            const clave = document.getElementById("clave").value.trim();
+            const resultado = document.getElementById("resultado");
 
-                // 🔹 Normalizar el correo (quitar espacios y pasar a minúsculas)
-                const email = emailInput.value.trim().toLowerCase();
-
-                if (!email) {
-                    resultado.textContent = "⚠️ Ingresa un correo";
-                    return;
-                }
-
-                try {
-                    let { data, error } = await supabase
-                        .from("usuarios")
-                        .select("*")  
-                        .eq("email", email);
-
-                    if (error) throw error;
-
-                    if (data.length > 0) {
-                        resultado.textContent = `✅ Usuario encontrado: ${JSON.stringify(data[0])}`;
-                    } else {
-                        resultado.textContent = "❌ Error: Correo no registrado";
-                    }
-                } catch (err) {
-                    resultado.textContent = "❌ Error en la consulta";
-                    console.error(err);
-                }
+            if (!email || !clave) {
+                resultado.textContent = "⚠️ Ingresa correo y contraseña";
+                return;
             }
 
-            // ✅ Asignar evento al botón
-            document.getElementById("buscarBtn").addEventListener("click", obtenerUsuario);
-        });
+            let { data, error } = await supabase
+                .from("usuarios")
+                .select("email, clave")
+                .eq("email", email)
+                .single();
+
+            if (error) {
+                resultado.textContent = "❌ Error en la consulta";
+                return;
+            }
+
+            if (!data) {
+                resultado.textContent = "❌ Usuario no encontrado";
+                return;
+            }
+
+            if (data.clave !== clave) {
+                resultado.textContent = "❌ Contraseña incorrecta";
+                return;
+            }
+
+            resultado.textContent = "✅ Inicio de sesión exitoso";
+        }
+
+        // ✅ Evento del botón
+        document.getElementById("loginBtn").addEventListener("click", login);
     </script>
 </body>
 </html>

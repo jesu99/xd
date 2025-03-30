@@ -34,11 +34,11 @@
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Asegúrate de usar la clave completa
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        // Verificar si ya hay una sesión activa al cargar la página
-        document.addEventListener('DOMContentLoaded', async function() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                // Si existe una sesión, redirigir al dashboard directamente
+        // Verificar si hay datos de sesión guardados al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                // Si hay datos guardados, redirigir al dashboard
                 window.location.href = "dashboard.html";
             }
         });
@@ -54,15 +54,21 @@
             }
             
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: clave
-                });
-                
-                if (error) {
-                    mensaje.innerText = "Error al iniciar sesión: " + error.message;
+                // Buscar usuario en tu tabla personalizada
+                const { data: usuario, error } = await supabase
+                    .from('usuarios') // Asegúrate que este sea el nombre correcto de tu tabla
+                    .select('*')
+                    .eq('email', email)
+                    .eq('clave', clave)
+                    .single();
+                    
+                if (error || !usuario) {
+                    mensaje.innerText = "Error: Credenciales incorrectas";
                     return;
                 }
+                
+                // Guardar datos del usuario en localStorage
+                localStorage.setItem('userData', JSON.stringify(usuario));
                 
                 mensaje.innerText = "Inicio de sesión exitoso.";
                 
@@ -73,6 +79,7 @@
                 
             } catch (error) {
                 mensaje.innerText = "Error en la conexión: " + error.message;
+                console.error(error);
             }
         }
     </script>

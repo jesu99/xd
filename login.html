@@ -1,39 +1,79 @@
-<script>
-    const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-    async function iniciarSesion() {
-        const email = document.getElementById("email").value;
-        const clave = document.getElementById("clave").value;
-        const mensaje = document.getElementById("mensaje");
-
-        const { data, error } = await supabase
-            .from("usuarios")
-            .select("id, email, clave")
-            .eq("email", email)
-            .single();
-
-        if (error || !data) {
-            mensaje.innerText = "Usuario no encontrado.";
-            return;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
         }
-
-        if (data.clave !== clave) {
-            mensaje.innerText = "Clave incorrecta.";
-            return;
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
         }
+    </style>
+</head>
+<body>
+    <h2>Iniciar Sesión</h2>
+    <input type="email" id="email" placeholder="Correo" required>
+    <input type="password" id="clave" placeholder="Contraseña" required>
+    <button onclick="iniciarSesion()">Ingresar</button>
+    <p id="mensaje"></p>
 
-        // Generar un token único (puede ser un UUID)
-        const token = crypto.randomUUID();
+    <script>
+        const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Guardar en sessionStorage
-        sessionStorage.setItem("token", token);
-        sessionStorage.setItem("user_id", data.id);
+        async function iniciarSesion() {
+            const email = document.getElementById("email").value;
+            const clave = document.getElementById("clave").value;
+            const mensaje = document.getElementById("mensaje");
 
-        mensaje.innerText = "Inicio de sesión exitoso.";
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 2000);
-    }
-</script>
+            if (!email || !clave) {
+                mensaje.innerText = "Todos los campos son obligatorios.";
+                return;
+            }
+
+            // Buscar usuario en la base de datos
+            const { data, error } = await supabase
+                .from("usuarios")
+                .select("id, email, clave")
+                .eq("email", email)
+                .single();
+
+            if (error || !data) {
+                mensaje.innerText = "Usuario no encontrado.";
+                return;
+            }
+
+            if (data.clave !== clave) {
+                mensaje.innerText = "Clave incorrecta.";
+                return;
+            }
+
+            // Generar un token único (UUID)
+            const token = crypto.randomUUID();
+
+            // Guardar en sessionStorage
+            sessionStorage.setItem("token", token);
+            sessionStorage.setItem("user_id", data.id);
+
+            mensaje.innerText = "Inicio de sesión exitoso.";
+
+            setTimeout(() => {
+                window.location.href = "dashboard.html";
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

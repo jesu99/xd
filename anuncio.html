@@ -65,38 +65,78 @@
             "https://tihvqxujcqladqxucugf.supabase.co", 
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"
         );
+
+        // Mostrar un mensaje al usuario
+        function mostrarMensaje(id, duracion = 3000) {
+            document.getElementById(id).style.display = "block";
+            setTimeout(() => {
+                document.getElementById(id).style.display = "none";
+            }, duracion);
+        }
         
         // Funciones principales
         async function iniciarApp() {
+            // Verificar si el usuario está autenticado
             usuarioId = sessionStorage.getItem("user_id");
             if (!usuarioId) {
+                console.log("No hay usuario en sesión, redirigiendo al login");
                 window.location.href = "login.html";
                 return;
             }
-            await cargarInfoUsuario();
-            agregarEventoAlContenedor();
-            iniciarTemporizadorSiNecesario();
+            
+            console.log("Usuario ID obtenido:", usuarioId);
+            document.getElementById("info-usuario").innerHTML = "Obteniendo datos del usuario...";
+            
+            // Intentar cargar la información del usuario
+            try {
+                await cargarInfoUsuario();
+                agregarEventoAlContenedor();
+                iniciarTemporizadorSiNecesario();
+            } catch (error) {
+                console.error("Error al iniciar la aplicación:", error);
+                document.getElementById("info-usuario").innerHTML = 
+                    `<div style="color: red">Error al cargar información. <a href="javascript:location.reload()">Reintentar</a></div>`;
+            }
         }
         
         async function cargarInfoUsuario() {
             try {
-                if (!usuarioId) return;
+                if (!usuarioId) {
+                    console.error("No hay ID de usuario disponible");
+                    return;
+                }
+                
+                console.log("Cargando información para usuario ID:", usuarioId);
+                
                 const { data: userData, error } = await supabase
                     .from('usuarios')
-                    .select('anuncios_clickeados, ultimo_click')
+                    .select('anuncios_clickeados, ultimo_click, balance')
                     .eq('id', usuarioId)
                     .single();
                 
                 if (error) {
                     console.error("Error al obtener datos:", error);
+                    document.getElementById("info-usuario").innerHTML = 
+                        `<div style="color: red">Error al obtener datos: ${error.message}. <a href="javascript:location.reload()">Reintentar</a></div>`;
                     return;
                 }
                 
+                if (!userData) {
+                    console.error("No se encontraron datos del usuario");
+                    document.getElementById("info-usuario").innerHTML = 
+                        `<div style="color: red">No se encontraron datos de usuario. <a href="javascript:location.reload()">Reintentar</a></div>`;
+                    return;
+                }
+                
+                console.log("Datos de usuario obtenidos:", userData);
                 anunciosClickeados = userData.anuncios_clickeados || 0;
                 ultimoClick = userData.ultimo_click ? new Date(userData.ultimo_click) : null;
+                
                 actualizarInfoUsuario();
             } catch (e) {
                 console.error("Error al cargar información:", e);
+                document.getElementById("info-usuario").innerHTML = 
+                    `<div style="color: red">Error inesperado: ${e.message}. <a href="javascript:location.reload()">Reintentar</a></div>`;
             }
         }
         
@@ -191,6 +231,7 @@
                     
                 if (fetchError) {
                     console.error("Error al obtener balance:", fetchError);
+                    mostrarMensaje("mensaje-error");
                     return;
                 }
                 
@@ -209,25 +250,26 @@
                 
                 if (error) {
                     console.error("Error al actualizar:", error);
+                    mostrarMensaje("mensaje-error");
                 } else {
                     anunciosClickeados++;
                     ultimoClick = new Date(ahora);
-                    document.getElementById("mensaje-exito").style.display = "block";
-                    setTimeout(() => {
-                        document.getElementById("mensaje-exito").style.display = "none";
-                    }, 3000);
+                    mostrarMensaje("mensaje-exito");
                     actualizarInfoUsuario();
                     iniciarTemporizadorSiNecesario();
                 }
             } catch (e) {
                 console.error("Error:", e);
+                mostrarMensaje("mensaje-error");
             }
         }
         
         function manejarClicAnuncio(event) {
+            console.log("Clic en anuncio detectado");
             event.preventDefault();
             
             if (!usuarioId) {
+                console.log("No hay usuario en sesión, redirigiendo al login");
                 window.location.href = "login.html";
                 return false;
             }
@@ -235,10 +277,7 @@
             const tiempoEspera = puedeHacerClick();
             if (tiempoEspera > 0) {
                 document.getElementById("tiempo-espera").textContent = formatearTiempoEspera(tiempoEspera);
-                document.getElementById("mensaje-espera").style.display = "block";
-                setTimeout(() => {
-                    document.getElementById("mensaje-espera").style.display = "none";
-                }, 3000);
+                mostrarMensaje("mensaje-espera");
                 return false;
             }
             
@@ -252,11 +291,14 @@
                 const urlDestino = clickTarget ? clickTarget.href : null;
                 
                 if (!urlDestino) {
+                    console.error("No se pudo determinar la URL del anuncio");
                     anuncioAbierto = false;
                     document.getElementById("cronometro").style.display = "none";
+                    document.getElementById("mensaje-instruccion").style.display = "none";
                     return false;
                 }
                 
+                console.log("Abriendo anuncio:", urlDestino);
                 ventanaAnuncio = window.open(urlDestino, '_blank');
                 
                 if (ventanaAnuncio) {
@@ -264,6 +306,7 @@
                     
                     const verificadorVentana = setInterval(() => {
                         if (ventanaAnuncio.closed) {
+                            console.log("Ventana del anuncio cerrada prematuramente");
                             clearInterval(intervalo);
                             clearInterval(verificadorVentana);
                             document.getElementById("mensaje-instruccion").style.display = "none";
@@ -276,6 +319,7 @@
                     
                     window.addEventListener('focus', function focusHandler() {
                         if (anuncioAbierto && tiempo > 0) {
+                            console.log("El usuario volvió a nuestra ventana antes de tiempo");
                             clearInterval(intervalo);
                             document.getElementById("mensaje-instruccion").style.display = "none";
                             document.getElementById("cronometro").innerText = "20";
@@ -286,12 +330,11 @@
                         }
                     });
                 } else {
-                    document.getElementById("mensaje-error").style.display = "block";
-                    setTimeout(() => {
-                        document.getElementById("mensaje-error").style.display = "none";
-                    }, 3000);
+                    console.error("No se pudo abrir la ventana (bloqueador de pop-ups)");
+                    mostrarMensaje("mensaje-error");
                     anuncioAbierto = false;
                     document.getElementById("cronometro").style.display = "none";
+                    document.getElementById("mensaje-instruccion").style.display = "none";
                 }
             }
             
@@ -299,6 +342,7 @@
         }
         
         function iniciarCronometro() {
+            console.log("Iniciando cronómetro");
             clearInterval(intervalo);
             tiempo = 20;
             document.getElementById("cronometro").innerText = tiempo;
@@ -311,6 +355,7 @@
                     clearInterval(intervalo);
                     document.getElementById("mensaje-instruccion").style.display = "none";
                     document.getElementById("cronometro").style.display = "none";
+                    console.log("Cronómetro finalizado");
                     clickValido = true;
                     contarClickEnSupabase();
                     anuncioAbierto = false;
@@ -319,14 +364,24 @@
         }
         
         function agregarEventoAlContenedor() {
+            console.log("Intentando agregar eventos al contenedor de anuncios");
             const container = document.getElementById("container-2537ae2ea8b16bc9e554273a94dfd098");
             if (container) {
+                console.log("Contenedor de anuncios encontrado");
+                // Agregar evento a todos los enlaces dentro del contenedor
                 const enlaces = container.getElementsByTagName('a');
+                console.log("Enlaces encontrados:", enlaces.length);
                 for (let i = 0; i < enlaces.length; i++) {
+                    enlaces[i].removeEventListener('click', manejarClicAnuncio);
                     enlaces[i].addEventListener('click', manejarClicAnuncio);
                 }
+                
+                // También al contenedor mismo
+                container.removeEventListener("click", manejarClicAnuncio);
                 container.addEventListener("click", manejarClicAnuncio);
+                console.log("Eventos asignados correctamente");
             } else {
+                console.log("No se encontró el contenedor, reintentando en 1 segundo");
                 setTimeout(agregarEventoAlContenedor, 1000);
             }
         }
@@ -335,11 +390,17 @@
         document.addEventListener('DOMContentLoaded', iniciarApp);
         
         window.addEventListener('load', function() {
+            console.log("Página completamente cargada");
             setTimeout(agregarEventoAlContenedor, 1000);
             let intentos = 0;
             const intervalCheck = setInterval(() => {
-                if (++intentos >= 5) clearInterval(intervalCheck);
+                intentos++;
+                console.log("Intento", intentos, "de 5 para agregar eventos");
                 agregarEventoAlContenedor();
+                
+                if (intentos >= 5) {
+                    clearInterval(intervalCheck);
+                }
             }, 2000);
         });
         

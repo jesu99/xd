@@ -4,34 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>Iniciar Sesión</h1>
     <input type="email" id="email" placeholder="Correo Electrónico">
     <input type="password" id="password" placeholder="Contraseña">
-    <button onclick="login()">Ingresar</button>
+    <button id="loginButton">Ingresar</button>
 
     <script type="module">
-        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/+esm";
         
         const supabaseUrl = "TU_SUPABASE_URL";
         const supabaseKey = "TU_SUPABASE_ANON_KEY";
         const supabase = createClient(supabaseUrl, supabaseKey);
-
+        
+        // Función de inicio de sesión
         async function login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            
-            if (error) {
-                alert(error.message);
+            if (!email || !password) {
+                alert("Por favor complete todos los campos");
                 return;
             }
             
-            alert("Inicio de sesión exitoso.");
-            window.location.href = 'dashboard.html';
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ 
+                    email, 
+                    password 
+                });
+                
+                if (error) {
+                    alert("Error: " + error.message);
+                    return;
+                }
+                
+                alert("Inicio de sesión exitoso.");
+                window.location.href = 'dashboard.html';
+            } catch (e) {
+                alert("Error en la conexión: " + e.message);
+            }
         }
+        
+        // Agregar evento al botón
+        document.getElementById('loginButton').addEventListener('click', login);
     </script>
 </body>
 </html>

@@ -34,7 +34,7 @@
     <div class="box">
         <h2>Bienvenido a tu Dashboard</h2>
         <p>Gana dinero interactuando con anuncios o viendo películas.</p>
-        <p><strong>Saldo actual: $<span id="balance">0.000</span></strong></p>
+        <p><strong>Saldo actual: $<span id="saldo">0.000</span></strong></p>
     </div>
     
     <button onclick="pagarPorAnuncio()">Pago por clic a anuncio ($0.001 por 20s)</button>
@@ -44,57 +44,51 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // 🔴 Usa aquí tu clave real
+        const supabaseKey = "TU_SUPABASE_KEY"; // Sustituye por tu clave válida
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        const usuarioEmail = "usuario@email.com"; // 🔴 Cambia esto por el email del usuario logueado
+        const usuarioEmail = "usuario@email.com"; // Reemplázalo con el usuario actual
         
         async function cargarSaldo() {
             const { data, error } = await supabase
                 .from("usuarios")
-                .select("balance")  
+                .select("saldo")
                 .eq("email", usuarioEmail)
                 .single();
             
             if (error) {
-                console.error("Error al obtener balance", error);
+                console.error("Error al obtener saldo", error);
                 return;
             }
-            document.getElementById("balance").innerText = data.balance.toFixed(3);
+            document.getElementById("saldo").innerText = data.saldo.toFixed(3);
         }
         
         async function actualizarSaldo(monto) {
             const { error } = await supabase
                 .from("usuarios")
-                .update({ balance: supabase.raw("balance + ?", [monto]) })
+                .update({ saldo: supabase.raw("saldo + ?", [monto]) })
                 .eq("email", usuarioEmail);
             
             if (error) {
-                console.error("Error al actualizar balance", error);
+                console.error("Error al actualizar saldo", error);
                 return;
             }
             cargarSaldo();
         }
         
-        function pagarPorAnuncio() {
-            actualizarSaldo(0.001); // Suma el dinero
-            setTimeout(() => {
-                window.location.href = "anuncio.html"; // Redirige después de 20s
-            }, 20000);
-            alert("Espere 20 segundos para recibir el pago.");
-        }
+       function pagarPorAnuncio() {
+    window.location.href = "anuncio.html";
 
-        function pagarPorPelicula() {
-            actualizarSaldo(0.003); // Suma el dinero
-            setTimeout(() => {
-                window.location.href = "catalogo.html"; // Redirige después de 5 min
-            }, 300000);
-            alert("Debes ver la película durante al menos 5 minutos para recibir el pago.");
         }
         
-        function cerrarSesion() {
-            window.location.href = "index.html";
+        function pagarPorPelicula() {
+            setTimeout(() => actualizarSaldo(0.003), 300000);
+            alert("Has iniciado una película. Debes verla al menos 5 minutos para recibir el pago.");
         }
+        
+        function pagarPorPelicula() {
+    window.location.href = "catalogo.html";
+}
 
         // Bloquear navegación con flechas y F5, redirigir a index.html
         window.onload = function() {
@@ -103,7 +97,6 @@
                 history.pushState(null, null, location.href);
                 window.location.href = "index.html";
             };
-            cargarSaldo(); // Cargar saldo al inicio
         };
         
         document.addEventListener("keydown", function (event) {
@@ -133,6 +126,7 @@
             }
         });
         
+        cargarSaldo();
     </script>
 </body>
 </html>

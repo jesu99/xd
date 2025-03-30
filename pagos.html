@@ -71,6 +71,11 @@
             background-color: #2980b9;
         }
         
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
         .back-button {
             background-color: #95a5a6;
             margin-top: 15px;
@@ -240,19 +245,15 @@
                 userData = data;
                 userEmail = data.email;
                 
-                // Calcular balance basado en actividad
-                const anunciosClickeados = data.anuncios_clickeados || 0;
-                const peliculasVistas = data.peliculas_vistas || 0;
+                // Usar el campo balance de la tabla usuarios
+                const balance = data.balance || 0;
                 
-                // Cálculo según las tarifas: 0.001 por anuncio y 0.003 por película
-                const balanceCalculado = (anunciosClickeados * 0.001) + (peliculasVistas * 0.003);
-                
-                // Mostrar el saldo calculado
-                document.getElementById("balance-amount").innerText = balanceCalculado.toFixed(2);
+                // Mostrar el saldo desde la base de datos
+                document.getElementById("balance-amount").innerText = balance.toFixed(2);
                 
                 // Habilitar o deshabilitar el botón de solicitar pago según el saldo
                 const requestPaymentButton = document.getElementById("request-payment");
-                if (balanceCalculado >= 5.00) {
+                if (balance >= 5.00) {
                     requestPaymentButton.disabled = false;
                 }
                 
@@ -325,6 +326,7 @@
             }
             
             let paymentData = {};
+            let datos_pago = "";
             
             // Recopilar datos según el método seleccionado
             if (method === "paypal") {
@@ -334,6 +336,7 @@
                     return;
                 }
                 paymentData = { email };
+                datos_pago = email;
             } else if (method === "bank") {
                 const bankName = document.getElementById("bank-name").value;
                 const accountNumber = document.getElementById("account-number").value;
@@ -345,6 +348,7 @@
                 }
                 
                 paymentData = { bankName, accountNumber, accountHolder };
+                datos_pago = `Banco: ${bankName}, Cuenta: ${accountNumber}, Titular: ${accountHolder}`;
             } else if (method === "crypto") {
                 const cryptoType = document.getElementById("crypto-type").value;
                 const walletAddress = document.getElementById("wallet-address").value;
@@ -355,6 +359,7 @@
                 }
                 
                 paymentData = { cryptoType, walletAddress };
+                datos_pago = `${cryptoType.toUpperCase()}: ${walletAddress}`;
             }
             
             try {
@@ -382,15 +387,25 @@
         // Función para solicitar un pago
         document.getElementById("request-payment").addEventListener("click", async function() {
             try {
-                const balanceText = document.getElementById("balance-amount").innerText;
-                const balance = parseFloat(balanceText);
+                // Obtener el balance actual del usuario
+                const { data: userData, error: userError } = await supabase
+                    .from("usuarios")
+                    .select("balance, email, payment_method")
+                    .eq("id", sessionStorage.getItem("user_id"))
+                    .single();
+                
+                if (userError) {
+                    throw userError;
+                }
+                
+                const balance = userData.balance || 0;
                 
                 if (balance < 5.00) {
                     mostrarMensaje("Necesitas al menos $5.00 USD para solicitar un pago.", "error");
                     return;
                 }
                 
-                const paymentMethod = document.getElementById("payment-method").value;
+                const paymentMethod = userData.payment_method;
                 if (!paymentMethod) {
                     mostrarMensaje("Por favor, configura un método de pago antes de solicitar.", "error");
                     return;
@@ -412,12 +427,12 @@
                     datosPago = `${tipo.toUpperCase()}: ${wallet}`;
                 }
                 
-                // Crear el registro de pago
-                const { data, error } = await supabase
+                // Crear el registro de pago en la tabla pagos
+                const { error: insertError } = await supabase
                     .from("pagos")
                     .insert([
                         {
-                            usuario_email: userEmail,
+                            usuario_email: userData.email,
                             monto: balance,
                             metodo_pago: paymentMethod,
                             fecha: new Date().toISOString(),
@@ -425,8 +440,8 @@
                         }
                     ]);
                 
-                if (error) {
-                    throw error;
+                if (insertError) {
+                    throw insertError;
                 }
                 
                 // Reiniciar el balance a 0 después de solicitar el pago
@@ -440,6 +455,10 @@
                 if (updateError) {
                     throw updateError;
                 }
+                
+                // Actualizar la visualización del balance
+                document.getElementById("balance-amount").innerText = "0.00";
+                document.getElementById("request-payment").disabled = true;
                 
                 mostrarMensaje("Solicitud de pago enviada correctamente. Revisa tu historial de pagos para ver el estado.", "success");
                 
@@ -476,9 +495,9 @@
                         const fecha = new Date(pago.fecha);
                         const fechaFormateada = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()}`;
                         
-                        // Estado (simulado, en un sistema real habría un campo para esto)
-                        const estado = pago.estado || "Pendiente";
-                        const estadoClase = estado === "Completado" ? "status-completed" : "status-pending";
+                        // Estado (en un sistema real se debería agregar una columna estado a la tabla pagos)
+                        const estado = "Pendiente"; // Por defecto, todos los pagos son "Pendiente"
+                        const estadoClase = "status-pending";
                         
                         row.innerHTML = `
                             <td>${fechaFormateada}</td>

@@ -6,6 +6,7 @@
     <title>Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* Your existing CSS styles remain unchanged */
         body {
             display: flex;
             flex-direction: column;
@@ -192,6 +193,16 @@
             justify-content: space-between;
             margin: 5px 0;
         }
+        
+        .error-message {
+            background-color: #ffecec;
+            color: #e74c3c;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #e74c3c;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -204,6 +215,7 @@
     
     <div class="dashboard-container">
         <div id="loading" class="loading">Cargando datos de usuario...</div>
+        <div id="error-message" class="error-message"></div>
         <div id="dashboard-content" style="display: none;">
             <div class="profile-header">
                 <div class="profile-avatar" id="avatar-initial"></div>
@@ -266,23 +278,18 @@
     </div>
     
     <script>
-
-      // Add this in cargarDatosUsuario() to verify actual movie count
-const { count: actualMovieCount, error: countError } = await supabase
-    .from("historial_vistas")
-    .select("*", { count: "exact" })
-    .eq("usuario_id", user_id);
-
-if (!countError) {
-    console.log("Actual movie views in database:", actualMovieCount);
-    console.log("Movie views counter:", peliculasVistas);
-}
-        
+        // Inicialización de Supabase
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
         const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g";
-        
-        // Inicialización correcta de Supabase
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Función para mostrar mensajes de error
+        function mostrarError(mensaje) {
+            const errorElement = document.getElementById("error-message");
+            errorElement.textContent = mensaje;
+            errorElement.style.display = "block";
+            document.getElementById("loading").style.display = "none";
+        }
         
         async function cargarDatosUsuario() {
             try {
@@ -290,7 +297,10 @@ if (!countError) {
                 const user_id = sessionStorage.getItem("user_id");
                 
                 if (!token || !user_id) {
-                    window.location.href = "login.html"; // Redirigir si no hay sesión
+                    mostrarError("No se ha iniciado sesión. Redirigiendo...");
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
                     return;
                 }
                 
@@ -301,10 +311,29 @@ if (!countError) {
                     .eq("id", user_id)
                     .single();
                 
-                if (error || !data) {
+                if (error) {
                     console.error("Error al obtener usuario:", error);
-                    window.location.href = "login.html"; // Si hay error, forzar logout
+                    mostrarError("Error al cargar datos: " + error.message);
                     return;
+                }
+                
+                if (!data) {
+                    mostrarError("No se encontró información del usuario. Redirigiendo...");
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                    return;
+                }
+                
+                // Verificación del recuento de películas (opcional)
+                const { count: actualMovieCount, error: countError } = await supabase
+                    .from("historial_vistas")
+                    .select("*", { count: "exact" })
+                    .eq("usuario_id", user_id);
+                
+                if (!countError) {
+                    console.log("Actual movie views in database:", actualMovieCount);
+                    console.log("Movie views counter:", data.peliculas_vistas || 0);
                 }
                 
                 // Mostrar los datos del usuario en la interfaz
@@ -359,10 +388,12 @@ if (!countError) {
                 
                 // Mostrar el dashboard y ocultar indicador de carga
                 document.getElementById("loading").style.display = "none";
+                document.getElementById("error-message").style.display = "none";
                 document.getElementById("dashboard-content").style.display = "block";
                 
             } catch (error) {
                 console.error("Error en la carga de datos:", error);
+                mostrarError("Error inesperado: " + (error.message || "Desconocido"));
             }
         }
         
@@ -370,6 +401,7 @@ if (!countError) {
         async function actualizarDatos() {
             document.getElementById("loading").style.display = "block";
             document.getElementById("dashboard-content").style.display = "none";
+            document.getElementById("error-message").style.display = "none";
             await cargarDatosUsuario();
         }
         

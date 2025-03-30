@@ -50,11 +50,11 @@
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
         const usuarioEmail = "usuario@email.com";
-
+        
         async function cargarDatosUsuario() {
             const { data, error } = await supabase
                 .from("usuarios")
-                .select("anuncios_clickeados, peliculas_vistas")
+                .select("balance, anuncios_clickeados, peliculas_vistas")
                 .eq("email", usuarioEmail)
                 .single();
             
@@ -62,43 +62,50 @@
                 console.error("Error al obtener datos", error);
                 return;
             }
-
-            // Obtener los valores de la base de datos
-            const anuncios = data.anuncios_clickeados || 0;
-            const peliculas = data.peliculas_vistas || 0;
+            console.log("Datos recibidos:", data);
             
-            // Calcular el saldo en dólares
-            const saldoCalculado = (anuncios * 0.001) + (peliculas * 0.003);
-
-            // Mostrar los datos en el HTML
-            document.getElementById("anuncios_clickeados").innerText = anuncios;
-            document.getElementById("peliculas_vistas").innerText = peliculas;
-            document.getElementById("saldo").innerText = saldoCalculado.toFixed(3);
+            document.getElementById("saldo").innerText = parseFloat(data.balance).toFixed(3);
+            document.getElementById("anuncios_clickeados").innerText = data.anuncios_clickeados;
+            document.getElementById("peliculas_vistas").innerText = data.peliculas_vistas;
         }
-
-        async function actualizarSaldoYClicks(columna) {
-            const { error } = await supabase
+        
+        async function actualizarSaldoYClicks(monto, columna) {
+            const { data, error } = await supabase
                 .from("usuarios")
-                .update({ [columna]: supabase.raw(`${columna} + 1`) })
-                .eq("email", usuarioEmail);
+                .select(columna)
+                .eq("email", usuarioEmail)
+                .single();
             
             if (error) {
-                console.error("Error al actualizar datos", error);
+                console.error("Error al obtener el valor actual", error);
                 return;
             }
-            cargarDatosUsuario();  // Recargar datos después de la actualización
+            
+            const nuevoValor = (data[columna] || 0) + 1;
+            const nuevoSaldo = monto;
+            
+            const { error: updateError } = await supabase
+                .from("usuarios")
+                .update({ balance: supabase.raw("balance + ?", [nuevoSaldo]), [columna]: nuevoValor })
+                .eq("email", usuarioEmail);
+            
+            if (updateError) {
+                console.error("Error al actualizar datos", updateError);
+                return;
+            }
+            cargarDatosUsuario();
         }
-
+        
         function pagarPorAnuncio() {
-            actualizarSaldoYClicks("anuncios_clickeados");
+            actualizarSaldoYClicks(0.001, "anuncios_clickeados");
             window.location.href = "anuncio.html";
         }
-
+        
         function pagarPorPelicula() {
-            actualizarSaldoYClicks("peliculas_vistas");
+            actualizarSaldoYClicks(0.003, "peliculas_vistas");
             window.location.href = "catalogo.html";
         }
-
+        
         cargarDatosUsuario();
     </script>
 </body>

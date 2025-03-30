@@ -35,49 +35,61 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabaseUrl = "https://tihvqxujcqladqxucugf.supabase.co";
-        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Asegúrate de usar la clave completa
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpaHZxeHVqY3FsYWRxeHVjdWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyMDYwNTUsImV4cCI6MjA1ODc4MjA1NX0.p9lMEnhHfA10JSiGv9jJZHj0Zf5SCnZFtER5GYvqI5g"; // Asegúrate de usar la clave completa
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
         
-        // Verificar la sesión al cargar la página
-        document.addEventListener('DOMContentLoaded', async function() {
-            const { data: { session } } = await supabase.auth.getSession();
+        // Verificar datos guardados al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const userDataString = localStorage.getItem('userData');
             
-            if (!session) {
-                // Si no hay sesión, redirigir al login
+            if (!userDataString) {
+                // Si no hay datos guardados, redirigir al login
                 window.location.href = "login.html";
                 return;
             }
             
-            // Obtener información del usuario desde la tabla users
-            const { data: usuario, error } = await supabase
-                .from('usuarios') // Reemplaza 'usuarios' con el nombre real de tu tabla
-                .select('*')
-                .eq('email', session.user.email)
-                .single();
+            try {
+                // Convertir string a objeto JavaScript
+                const usuario = JSON.parse(userDataString);
                 
-            if (error) {
-                console.error("Error al obtener datos del usuario:", error);
-                return;
+                // Mostrar la información del usuario
+                const userInfoDiv = document.querySelector('.user-info');
+                userInfoDiv.innerHTML = `
+                    <h3>Bienvenido, ${usuario.email}</h3>
+                    <p>DNI: ${usuario.dni}</p>
+                    <p>Balance: $${usuario.balance}</p>
+                    <p>Anuncios clickeados: ${usuario.anuncios_clickeados}</p>
+                    <p>Películas vistas: ${usuario.peliculas_vistas}</p>
+                    <p>Último click: ${usuario.ultimo_click || 'N/A'}</p>
+                `;
+                
+                // También podríamos actualizar los datos desde la base de datos aquí
+                // para tener la información más reciente
+                actualizarDatosUsuario(usuario.email);
+                
+            } catch (error) {
+                console.error("Error al procesar datos del usuario:", error);
+                localStorage.removeItem('userData');
+                window.location.href = "login.html";
             }
-            
-            // Mostrar la información del usuario
-            const userInfoDiv = document.querySelector('.user-info');
-            userInfoDiv.innerHTML = `
-                <h3>Bienvenido, ${usuario.email}</h3>
-                <p>DNI: ${usuario.dni}</p>
-                <p>Balance: $${usuario.balance}</p>
-                <p>Anuncios clickeados: ${usuario.anuncios_clickeados}</p>
-                <p>Películas vistas: ${usuario.peliculas_vistas}</p>
-                <p>Último click: ${usuario.ultimo_click || 'N/A'}</p>
-            `;
         });
         
-        async function cerrarSesion() {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error("Error al cerrar sesión:", error);
-                return;
+        async function actualizarDatosUsuario(email) {
+            // Obtener datos actualizados del usuario
+            const { data, error } = await supabase
+                .from('usuarios')
+                .select('*')
+                .eq('email', email)
+                .single();
+                
+            if (!error && data) {
+                localStorage.setItem('userData', JSON.stringify(data));
+                // Si quieres, puedes actualizar la UI aquí también
             }
+        }
+        
+        function cerrarSesion() {
+            localStorage.removeItem('userData');
             window.location.href = "login.html";
         }
     </script>

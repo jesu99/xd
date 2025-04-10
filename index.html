@@ -1,380 +1,88 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Películas</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-        
-        body {
-            background-color: #f0f0f0;
-            padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .movie-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-        }
-        
-        .movie-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        
-        .movie-card img {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-        }
-        
-        .movie-info {
-            padding: 15px;
-        }
-        
-        .movie-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .movie-description {
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
-        
-        .btn {
-            display: inline-block;
-            background-color: #e50914;
-            color: white;
-            padding: 8px 16px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            margin-right: 10px;
-        }
-        
-        .btn:hover {
-            background-color: #b2070f;
-        }
-
-        .btn-support {
-            background-color: #4CAF50;
-        }
-        
-        .btn-support:hover {
-            background-color: #388E3C;
-        }
-        
-        .ad-container {
-            margin: 20px 0;
-            text-align: center;
-            overflow: hidden;
-        }
-        
-        /* Anuncios flotantes */
-        .floating-ad-left {
-            position: fixed;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 999;
-            display: none;
-        }
-        
-        .floating-ad-right {
-            position: fixed;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 999;
-            display: none;
-        }
-        
-        .floating-ad-bottom {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            text-align: center;
-            z-index: 999;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .close-ad {
-            position: absolute;
-            right: 5px;
-            top: 5px;
-            background: #333;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            line-height: 20px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        /* Mensaje de apoyo */
-        .support-message {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .support-message p {
-            margin-bottom: 10px;
-        }
-        
-        /* Media Queries para diferentes tamaños de pantalla */
-        @media screen and (min-width: 600px) {
-            .movie-card {
-                display: flex;
-                max-width: 800px;
-            }
-            
-            .movie-card img {
-                width: 200px;
-                height: auto;
-            }
-            
-            .movie-info {
-                flex: 1;
-            }
-            
-            .floating-ad-left, .floating-ad-right {
-                display: block;
-            }
-        }
-        
-        @media screen and (min-width: 900px) {
-            .movie-container {
-                justify-content: space-between;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Catálogo de Películas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    .catalog {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .movie-card {
+      background-color: #222;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .movie-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .movie-info {
+      padding: 15px;
+    }
+    .movie-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .movie-description {
+      font-size: 14px;
+      margin-bottom: 15px;
+      color: #ccc;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 15px;
+      background-color: #e50914;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .btn:hover {
+      background-color: #b00610;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Catálogo de Películas</h1>
-        <p>Encuentra tus películas favoritas para ver en línea</p>
-    </header>
-    
-    <!-- Mensaje de apoyo -->
-    <div class="support-message">
-        <p><strong>¡Tu apoyo mantiene este sitio gratis para todos!</strong></p>
-        <p>Los anuncios y tus clics nos ayudan a mantener este servicio sin costo alguno.</p>
-        <a href="#" class="btn btn-support" id="support-btn">Apoyar con un clic</a>
+
+  <h1>Catálogo de Películas</h1>
+  <div class="catalog">
+
+    <!-- Película 1 --> 
+    <div class="movie-card">
+      <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FsSrj4lnhrb113DOPEPTaO2jaDk3.jpg&w=640&q=75" alt="It (Eso)">
+      <div class="movie-info">
+        <div class="movie-title">It (Eso)</div>
+        <div class="movie-description">En el verano de 1989, un grupo de niños maltratados se unieron para destruir a un monstruo cambia-formas, que se disfraza de payaso y se aprovecha de los niños de Derry, su pequeño pueblo de Maine.</div>
+        <a href="https://pixeldrain.com/u/Q8KRdN3t" class="btn" target="_blank">Ver</a>
+      </div>
     </div>
-    
-    <!-- Anuncio 1 -->
-    <div class="ad-container">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'b330ccd204185aee9ef640adccf896d2',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+
+    <!-- Puedes duplicar este bloque para más películas -->
+    <!-- Película 2 -->
+    <div class="movie-card">
+      <img src="https://image.tmdb.org/t/p/original/f4oZTcfGrVTXKTWg157AwikXqmP.jpg" alt="Avatar">
+      <div class="movie-info">
+        <div class="movie-title">Avatar</div>
+        <div class="movie-description">Un exmarine parapléjico es enviado a Pandora, donde deberá elegir entre seguir las órdenes o proteger el mundo que ha aprendido a amar.</div>
+        <a href="https://pixeldrain.com/u/ejemplo123" class="btn" target="_blank">Ver</a>
+      </div>
     </div>
-    
-    <!-- Anuncios flotantes -->
-    <div class="floating-ad-left">
-        <button class="close-ad" onclick="this.parentElement.style.display='none'">×</button>
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'a55c7cdc78df0520f71c2b00e4046167',
-                'format' : 'iframe',
-                'height' : 300,
-                'width' : 160,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
-    </div>
-    
-    <div class="floating-ad-right">
-        <button class="close-ad" onclick="this.parentElement.style.display='none'">×</button>
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'a55c7cdc78df0520f71c2b00e4046167',
-                'format' : 'iframe',
-                'height' : 300,
-                'width' : 160,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
-    </div>
-    
-    <div class="floating-ad-bottom" id="bottom-ad">
-        <button class="close-ad" onclick="document.getElementById('bottom-ad').style.display='none'">×</button>
-        <script async="async" data-cfasync="false" src="//pl26063295.profitableratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-        <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
-    </div>
-    
-    <div class="movie-container">
-        <!-- Película 1 -->
-        <div class="movie-card">
-            <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FsSrj4lnhrb113DOPEPTaO2jaDk3.jpg&w=640&q=75" alt="It (Eso)">
-            <div class="movie-info">
-                <div class="movie-title">It (Eso)</div>
-                <div class="movie-description">En el verano de 1989, un grupo de niños maltratados se unieron para destruir a un monstruo cambia-formas, que se disfraza de payaso y se aprovecha de los niños de Derry, su pequeño pueblo de Maine.</div>
-                <a href="https://pixeldrain.com/u/Q8KRdN3t" class="btn" target="_blank">Ver</a>
-                <a href="#" class="btn btn-support" onclick="showSupportMessage()">Apoyar</a>
-            </div>
-        </div>
-        
-        <!-- Película 2 -->
-        <div class="movie-card">
-            <img src="/api/placeholder/400/320" alt="El Padrino">
-            <div class="movie-info">
-                <div class="movie-title">El Padrino</div>
-                <div class="movie-description">La historia de la familia Corleone, una de las más poderosas mafias de Nueva York en los años 40. Don Vito Corleone es respetado y temido por todos.</div>
-                <a href="#" class="btn" target="_blank">Ver</a>
-                <a href="#" class="btn btn-support" onclick="showSupportMessage()">Apoyar</a>
-            </div>
-        </div>
-        
-        <!-- Anuncio 2 (vertical) -->
-        <div class="ad-container">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : 'a55c7cdc78df0520f71c2b00e4046167',
-                    'format' : 'iframe',
-                    'height' : 300,
-                    'width' : 160,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
-        </div>
-        
-        <!-- Película 3 -->
-        <div class="movie-card">
-            <img src="/api/placeholder/400/320" alt="Pulp Fiction">
-            <div class="movie-info">
-                <div class="movie-title">Pulp Fiction</div>
-                <div class="movie-description">Las vidas de varios personajes se entrelazan en una historia de crimen, redención y violencia en Los Ángeles.</div>
-                <a href="#" class="btn" target="_blank">Ver</a>
-                <a href="#" class="btn btn-support" onclick="showSupportMessage()">Apoyar</a>
-            </div>
-        </div>
-        
-        <!-- Película 4 -->
-        <div class="movie-card">
-            <img src="/api/placeholder/400/320" alt="El Caballero Oscuro">
-            <div class="movie-info">
-                <div class="movie-title">El Caballero Oscuro</div>
-                <div class="movie-description">Batman se enfrenta al Joker, un criminal psicópata que busca sembrar el caos en Gotham.</div>
-                <a href="#" class="btn" target="_blank">Ver</a>
-                <a href="#" class="btn btn-support" onclick="showSupportMessage()">Apoyar</a>
-            </div>
-        </div>
-        
-        <!-- Anuncio 3 (contenedor) -->
-        <div class="ad-container">
-            <script async="async" data-cfasync="false" src="//pl26063295.profitableratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-            <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
-        </div>
-        
-        <!-- Película 5 -->
-        <div class="movie-card">
-            <img src="/api/placeholder/400/320" alt="Matrix">
-            <div class="movie-info">
-                <div class="movie-title">Matrix</div>
-                <div class="movie-description">Un programador descubre que el mundo en el que vive es una simulación creada por máquinas inteligentes para esclavizar a la humanidad.</div>
-                <a href="#" class="btn" target="_blank">Ver</a>
-                <a href="#" class="btn btn-support" onclick="showSupportMessage()">Apoyar</a>
-            </div>
-        </div>
-        
-        <!-- Película 6 -->
-        <div class="movie-card">
-            <img src="/api/placeholder/400/320" alt="Interestelar">
-            <div class="movie-info">
-                <div class="movie-title">Interestelar</div>
-                <div class="movie-description">Un grupo de astronautas viaja a través de un agujero de gusano en busca de un nuevo hogar para la humanidad.</div>
-                <a href="#" class="btn" target="_blank">Ver</a>
-                <a href="#" class="btn btn-support" onclick="showSupportMessage()">Apoyar</a>
-            </div>
-        </div>
-        
-        <!-- Anuncio 4 (vertical) -->
-        <div class="ad-container">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : 'a55c7cdc78df0520f71c2b00e4046167',
-                    'format' : 'iframe',
-                    'height' : 300,
-                    'width' : 160,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
-        </div>
-    </div>
-    
-    <footer style="text-align: center; margin-top: 40px; color: #666;">
-        <p>&copy; 2025 Catálogo de Películas. Todos los derechos reservados.</p>
-    </footer>
-    
-    <!-- Script del popunder -->
-    <script type='text/javascript' src='//pl26063313.profitableratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'></script>
-    
-    <!-- Script para el botón de apoyo -->
-    <script>
-        function showSupportMessage() {
-            alert("¡Gracias por tu apoyo! Tus clics ayudan a mantener este sitio gratuito para todos los usuarios.");
-            // Aquí puedes agregar un evento para el popunder si lo deseas
-            return false;
-        }
-        
-        document.getElementById('support-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            showSupportMessage();
-        });
-        
-        // Mostrar mensaje después de cierto tiempo
-        setTimeout(function() {
-            if (document.getElementById('bottom-ad').style.display !== 'none') {
-                alert("¡Recuerda que tu apoyo es importante para mantener este sitio gratis! Puedes ayudarnos haciendo clic en los anuncios o en el botón 'Apoyar'.");
-            }
-        }, 60000); // Mostrar después de 1 minuto
-    </script>
+
+    <!-- Agrega más películas aquí -->
+
+  </div>
+
 </body>
 </html>

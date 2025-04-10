@@ -2,25 +2,45 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo de Películas</title>
   <style>
+    :root {
+      --primary-color: #e50914;
+      --primary-hover: #b00610;
+      --secondary-color: #555;
+      --secondary-hover: #333;
+      --background-dark: #111;
+      --card-background: #222;
+      --text-light: #fff;
+      --text-muted: #ccc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       margin: 0;
-      background-color: #111;
+      background-color: var(--background-dark);
       font-family: Arial, sans-serif;
-      color: white;
+      color: var(--text-light);
+      line-height: 1.6;
     }
 
     .top-message {
-      background-color: #222;
-      color: #fff;
+      background-color: var(--card-background);
+      color: var(--text-light);
       text-align: center;
       padding: 10px;
       font-size: 16px;
+      width: 100%;
     }
 
     .top-message a {
-      color: #f00;
+      color: var(--primary-color);
       text-decoration: underline;
       font-weight: bold;
     }
@@ -29,49 +49,118 @@
       display: flex;
       justify-content: center;
       margin: 10px 0;
+      width: 100%;
+      overflow: hidden;
     }
 
     .layout {
       display: flex;
+      flex-direction: column;
       width: 100%;
       max-width: 1400px;
       margin: 0 auto;
     }
 
+    @media (min-width: 768px) {
+      .layout {
+        flex-direction: row;
+      }
+    }
+
     .sidebar {
-      width: 160px;
-      position: sticky;
-      top: 20px;
-      height: max-content;
-      z-index: 10;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .sidebar {
+        width: 160px;
+        position: sticky;
+        top: 20px;
+        height: max-content;
+        z-index: 10;
+      }
     }
 
     .main-content {
       flex: 1;
-      padding: 20px;
+      padding: 10px;
+    }
+
+    @media (min-width: 576px) {
+      .main-content {
+        padding: 20px;
+      }
+    }
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 24px;
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 32px;
+        margin-bottom: 30px;
+      }
     }
 
     .catalog {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    @media (min-width: 480px) {
+      .catalog {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .catalog {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .catalog {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
 
     .movie-card {
-      background-color: #222;
+      background-color: var(--card-background);
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-5px);
     }
 
     .movie-card img {
       width: 100%;
       height: auto;
       display: block;
+      aspect-ratio: 2/3;
+      object-fit: cover;
     }
 
     .movie-info {
       padding: 15px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
     }
 
     .movie-title {
@@ -83,35 +172,63 @@
     .movie-description {
       font-size: 14px;
       margin-bottom: 15px;
-      color: #ccc;
+      color: var(--text-muted);
+      flex-grow: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: auto;
     }
 
     .btn {
       display: inline-block;
       padding: 10px 15px;
-      background-color: #e50914;
-      color: #fff;
+      background-color: var(--primary-color);
+      color: var(--text-light);
       text-decoration: none;
       border-radius: 5px;
-      margin-right: 10px;
+      text-align: center;
       transition: background-color 0.3s;
+      flex: 1;
+      min-width: 80px;
     }
 
     .btn:hover {
-      background-color: #b00610;
+      background-color: var(--primary-hover);
     }
 
     .btn-secondary {
-      background-color: #555;
+      background-color: var(--secondary-color);
     }
 
     .btn-secondary:hover {
-      background-color: #333;
+      background-color: var(--secondary-hover);
     }
 
-    h1 {
+    .ad-container {
       text-align: center;
-      margin-bottom: 30px;
+      margin: 20px auto;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* Para dispositivos de pantalla pequeña */
+    @media (max-width: 480px) {
+      .btn {
+        width: 100%;
+        margin-bottom: 5px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -137,9 +254,7 @@
   </div>
 
   <div class="layout">
-
-
-    <!-- Publicidad izquierda -->
+    <!-- Publicidad izquierda (aparecerá arriba en móviles) -->
     <div class="sidebar">
       <script type="text/javascript">
         atOptions = {
@@ -160,214 +275,209 @@
 
         <!-- Película 1 --> 
         <div class="movie-card">
-          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FsSrj4lnhrb113DOPEPTaO2jaDk3.jpg&w=640&q=75" alt="It (Eso)">
+          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FsSrj4lnhrb113DOPEPTaO2jaDk3.jpg&w=640&q=75" alt="It (Eso)" loading="lazy">
           <div class="movie-info">
             <div class="movie-title">It (Eso)</div>
             <div class="movie-description">En el verano de 1989, un grupo de niños maltratados se unieron para destruir a un monstruo cambia-formas, que se disfraza de payaso y se aprovecha de los niños de Derry, su pequeño pueblo de Maine.</div>
-            <a href="https://pixeldrain.com/u/Q8KRdN3t" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">🚀 ¡PUEDES APOYAR SOLO MIRANDO UN ANUNCIO! 👀 ¡Haz clic aquí! 🎥</a>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/Q8KRdN3t" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
           </div>
         </div>
 
- <!-- Anuncio entre películas (COPIABLE) -->
-  <div style="text-align:center; margin: 20px auto;">
-    <script async="async" data-cfasync="false" src="//pl26063295.profitableratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-    <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
-  </div>
-        
-        
-          <!-- Película 2 -->
-      <div class="movie-card">
-        <img src="https://pics.filmaffinity.com/Bajo_custodia-198204017-large.jpg" alt="Bajo Custodia">
-        <div class="movie-info">
-          <div class="movie-title">Bajo Custodia</div>
-          <div class="movie-description">Una mujer enigmática despierta dentro de una comisaría abandonada en medio de la noche sin recordar cómo llegó allí. Dos detectives intentan reconstruir sus pasos para acusarla de un atropello.</div>
-          <a href="https://mega.nz/file/UtxyVSiD#aKDB0n0uIYYZmyjSPmlECZPFaPCQ7mzyhNC64X50vqA" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
+        <!-- Anuncio entre películas -->
+        <div class="ad-container">
+          <script async="async" data-cfasync="false" src="//pl26063295.profitableratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+          <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
         </div>
-      </div>
-      
-
-
-      <!-- Película 3 -->
-      <div class="movie-card">
-        <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRKIMfNVHYaQkcZU4E2vmWCuX_sVl85MpJu_UG-20k4f6LmQOlj" alt="Winnie the Pooh: Sangre y miel">
-        <div class="movie-info">
-          <div class="movie-title">Winnie the Pooh: Sangre y miel</div>
-          <div class="movie-description">Winnie the Pooh y Piglet se han vuelto salvajes y quieren sangre humana. Los antes entrañables amigos aterrorizan a Christopher Robin y un grupo de jóvenes en una casa aislada.</div>
-          <a href="https://pixeldrain.com/u/mKf1mBay" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
-        </div>
-      </div>
-
         
-      
+        <!-- Película 2 -->
+        <div class="movie-card">
+          <img src="https://pics.filmaffinity.com/Bajo_custodia-198204017-large.jpg" alt="Bajo Custodia" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Bajo Custodia</div>
+            <div class="movie-description">Una mujer enigmática despierta dentro de una comisaría abandonada en medio de la noche sin recordar cómo llegó allí. Dos detectives intentan reconstruir sus pasos para acusarla de un atropello.</div>
+            <div class="button-group">
+              <a href="https://mega.nz/file/UtxyVSiD#aKDB0n0uIYYZmyjSPmlECZPFaPCQ7mzyhNC64X50vqA" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
+        </div>
+
         <!-- Película 3 -->
-      <div class="movie-card">
-        <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2Frpo3DJFMOSAz27gDwxJ5LIwIFni.jpg&w=640&q=75">
-        <div class="movie-info">
-          <div class="movie-title">Hereje</div>
-          <div class="movie-description">Dos jóvenes misioneras se ven obligadas a demostrar su fe cuando llaman a la puerta equivocada y son recibidas por el diabólico Sr. Reed (Hugh Grant). Los tres se verán envueltos en un brutal juego del gato y el ratón durante una larga noche de tormenta.</div>
-          <a href="https://pixeldrain.com/u/GNtmH5tJ" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
+        <div class="movie-card">
+          <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRKIMfNVHYaQkcZU4E2vmWCuX_sVl85MpJu_UG-20k4f6LmQOlj" alt="Winnie the Pooh: Sangre y miel" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Winnie the Pooh: Sangre y miel</div>
+            <div class="movie-description">Winnie the Pooh y Piglet se han vuelto salvajes y quieren sangre humana. Los antes entrañables amigos aterrorizan a Christopher Robin y un grupo de jóvenes en una casa aislada.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/mKf1mBay" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
         </div>
-      </div>
-
- 
-
-      
-      <!-- Película 4 -->
-      <div class="movie-card">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYTFCR_N0efF2tu9uUGIlwPRM5MUQ06acODCSdFtlmmQpYo099" alt="Equipaje de mano">
-        <div class="movie-info">
-          <div class="movie-title">Equipaje de mano</div>
-          <div class="movie-description">En un aeropuerto abarrotado en Nochebuena, un agente de seguridad recibe un escalofriante ultimátum: ignorar una maleta peligrosa o la mujer que ama morirá.</div>
-          <a href="https://pixeldrain.com/u/e8swVqrH" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
+        
+        <!-- Película 4 -->
+        <div class="movie-card">
+          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2Frpo3DJFMOSAz27gDwxJ5LIwIFni.jpg&w=640&q=75" alt="Hereje" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Hereje</div>
+            <div class="movie-description">Dos jóvenes misioneras se ven obligadas a demostrar su fe cuando llaman a la puerta equivocada y son recibidas por el diabólico Sr. Reed (Hugh Grant). Los tres se verán envueltos en un brutal juego del gato y el ratón durante una larga noche de tormenta.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/GNtmH5tJ" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
         </div>
-      </div>
 
-     
-      <!-- Película 5 -->
-      <div class="movie-card">
-        <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FceKbVajrMKUyeOCoaijxPKWRIEN.jpg&w=640&q=75" alt="Un Viaje de Diez Metros">
-        <div class="movie-info">
-          <div class="movie-title">Un Viaje de Diez Metros</div>
-          <div class="movie-description">La llegada de la familia india provocará en los vecinos toda una revolución y más aún en su competencia, Le Saule Pleureur, un sofisticado local de hostelería que dirige la conocida y prestigiosa chef madame Mallory.</div>
-          <a href="https://pixeldrain.com/u/v7nB79p4" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
-        </div>
-      </div>
-
- 
-
-       <!-- Película 5 -->
-      <div class="movie-card">
-        <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2Fx2fWYlY2Ad2FL2Ad9p1HTgJEi8x.jpg&w=640&q=75" alt="Un Viaje de Diez Metros">
-        <div class="movie-info">
-          <div class="movie-title">El demonio</div>
-          <div class="movie-description">Trish Jenner y su hermano menor Derry cruzan los Estados Unidos en coche, en un viaje largo y aburrido cuya monotonía sólo se rompe por sus continuas discusiones. De pronto, en mitad de ninguna parte, descubren una iglesia abandonada cuyo tejado está cubierto por una espesa bandada de cuervos y ven como un misterioso personaje arroja un bulto al interior de una gran boca del alcantarillado. A partir de ese momento comienzan una huída aterradora, perseguidos por una de las criaturas más letales que se pueda imaginar.</div>
-          <a href="https://pixeldrain.com/u/Gs52auiT" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
-        </div>
-      </div>
-
-
-      
-     <!-- Película 5 -->
-      <div class="movie-card">
-        <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FhCffcXqpH002rvSFt8AUnIC376s.jpg&w=640&q=75">
-        <div class="movie-info">
-          <div class="movie-title">Búsqueda implacable 3</div>
-          <div class="movie-description">La vida del ex-agente especial Bryan Mills (Liam Neeson) se ve inesperadamente truncada tras el brutal asesinato de su ex mujer. Tras ser acusado de su muerte, se ve obligado a huir de la implacable persecución de la CIA, el FBI y la policía. Una vez más, deberá usar sus “habilidades especiales” para hacer justicia, dar caza a los verdaderos asesinos y proteger lo único que le queda en la vida: su hija.</div>
-          <a href="https://pixeldrain.com/u/bjch9X9Z" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
-        </div>
-      </div>
-
-      
-       <!-- Película 5 -->
-      <div class="movie-card">
-        <img src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FjHX5mFpbhLCghQAjOFUZBSOJoMs.jpg&w=640&q=75">
-        <div class="movie-info">
-          <div class="movie-title">Sombras del pasado</div>
-          <div class="movie-description">Lucas regresa a su aldea natal en las montañas para enterrar a sus padres. Traumatizado por la muerte de su mejor amigo a los ocho años, desea olvidar el pasado. Pero el padre de su amigo cree que Lucas es culpable y busca venganza sin descanso</div>
-          <a href="https://pixeldrain.com/u/tA9cX9k9" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
-        </div>
-      </div>
-
-       <!-- Película 5 -->
-      <div class="movie-card">
-        <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FvHliQz7LAI7FRYmnqbcWygkugIK.jpg&w=640&q=75">
-        <div class="movie-info">
-          <div class="movie-title">Camino Hacia el Terror 6: La Herencia</div>
-          <div class="movie-description">Una misteriosa y repentina herencia trae a Danny y sus amigos a Hobbs Springs, un centro turístico abandonado. El viaje a esa tranquila localidad rápidamente se convierte en una ola de sangrientos asesinatos, cuando los amigos de Danny van siendo masacrados uno a uno. Danny descubre que sus parientes caníbales están tras los asesinatos, y deberá enfrentar una horrible elección.</div>
-          <a href="https://pixeldrain.com/u/3C3cEiEB" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
-        </div>
-      </div>
-
-      
         <!-- Película 5 -->
-      <div class="movie-card">
-        <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2F32obpfCjRsIenzkZ5oM5F3w0d65.jpg&w=640&q=75">
-        <div class="movie-info">
-          <div class="movie-title">Enciendeme</div>
-          <div class="movie-description">En un futuro cercano, la incomodidad de las emociones humanas ha sido erradicada con una pastilla diaria. Pero cuando una joven pareja se salta la dosis impuesta por el gobierno, descubren el amor, la alegría, el sexo y todas las complicaciones que vienen con ello.</div>
-          <a href="https://pixeldrain.com/u/cyqJ4YiW" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
+        <div class="movie-card">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYTFCR_N0efF2tu9uUGIlwPRM5MUQ06acODCSdFtlmmQpYo099" alt="Equipaje de mano" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Equipaje de mano</div>
+            <div class="movie-description">En un aeropuerto abarrotado en Nochebuena, un agente de seguridad recibe un escalofriante ultimátum: ignorar una maleta peligrosa o la mujer que ama morirá.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/e8swVqrH" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
         </div>
-      </div>
-
-
-      
-         <!-- Película 5 -->
-      <div class="movie-card">
-        <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FePCSbmpMsN2TcbSCqNC4GP92ixr.jpg&w=640&q=75">
-        <div class="movie-info">
-          <div class="movie-title">Terror a 47 metros: El segundo ataque</div>
-          <div class="movie-description">Esta secuela de "47 Meters Down" traslada la mortífera acción de los tiburones desde México a Brasil, y seguirá a un grupo de chicas en busca de aventuras en la costa de Recife. Con la esperanza de salir del rutinario sendero turístico, las chicas escuchan algo acerca de unas ruinas submarinas ocultas, pero descubren que bajo las olas turquesas su Atlantis secreta no está completamente deshabitada.</div>
-          <a href="https://pixeldrain.com/u/BTRtouYG" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
-        </div>
-      </div>
-    
-
-
-      
-      <!-- Película 6 -->
-      <div class="movie-card">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3qgJGo_kuxKI1WfyJm9MpD1_HF4Ngo9TaUBR-rdeAgVUEV83x" alt="Mufasa: El rey león">
-        <div class="movie-info">
-          <div class="movie-title">Mufasa: El rey león</div>
-          <div class="movie-description">Una inundación separa al cachorro Mufasa de sus padres, pero el rey de los leones lo acoge como a uno de los suyos tras demostrar su valentía. Al crecer, una manada de leones desterrados y los celos ponen en peligro su vida.</div>
-          <a href="https://pixeldrain.com/u/BCnYyRG4" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
-        </div>
-      </div>
-
-         
-      <!-- Película 6 -->
-      <div class="movie-card">
-        <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FsSrj4lnhrb113DOPEPTaO2jaDk3.jpg&w=640&q=75" alt="Mufasa: El rey león">
-        <div class="movie-info">
-          <div class="movie-title">It (Eso)</div>
-          <div class="movie-description">En el verano de 1989, un grupo de niños maltratados se unieron para destruir a un monstruo cambia-formas, que se disfraza de payaso y se aprovecha de los niños de Derry, su pequeño pueblo de Maine.</div>
-          <a href="https://pixeldrain.com/u/Q8KRdN3t" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
-        </div>
-      </div>
-
+     
         <!-- Película 6 -->
-      <div class="movie-card">
-        <img src="https://es.web.img3.acsta.net/c_310_420/medias/nmedia/18/92/62/06/20209152.jpg">
-        <div class="movie-info">
-          <div class="movie-title">Cien Pies Humano</div>
-          <div class="movie-description">Un cirujano demente une a dos chicas americanas y a un hombre japonés entre ellos a través de sus sistemas gástricos.</div>
-          <a href="https://pixeldrain.com/u/LMDrdJ6j" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
+        <div class="movie-card">
+          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FceKbVajrMKUyeOCoaijxPKWRIEN.jpg&w=640&q=75" alt="Un Viaje de Diez Metros" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Un Viaje de Diez Metros</div>
+            <div class="movie-description">La llegada de la familia india provocará en los vecinos toda una revolución y más aún en su competencia, Le Saule Pleureur, un sofisticado local de hostelería que dirige la conocida y prestigiosa chef madame Mallory.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/v7nB79p4" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
         </div>
-      </div>
 
+        <!-- Película 7 -->
+        <div class="movie-card">
+          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2Fx2fWYlY2Ad2FL2Ad9p1HTgJEi8x.jpg&w=640&q=75" alt="El demonio" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">El demonio</div>
+            <div class="movie-description">Trish Jenner y su hermano menor Derry cruzan los Estados Unidos en coche. De pronto, en mitad de ninguna parte, descubren una iglesia abandonada y ven como un misterioso personaje arroja un bulto al interior de una gran boca del alcantarillado.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/Gs52auiT" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Película 8 -->
+        <div class="movie-card">
+          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FhCffcXqpH002rvSFt8AUnIC376s.jpg&w=640&q=75" alt="Búsqueda implacable 3" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Búsqueda implacable 3</div>
+            <div class="movie-description">La vida del ex-agente especial Bryan Mills se ve inesperadamente truncada tras el brutal asesinato de su ex mujer. Tras ser acusado de su muerte, se ve obligado a huir de la persecución de la CIA, el FBI y la policía.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/bjch9X9Z" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Película 9 -->
+        <div class="movie-card">
+          <img src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FjHX5mFpbhLCghQAjOFUZBSOJoMs.jpg&w=640&q=75" alt="Sombras del pasado" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Sombras del pasado</div>
+            <div class="movie-description">Lucas regresa a su aldea natal en las montañas para enterrar a sus padres. Traumatizado por la muerte de su mejor amigo a los ocho años, desea olvidar el pasado. Pero el padre de su amigo cree que Lucas es culpable y busca venganza.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/tA9cX9k9" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Película 10 -->
+        <div class="movie-card">
+          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FvHliQz7LAI7FRYmnqbcWygkugIK.jpg&w=640&q=75" alt="Camino Hacia el Terror 6" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Camino Hacia el Terror 6: La Herencia</div>
+            <div class="movie-description">Una misteriosa y repentina herencia trae a Danny y sus amigos a Hobbs Springs, un centro turístico abandonado. Danny descubre que sus parientes caníbales están tras los asesinatos.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/3C3cEiEB" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Película 11 -->
+        <div class="movie-card">
+          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2F32obpfCjRsIenzkZ5oM5F3w0d65.jpg&w=640&q=75" alt="Enciendeme" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Enciendeme</div>
+            <div class="movie-description">En un futuro cercano, la incomodidad de las emociones humanas ha sido erradicada con una pastilla diaria. Pero cuando una joven pareja se salta la dosis impuesta por el gobierno, descubren el amor y todas las complicaciones que vienen con ello.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/cyqJ4YiW" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
+        </div>
+         
+        <!-- Película 12 -->
+        <div class="movie-card">
+          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FePCSbmpMsN2TcbSCqNC4GP92ixr.jpg&w=640&q=75" alt="Terror a 47 metros" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Terror a 47 metros: El segundo ataque</div>
+            <div class="movie-description">Esta secuela traslada la mortífera acción de los tiburones desde México a Brasil, y seguirá a un grupo de chicas en busca de aventuras en la costa de Recife, donde descubren que bajo las olas su Atlantis secreta no está completamente deshabitada.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/BTRtouYG" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
+        </div>
     
-      <!-- Película 7 -->
-      <div class="movie-card">
-        <img src="https://pics.filmaffinity.com/depravity-801066463-large.jpg" alt="Depravación">
-        <div class="movie-info">
-          <div class="movie-title">Depravación</div>
-          <div class="movie-description">Cuando tres vecinos sospechan que su solitario vecino es un asesino en serie, irrumpen en su apartamento para descubrir una fortuna oculta en obras de arte robadas. Pero su descubrimiento se convierte en una pesadilla.</div>
-          <a href="https://pixeldrain.com/u/24dw1r41" class="btn" target="_blank">Ver</a>
-           <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">PUEDES APOYAR SOLO DANDO CLICK AQUI</a>
+        <!-- Película 13 -->
+        <div class="movie-card">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3qgJGo_kuxKI1WfyJm9MpD1_HF4Ngo9TaUBR-rdeAgVUEV83x" alt="Mufasa: El rey león" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Mufasa: El rey león</div>
+            <div class="movie-description">Una inundación separa al cachorro Mufasa de sus padres, pero el rey de los leones lo acoge como a uno de los suyos tras demostrar su valentía. Al crecer, una manada de leones desterrados y los celos ponen en peligro su vida.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/BCnYyRG4" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
         </div>
-      </div>
-
-        <!-- Puedes agregar más películas aquí -->
+         
+        <!-- Película 14 -->
+        <div class="movie-card">
+          <img src="https://es.web.img3.acsta.net/c_310_420/medias/nmedia/18/92/62/06/20209152.jpg" alt="Cien Pies Humano" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Cien Pies Humano</div>
+            <div class="movie-description">Un cirujano demente une a dos chicas americanas y a un hombre japonés entre ellos a través de sus sistemas gástricos.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/LMDrdJ6j" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Película 15 -->
+        <div class="movie-card">
+          <img src="https://pics.filmaffinity.com/depravity-801066463-large.jpg" alt="Depravación" loading="lazy">
+          <div class="movie-info">
+            <div class="movie-title">Depravación</div>
+            <div class="movie-description">Cuando tres vecinos sospechan que su solitario vecino es un asesino en serie, irrumpen en su apartamento para descubrir una fortuna oculta en obras de arte robadas. Pero su descubrimiento se convierte en una pesadilla.</div>
+            <div class="button-group">
+              <a href="https://pixeldrain.com/u/24dw1r41" class="btn" target="_blank">Ver</a>
+              <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Apoyar</a>
+            </div>
+          </div>
+        </div>
 
       </div>
     </div>
 
-    <!-- Publicidad derecha -->
+    <!-- Publicidad derecha (aparecerá abajo en móviles) -->
     <div class="sidebar">
       <script type="text/javascript">
         atOptions = {
@@ -380,11 +490,10 @@
       </script>
       <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
     </div>
-
   </div>
 
   <!-- Publicidad inferior -->
-  <div style="margin: 20px auto; text-align:center;">
+  <div class="ad-container">
     <script async="async" data-cfasync="false" src="//pl26063295.profitableratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
     <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
   </div>

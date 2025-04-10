@@ -5,41 +5,70 @@
   <title>Catálogo de Películas</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #fff;
       margin: 0;
+      background-color: #111;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .banner-top {
+      margin: 10px auto;
+    }
+
+    .layout {
+      display: flex;
+      width: 100%;
+      max-width: 1400px;
+    }
+
+    .sidebar {
+      width: 160px;
+      margin: 10px;
+    }
+
+    .main-content {
+      flex: 1;
       padding: 20px;
     }
+
     .catalog {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 20px;
     }
+
     .movie-card {
       background-color: #222;
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
+
     .movie-card img {
       width: 100%;
       height: auto;
       display: block;
     }
+
     .movie-info {
       padding: 15px;
     }
+
     .movie-title {
       font-size: 18px;
       font-weight: bold;
       margin-bottom: 10px;
     }
+
     .movie-description {
       font-size: 14px;
       margin-bottom: 15px;
       color: #ccc;
     }
+
     .btn {
       display: inline-block;
       padding: 10px 15px;
@@ -50,12 +79,15 @@
       margin-right: 10px;
       transition: background-color 0.3s;
     }
+
     .btn:hover {
       background-color: #b00610;
     }
+
     .btn-secondary {
       background-color: #555;
     }
+
     .btn-secondary:hover {
       background-color: #333;
     }
@@ -63,32 +95,74 @@
 </head>
 <body>
 
-  <h1>Catálogo de Películas</h1>
-  <div class="catalog">
+  <!-- Banner superior -->
+  <div class="banner-top">
+    <script type="text/javascript">
+      atOptions = {
+        'key' : 'b330ccd204185aee9ef640adccf896d2',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+      };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+  </div>
 
-    <!-- Película 1 --> 
-    <div class="movie-card">
-      <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FsSrj4lnhrb113DOPEPTaO2jaDk3.jpg&w=640&q=75" alt="It (Eso)">
-      <div class="movie-info">
-        <div class="movie-title">It (Eso)</div>
-        <div class="movie-description">En el verano de 1989, un grupo de niños maltratados se unieron para destruir a un monstruo cambia-formas, que se disfraza de payaso y se aprovecha de los niños de Derry, su pequeño pueblo de Maine.</div>
-        <a href="https://pixeldrain.com/u/Q8KRdN3t" class="btn" target="_blank">Ver</a>
-        <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Extra</a>
+  <div class="layout">
+
+    <!-- Publicidad izquierda -->
+    <div class="sidebar">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'a55c7cdc78df0520f71c2b00e4046167',
+          'format' : 'iframe',
+          'height' : 300,
+          'width' : 160,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+      <h1>Catálogo de Películas</h1>
+      <div class="catalog">
+
+        <!-- Película 1 --> 
+        <div class="movie-card">
+          <img src="https://cuevana.biz/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FsSrj4lnhrb113DOPEPTaO2jaDk3.jpg&w=640&q=75" alt="It (Eso)">
+          <div class="movie-info">
+            <div class="movie-title">It (Eso)</div>
+            <div class="movie-description">En el verano de 1989, un grupo de niños maltratados se unieron para destruir a un monstruo cambia-formas, que se disfraza de payaso y se aprovecha de los niños de Derry, su pequeño pueblo de Maine.</div>
+            <a href="https://pixeldrain.com/u/Q8KRdN3t" class="btn" target="_blank">Ver</a>
+            <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Extra</a>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Película 2 -->
-    <div class="movie-card">
-      <img src="https://image.tmdb.org/t/p/original/f4oZTcfGrVTXKTWg157AwikXqmP.jpg" alt="Avatar">
-      <div class="movie-info">
-        <div class="movie-title">Avatar</div>
-        <div class="movie-description">Un exmarine parapléjico es enviado a Pandora, donde deberá elegir entre seguir las órdenes o proteger el mundo que ha aprendido a amar.</div>
-        <a href="https://pixeldrain.com/u/ejemplo123" class="btn" target="_blank">Ver</a>
-        <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" class="btn btn-secondary" target="_blank">Extra</a>
-      </div>
+    <!-- Publicidad derecha -->
+    <div class="sidebar">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'a55c7cdc78df0520f71c2b00e4046167',
+          'format' : 'iframe',
+          'height' : 300,
+          'width' : 160,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
     </div>
 
   </div>
+
+  <!-- Adicional (en parte inferior si quieres más) -->
+  <script async="async" data-cfasync="false" src="//pl26063295.profitableratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+  <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
 
 </body>
 </html>

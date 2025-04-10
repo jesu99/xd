@@ -9,24 +9,41 @@
       background-color: #111;
       font-family: Arial, sans-serif;
       color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    }
+
+    .top-message {
+      background-color: #222;
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    .top-message a {
+      color: #f00;
+      text-decoration: underline;
+      font-weight: bold;
     }
 
     .banner-top {
-      margin: 10px auto;
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
     }
 
     .layout {
       display: flex;
       width: 100%;
       max-width: 1400px;
+      margin: 0 auto;
     }
 
     .sidebar {
       width: 160px;
-      margin: 10px;
+      position: sticky;
+      top: 20px;
+      height: max-content;
+      z-index: 10;
     }
 
     .main-content {
@@ -91,9 +108,19 @@
     .btn-secondary:hover {
       background-color: #333;
     }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Mensaje de apoyo -->
+  <div class="top-message">
+    ¡Apóyanos dando click en <a href="https://www.profitableratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" target="_blank">la publicidad</a>!
+  </div>
 
   <!-- Banner superior -->
   <div class="banner-top">
@@ -141,6 +168,8 @@
           </div>
         </div>
 
+        <!-- Puedes agregar más películas aquí -->
+
       </div>
     </div>
 
@@ -160,9 +189,11 @@
 
   </div>
 
-  <!-- Adicional (en parte inferior si quieres más) -->
-  <script async="async" data-cfasync="false" src="//pl26063295.profitableratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
-  <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+  <!-- Publicidad inferior -->
+  <div style="margin: 20px auto; text-align:center;">
+    <script async="async" data-cfasync="false" src="//pl26063295.profitableratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+    <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+  </div>
 
 </body>
 </html>

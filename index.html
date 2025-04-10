@@ -28,6 +28,7 @@
       font-family: Arial, sans-serif;
       color: var(--text-light);
       line-height: 1.6;
+      overflow-x: hidden; /* Prevenir scroll horizontal */
     }
 
     .top-message {
@@ -35,7 +36,7 @@
       color: var(--text-light);
       text-align: center;
       padding: 10px;
-      font-size: 16px;
+      font-size: clamp(14px, 2vw, 16px); /* Texto responsive */
       width: 100%;
       position: sticky;
       top: 0;
@@ -48,13 +49,22 @@
       font-weight: bold;
     }
 
-    .banner-top {
+    .banner-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+
+    .banner-top, .banner-bottom {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      margin: 10px 0;
       width: 100%;
+      max-width: 100%;
       overflow: hidden;
       background-color: rgba(34, 34, 34, 0.8);
       padding: 10px;
@@ -62,18 +72,11 @@
       text-align: center;
     }
 
-    .banner-bottom {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      margin: 20px 0;
-      width: 100%;
-      overflow: hidden;
-      background-color: rgba(34, 34, 34, 0.8);
-      padding: 10px;
-      border-radius: 5px;
-      text-align: center;
+    /* Aseguramos que los anuncios se ajusten al contenedor */
+    .banner-top iframe, .banner-bottom iframe, 
+    .ad-container iframe, .ad-between-movies iframe {
+      max-width: 100%;
+      height: auto;
     }
 
     .layout {
@@ -82,18 +85,24 @@
       width: 100%;
       max-width: 1400px;
       margin: 0 auto;
+      padding: 0 10px;
     }
 
     @media (min-width: 768px) {
       .layout {
         flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
       }
     }
 
+    /* Sidebar responsive */
     .sidebar {
       width: 100%;
       text-align: center;
       margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
     }
 
     @media (min-width: 768px) {
@@ -106,9 +115,21 @@
       }
     }
 
+    /* Para TV y pantallas muy grandes */
+    @media (min-width: 1800px) {
+      .layout {
+        max-width: 1800px;
+      }
+      
+      .sidebar {
+        width: 200px;
+      }
+    }
+
     .main-content {
       flex: 1;
       padding: 10px;
+      min-width: 0; /* Evita que los elementos internos fuercen el ancho */
     }
 
     @media (min-width: 576px) {
@@ -120,26 +141,20 @@
     h1 {
       text-align: center;
       margin: 20px 0;
-      font-size: 24px;
-    }
-
-    @media (min-width: 768px) {
-      h1 {
-        font-size: 32px;
-        margin-bottom: 30px;
-      }
+      font-size: clamp(20px, 4vw, 32px); /* Título responsive */
     }
 
     .catalog {
       display: grid;
       grid-template-columns: 1fr;
       gap: 15px;
+      width: 100%;
     }
 
+    /* Media queries mejorados para adaptarse a más dispositivos */
     @media (min-width: 480px) {
       .catalog {
         grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
       }
     }
 
@@ -153,6 +168,20 @@
     @media (min-width: 992px) {
       .catalog {
         grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* Para tablets horizontales y TVs pequeñas */
+    @media (min-width: 1200px) {
+      .catalog {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    /* Para TVs y pantallas grandes */
+    @media (min-width: 1800px) {
+      .catalog {
+        grid-template-columns: repeat(6, 1fr);
       }
     }
 
@@ -179,11 +208,18 @@
       object-fit: cover;
     }
     
-    /* Ajuste para pantallas móviles: limitar la altura de imagen */
+    /* Ajuste para pantallas móviles */
     @media (max-width: 480px) {
       .movie-card img {
         max-height: 200px;
         aspect-ratio: auto;
+      }
+    }
+
+    /* TV: imágenes más grandes */
+    @media (min-width: 1800px) {
+      .movie-card img {
+        max-height: 400px;
       }
     }
 
@@ -195,13 +231,13 @@
     }
 
     .movie-title {
-      font-size: 18px;
+      font-size: clamp(16px, 2vw, 18px); /* Texto responsive */
       font-weight: bold;
       margin-bottom: 10px;
     }
 
     .movie-description {
-      font-size: 14px;
+      font-size: clamp(12px, 1.5vw, 14px); /* Texto responsive */
       margin-bottom: 15px;
       color: var(--text-muted);
       flex-grow: 1;
@@ -211,11 +247,19 @@
       overflow: hidden;
     }
 
-    /* Para móviles, hacemos descripciones aún más cortas */
+    /* Para móviles, hacemos descripciones más cortas */
     @media (max-width: 480px) {
       .movie-description {
         -webkit-line-clamp: 2;
         margin-bottom: 10px;
+      }
+    }
+
+    /* Para TV, mostramos más texto */
+    @media (min-width: 1800px) {
+      .movie-description {
+        -webkit-line-clamp: 4;
+        font-size: 16px;
       }
     }
 
@@ -228,7 +272,7 @@
 
     .btn {
       display: inline-block;
-      padding: 10px 15px;
+      padding: clamp(8px, 1.5vw, 10px) clamp(10px, 2vw, 15px); /* Botón responsive */
       background-color: var(--primary-color);
       color: var(--text-light);
       text-decoration: none;
@@ -237,6 +281,7 @@
       transition: background-color 0.3s;
       flex: 1;
       min-width: 80px;
+      font-size: clamp(14px, 1.5vw, 16px); /* Texto responsive */
     }
 
     .btn:hover {
@@ -251,7 +296,8 @@
       background-color: var(--secondary-hover);
     }
 
-    .ad-container {
+    /* Contenedores de anuncios responsivos */
+    .ad-container, .mid-content-ad, .ad-between-movies {
       text-align: center;
       margin: 20px auto;
       width: 100%;
@@ -261,32 +307,32 @@
       background-color: rgba(34, 34, 34, 0.8);
       padding: 10px;
       border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* Anuncios entre películas más visibles en móvil */
-    @media (max-width: 480px) {
-      .ad-container {
-        margin: 15px auto;
-        padding: 8px;
-        border: 1px solid var(--secondary-color);
-      }
-      
-      .ad-label {
-        display: block;
-        text-align: center;
-        color: var(--text-muted);
-        font-size: 12px;
-        margin-bottom: 5px;
-      }
+    /* Aseguramos que los contenedores de anuncios puedan redimensionarse */
+    .ad-container div, .mid-content-ad div, .ad-between-movies div {
+      max-width: 100%;
+      overflow: hidden;
     }
 
-    /* Banner flotante que sigue al desplazamiento */
+    /* Anuncios entre películas visibles en todos los dispositivos */
+    .ad-between-movies {
+      grid-column: 1 / -1;
+      margin: 15px 0;
+    }
+
+    /* Banner flotante responsive */
     .floating-banner {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      width: 320px;
+      width: 90%;
+      max-width: 320px;
       background-color: rgba(34, 34, 34, 0.9);
       padding: 10px;
       border-radius: 5px;
@@ -312,74 +358,54 @@
       justify-content: center;
     }
 
-    /* Para dispositivos de pantalla pequeña */
-    @media (max-width: 480px) {
-      /* Botones en línea para ahorrar espacio vertical */
-      .btn {
-        padding: 8px 10px;
-        font-size: 14px;
-      }
-      
-      /* Mantener los botones en línea */
-      .button-group {
-        flex-direction: row;
-        gap: 5px;
-      }
-      
-      /* Convertimos la parrilla a 1 columna pero más compacta */
-      .catalog {
-        gap: 25px; /* Más espacio entre tarjetas para anuncios */
-      }
-      
-      /* Hacemos las tarjetas más compactas */
-      .movie-card {
-        max-height: 350px;
-      }
-      
-      /* Espacios para anuncios entre cada 2 películas */
-      .ad-spacer {
-        height: 120px;
-        margin: 10px 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(34, 34, 34, 0.5);
-        border-radius: 5px;
-      }
-      
-      .floating-banner {
-        width: 90%;
-        bottom: 10px;
-      }
-    }
-    
-    /* Añadido para mejorar la visibilidad de los anuncios */
+    /* Etiqueta para anuncios visible en todos los dispositivos */
     .ad-label {
       display: block;
       text-align: center;
       color: var(--text-muted);
-      font-size: 12px;
+      font-size: clamp(10px, 1.5vw, 12px);
       margin-bottom: 5px;
     }
-    
-    .mid-content-ad {
-      margin: 20px auto;
-      text-align: center;
-      width: 100%;
-      max-width: 728px;
-      padding: 10px;
-      background-color: rgba(34, 34, 34, 0.8);
-      border-radius: 5px;
+
+    /* En dispositivos muy pequeños, hacer todo más compacto */
+    @media (max-width: 360px) {
+      .catalog {
+        gap: 10px;
+      }
+      
+      .movie-card {
+        max-height: 300px;
+      }
+      
+      .movie-info {
+        padding: 10px;
+      }
+      
+      .btn {
+        padding: 6px 8px;
+        font-size: 12px;
+      }
     }
     
-    /* Añadimos espacio para anuncios entre cada 2 películas */
-    .ad-between-movies {
-      grid-column: 1 / -1;
-      text-align: center;
-      margin: 10px 0;
-      padding: 15px;
-      background-color: rgba(34, 34, 34, 0.8);
-      border-radius: 5px;
+    /* Para TVs y pantallas muy grandes */
+    @media (min-width: 1800px) {
+      h1 {
+        font-size: 40px;
+        margin: 30px 0;
+      }
+      
+      .btn {
+        padding: 15px 20px;
+        font-size: 18px;
+      }
+      
+      .movie-title {
+        font-size: 22px;
+      }
+      
+      .floating-banner {
+        max-width: 400px;
+      }
     }
   </style>
 </head>
@@ -391,34 +417,38 @@
   </div>
 
   <!-- Banner superior con script real -->
-  <div class="banner-top">
-    <div class="ad-label">Banner Superior</div>
-    <script type="text/javascript">
-      atOptions = {
-        'key' : 'b330ccd204185aee9ef640adccf896d2',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-      };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+  <div class="banner-container">
+    <div class="banner-top">
+      <div class="ad-label">Banner Superior</div>
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'b330ccd204185aee9ef640adccf896d2',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+    </div>
   </div>
 
   <div class="layout">
     <!-- Publicidad del lado izquierdo con script real -->
     <div class="sidebar">
-      <div class="ad-label">Anuncio Lateral</div>
-      <script type="text/javascript">
-        atOptions = {
-          'key' : 'a55c7cdc78df0520f71c2b00e4046167',
-          'format' : 'iframe',
-          'height' : 300,
-          'width' : 160,
-          'params' : {}
-        };
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
+      <div>
+        <div class="ad-label">Anuncio Lateral</div>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : 'a55c7cdc78df0520f71c2b00e4046167',
+            'format' : 'iframe',
+            'height' : 300,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
+      </div>
     </div>
 
     <!-- Contenido principal -->
@@ -453,6 +483,26 @@
           </div>
         </div>
         
+        <!-- Película 3 -->
+        <div class="movie-card">
+          <img src="/api/placeholder/400/600" alt="El Gran Secreto">
+          <div class="movie-info">
+            <div class="movie-title">El Gran Secreto</div>
+            <div class="movie-description">Un detective retirado descubre una conspiración que podría cambiar el destino de la humanidad. Ahora debe encontrar las piezas de un rompecabezas que nadie quiere resolver.</div>
+            <a href="#" class="btn" target="_blank">Ver</a>
+          </div>
+        </div>
+        
+        <!-- Película 4 -->
+        <div class="movie-card">
+          <img src="/api/placeholder/400/600" alt="Mundos Paralelos">
+          <div class="movie-info">
+            <div class="movie-title">Mundos Paralelos</div>
+            <div class="movie-description">Una científica encuentra la manera de viajar entre realidades alternativas, pero cada viaje altera su propio mundo de formas impredecibles.</div>
+            <a href="#" class="btn" target="_blank">Ver</a>
+          </div>
+        </div>
+        
         <!-- Anuncio entre películas -->
         <div class="ad-between-movies">
           <div class="ad-label">Sigue navegando con nosotros</div>
@@ -468,22 +518,42 @@
           <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
         </div>
         
-        <!-- Película 3 (añadida) -->
+        <!-- Película 5 -->
         <div class="movie-card">
-          <img src="/api/placeholder/400/600" alt="Película 3">
+          <img src="/api/placeholder/400/600" alt="Sombras del Pasado">
           <div class="movie-info">
-            <div class="movie-title">El Gran Secreto</div>
-            <div class="movie-description">Un detective retirado descubre una conspiración que podría cambiar el destino de la humanidad. Ahora debe encontrar las piezas de un rompecabezas que nadie quiere resolver.</div>
+            <div class="movie-title">Sombras del Pasado</div>
+            <div class="movie-description">Un hombre atormentado por sus recuerdos regresa a su pueblo natal para enfrentarse a los fantasmas que lo persiguen desde la infancia.</div>
             <a href="#" class="btn" target="_blank">Ver</a>
           </div>
         </div>
         
-        <!-- Película 4 (añadida) -->
+        <!-- Película 6 -->
         <div class="movie-card">
-          <img src="/api/placeholder/400/600" alt="Película 4">
+          <img src="/api/placeholder/400/600" alt="La Última Frontera">
           <div class="movie-info">
-            <div class="movie-title">Mundos Paralelos</div>
-            <div class="movie-description">Una científica encuentra la manera de viajar entre realidades alternativas, pero cada viaje altera su propio mundo de formas impredecibles.</div>
+            <div class="movie-title">La Última Frontera</div>
+            <div class="movie-description">En un futuro distópico, los últimos humanos libres luchan contra una inteligencia artificial que ha tomado el control del planeta.</div>
+            <a href="#" class="btn" target="_blank">Ver</a>
+          </div>
+        </div>
+        
+        <!-- Película 7 -->
+        <div class="movie-card">
+          <img src="/api/placeholder/400/600" alt="Corazones Rotos">
+          <div class="movie-info">
+            <div class="movie-title">Corazones Rotos</div>
+            <div class="movie-description">Una historia de amor y desamor que atraviesa tres generaciones de una familia marcada por secretos y mentiras.</div>
+            <a href="#" class="btn" target="_blank">Ver</a>
+          </div>
+        </div>
+        
+        <!-- Película 8 -->
+        <div class="movie-card">
+          <img src="/api/placeholder/400/600" alt="El Destino Final">
+          <div class="movie-info">
+            <div class="movie-title">El Destino Final</div>
+            <div class="movie-description">Un grupo de amigos escapa milagrosamente de un accidente, pero la muerte los persigue uno a uno para cobrar lo que le pertenece.</div>
             <a href="#" class="btn" target="_blank">Ver</a>
           </div>
         </div>
@@ -496,64 +566,6 @@
         <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
       </div>
       
-      <!-- Segunda fila de películas -->
-      <div class="catalog">
-        <!-- Película 5 -->
-        <div class="movie-card">
-          <img src="/api/placeholder/400/600" alt="Película 5">
-          <div class="movie-info">
-            <div class="movie-title">Sombras del Pasado</div>
-            <div class="movie-description">Un hombre atormentado por sus recuerdos regresa a su pueblo natal para enfrentarse a los fantasmas que lo persiguen desde la infancia.</div>
-            <a href="#" class="btn" target="_blank">Ver</a>
-          </div>
-        </div>
-        
-        <!-- Película 6 -->
-        <div class="movie-card">
-          <img src="/api/placeholder/400/600" alt="Película 6">
-          <div class="movie-info">
-            <div class="movie-title">La Última Frontera</div>
-            <div class="movie-description">En un futuro distópico, los últimos humanos libres luchan contra una inteligencia artificial que ha tomado el control del planeta.</div>
-            <a href="#" class="btn" target="_blank">Ver</a>
-          </div>
-        </div>
-        
-        <!-- Anuncio entre películas -->
-        <div class="ad-between-movies">
-          <div class="ad-label">¡Tu apoyo nos ayuda a seguir creciendo!</div>
-          <script type="text/javascript">
-            atOptions = {
-              'key' : 'b330ccd204185aee9ef640adccf896d2',
-              'format' : 'iframe',
-              'height' : 90,
-              'width' : 728,
-              'params' : {}
-            };
-          </script>
-          <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
-        </div>
-        
-        <!-- Película 7 -->
-        <div class="movie-card">
-          <img src="/api/placeholder/400/600" alt="Película 7">
-          <div class="movie-info">
-            <div class="movie-title">Corazones Rotos</div>
-            <div class="movie-description">Una historia de amor y desamor que atraviesa tres generaciones de una familia marcada por secretos y mentiras.</div>
-            <a href="#" class="btn" target="_blank">Ver</a>
-          </div>
-        </div>
-        
-        <!-- Película 8 -->
-        <div class="movie-card">
-          <img src="/api/placeholder/400/600" alt="Película 8">
-          <div class="movie-info">
-            <div class="movie-title">El Destino Final</div>
-            <div class="movie-description">Un grupo de amigos escapa milagrosamente de un accidente, pero la muerte los persigue uno a uno para cobrar lo que le pertenece.</div>
-            <a href="#" class="btn" target="_blank">Ver</a>
-          </div>
-        </div>
-      </div>
-      
       <!-- Anuncio contenido principal inferior -->
       <div class="ad-container">
         <div class="ad-label">¡Tu apoyo nos ayuda a seguir creciendo!</div>
@@ -564,37 +576,41 @@
 
     <!-- Publicidad del lado derecho -->
     <div class="sidebar">
-      <div class="ad-label">Anuncio Lateral</div>
-      <script type="text/javascript">
-        atOptions = {
-          'key' : 'a55c7cdc78df0520f71c2b00e4046167',
-          'format' : 'iframe',
-          'height' : 300,
-          'width' : 160,
-          'params' : {}
-        };
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
+      <div>
+        <div class="ad-label">Anuncio Lateral</div>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : 'a55c7cdc78df0520f71c2b00e4046167',
+            'format' : 'iframe',
+            'height' : 300,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/a55c7cdc78df0520f71c2b00e4046167/invoke.js"></script>
+      </div>
     </div>
   </div>
   
   <!-- Banner inferior -->
-  <div class="banner-bottom">
-    <div class="ad-label">Banner Inferior</div>
-    <script type="text/javascript">
-      atOptions = {
-        'key' : 'b330ccd204185aee9ef640adccf896d2',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
-      };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+  <div class="banner-container">
+    <div class="banner-bottom">
+      <div class="ad-label">Banner Inferior</div>
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'b330ccd204185aee9ef640adccf896d2',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+    </div>
   </div>
   
   <!-- Banner flotante que sigue al desplazamiento -->
-  <div class="floating-banner" id="floatingBanner">
+  <div class="floating-banner" id="floatingBanner" style="display: none;">
     <button class="close-banner" onclick="document.getElementById('floatingBanner').style.display='none'">×</button>
     <div class="ad-label">Anuncio Flotante</div>
     <script async="async" data-cfasync="false" src="//pl26063295.profitableratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
@@ -609,12 +625,25 @@
       }, 3000); // Mostrar después de 3 segundos
     });
     
-    // Función para mostrar más anuncios al hacer scroll
-    window.addEventListener('scroll', function() {
-      if (document.documentElement.scrollTop > 300) {
-        // Podríamos añadir lógica para mostrar anuncios adicionales al hacer scroll
+    // Función para detectar el tipo de dispositivo y ajustar layout si es necesario
+    function detectDevice() {
+      const width = window.innerWidth;
+      
+      // Si es móvil muy pequeño, ajustar tamaños
+      if (width < 360) {
+        document.documentElement.style.setProperty('--movie-card-height', '280px');
+      } else if (width >= 1800) {
+        // Si es TV o pantalla grande
+        document.documentElement.style.setProperty('--movie-card-height', '450px');
+      } else {
+        // Tamaño normal
+        document.documentElement.style.setProperty('--movie-card-height', '350px');
       }
-    });
+    }
+    
+    // Ejecutar al cargar y al cambiar tamaño
+    window.addEventListener('DOMContentLoaded', detectDevice);
+    window.addEventListener('resize', detectDevice);
   </script>
 
 </body>

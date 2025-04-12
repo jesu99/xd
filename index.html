@@ -1,497 +1,358 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <meta name="6a97888e-site-verification" content="df960b693c93f767f933456d69b757d3">
-    <title>Series Online - Estilo Netflix</title>
-    <style>
-        :root {
-            --netflix-red: #e50914;
-            --netflix-black: #141414;
-            --netflix-dark: #181818;
-            --netflix-gray: #808080;
-            --netflix-light: #e5e5e5;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-        }
-        
-        body {
-            background-color: var(--netflix-black);
-            color: var(--netflix-light);
-            min-height: 100vh;
-        }
-        
-        .header {
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-            padding: 10px 15px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            color: var(--netflix-red);
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .container {
-            max-width: 100%;
-            padding: 70px 10px 30px;
-        }
-        
-        .series-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .series-card {
-            position: relative;
-            transition: transform 0.3s ease;
-            cursor: pointer;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        .series-card:hover {
-            transform: scale(1.05);
-        }
-        
-        .series-poster {
-            width: 100%;
-            aspect-ratio: 2/3;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        
-        .series-title {
-            font-weight: bold;
-            font-size: 14px;
-            margin-top: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .category-title {
-            font-size: 18px;
-            margin: 25px 0 10px;
-            font-weight: bold;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 200;
-            overflow-y: auto;
-        }
-        
-        .modal-content {
-            position: relative;
-            width: 100%;
-            min-height: 100%;
-            padding-bottom: 50px;
-        }
-        
-        .modal-header {
-            position: relative;
-            width: 100%;
-            height: 56vw;
-        }
-        
-        .modal-backdrop {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .modal-gradient {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, rgba(20, 20, 20, 0.2), var(--netflix-black));
-        }
-        
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            color: white;
-            font-size: 24px;
-            background: rgba(0, 0, 0, 0.5);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 10;
-        }
-        
-        .modal-info {
-            padding: 20px;
-            position: relative;
-            margin-top: -40px;
-        }
-        
-        .modal-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .modal-synopsis {
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            color: #ddd;
-        }
-        
-        .play-btn {
-            background-color: var(--netflix-red);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            display: inline-block;
-            margin-bottom: 15px;
-        }
-        
-        .episodes-list {
-            margin-top: 30px;
-        }
-        
-        .episode-item {
-            padding: 10px 0;
-            border-bottom: 1px solid #333;
-            display: flex;
-            align-items: center;
-        }
-        
-        .episode-number {
-            font-size: 18px;
-            margin-right: 15px;
-            color: var(--netflix-gray);
-            flex-shrink: 0;
-            width: 25px;
-        }
-        
-        .episode-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .episode-info {
-            flex-grow: 1;
-        }
-        
-        .play-episode {
-            background-color: transparent;
-            border: 1px solid white;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        
-        .search-container {
-            display: flex;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.7);
-            border: 1px solid #333;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 15px;
-        }
-        
-        .search-input {
-            background-color: transparent;
-            border: none;
-            color: white;
-            padding: 8px 10px;
-            flex-grow: 1;
-            outline: none;
-        }
-        
-        .search-btn {
-            background-color: transparent;
-            border: none;
-            color: var(--netflix-gray);
-            padding: 8px 10px;
-            cursor: pointer;
-        }
-        
-        .player-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: black;
-            z-index: 300;
-            display: none;
-        }
-        
-        .video-player {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .back-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            color: white;
-            font-size: 24px;
-            background: rgba(0, 0, 0, 0.5);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 310;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Películas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+    
+    body {
+      background-color: #0f0f0f;
+      color: #fff;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: #e50914;
+    }
+    
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+    }
+    
+    .movie-card {
+      background-color: #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+    }
+    
+    .movie-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .movie-card img {
+      width: 100%;
+      height: 380px;
+      object-fit: cover;
+    }
+    
+    .movie-info {
+      padding: 15px;
+    }
+    
+    .movie-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #e50914;
+    }
+    
+    .movie-description {
+      font-size: 0.9rem;
+      color: #b3b3b3;
+      margin-bottom: 15px;
+      line-height: 1.4;
+      height: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .btn {
+      display: inline-block;
+      background-color: #e50914;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    
+    .btn:hover {
+      background-color: #b20710;
+    }
+    
+    .ad-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .floating-ad {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      max-width: 300px;
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      font-size: 18px;
+      color: white;
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      line-height: 20px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+    }
+    
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-content {
+      background-color: #1a1a1a;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .modal-buttons {
+      margin-top: 20px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+      
+      header h1 {
+        font-size: 2rem;
+      }
+      
+      .floating-ad {
+        bottom: 10px;
+        right: 10px;
+        max-width: 250px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .movies-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .movie-card img {
+        height: 300px;
+      }
+      
+      header h1 {
+        font-size: 1.7rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">NETSTREAM</div>
-        <div id="currentTime"></div>
-    </div>
+  <div class="container">
+    <header>
+      <h1>CATÁLOGO DE PELÍCULAS</h1>
+      <p>Las mejores películas en un solo lugar</p>
+    </header>
     
-    <div class="container">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Buscar series..." id="searchInput">
-            <button class="search-btn">🔍</button>
-        </div>
-        
-        <h2 class="category-title">Tendencias</h2>
-        <div class="series-grid" id="seriesGrid">
-            <!-- Aquí se cargarán dinámicamente las series -->
-        </div>
-    </div>
-    
-    <div class="modal" id="seriesModal">
-        <div class="modal-content">
-            <div class="close-btn" onclick="closeModal()">✕</div>
-            <div class="modal-header">
-                <img class="modal-backdrop" id="modalBackdrop" src="" alt="Serie">
-                <div class="modal-gradient"></div>
-            </div>
-            <div class="modal-info">
-                <h1 class="modal-title" id="modalTitle"></h1>
-                <p class="modal-synopsis" id="modalSynopsis"></p>
-                <button class="play-btn" onclick="playFirstEpisode()">▶ Reproducir</button>
-                <div class="episodes-list" id="episodesList">
-                    <!-- Aquí se cargarán los episodios -->
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="player-container" id="playerContainer">
-        <div class="back-btn" onclick="closePlayer()">←</div>
-        <video class="video-player" id="videoPlayer" controls></video>
-    </div>
-
-    <script>
-        // Aquí es donde definiría las series
-        const seriesData = [
-            // AQUÍ DEBES AÑADIR TUS SERIES CON ESTE FORMATO:
-            {
-                id: 1,
-                title: "Dark",
-                poster: "https://ruta-a-tu-imagen/dark-poster.jpg",
-                backdrop: "https://ruta-a-tu-imagen/dark-backdrop.jpg",
-                synopsis: "Un niño desaparecido sets en movimiento una búsqueda frenética, donde cuatro familias descubren un misterio que abarca tres generaciones.",
-                episodes: [
-                    {
-                        number: 1,
-                        title: "Secretos",
-                        url: "https://ruta-del-video/dark-s01e01.mp4"
-                    },
-                    {
-                        number: 2,
-                        title: "Mentiras",
-                        url: "https://ruta-del-video/dark-s01e02.mp4"
-                    }
-                    // Añade más episodios según necesites
-                ]
-            },
-            // Ejemplo de cómo añadir otra serie:
-            /*
-            {
-                id: 2,
-                title: "Stranger Things",
-                poster: "https://ruta-a-tu-imagen/stranger-things-poster.jpg",
-                backdrop: "https://ruta-a-tu-imagen/stranger-things-backdrop.jpg",
-                synopsis: "Cuando un niño desaparece, un pequeño pueblo descubre un misterio que involucra experimentos secretos, fuerzas sobrenaturales aterradoras y una niña muy extraña.",
-                episodes: [
-                    {
-                        number: 1,
-                        title: "La desaparición de Will Byers",
-                        url: "https://ruta-del-video/stranger-things-s01e01.mp4"
-                    },
-                    {
-                        number: 2,
-                        title: "La chica extraña",
-                        url: "https://ruta-del-video/stranger-things-s01e02.mp4"
-                    }
-                ]
-            }
-            */
-            // AÑADE MÁS SERIES AQUÍ
-        ];
-
-        // Función para cargar las series en la interfaz
-        function loadSeries() {
-            const seriesGrid = document.getElementById('seriesGrid');
-            seriesGrid.innerHTML = '';
-            
-            seriesData.forEach(series => {
-                const seriesCard = document.createElement('div');
-                seriesCard.className = 'series-card';
-                seriesCard.onclick = () => openSeriesModal(series.id);
-                
-                seriesCard.innerHTML = `
-                    <img class="series-poster" src="${series.poster}" alt="${series.title}">
-                    <div class="series-title">${series.title}</div>
-                `;
-                
-                seriesGrid.appendChild(seriesCard);
-            });
-        }
-        
-        // Función para abrir el modal con los detalles de la serie
-        function openSeriesModal(seriesId) {
-            const series = seriesData.find(s => s.id === seriesId);
-            if (!series) return;
-            
-            document.getElementById('modalTitle').textContent = series.title;
-            document.getElementById('modalSynopsis').textContent = series.synopsis;
-            document.getElementById('modalBackdrop').src = series.backdrop;
-            
-            const episodesList = document.getElementById('episodesList');
-            episodesList.innerHTML = '';
-            
-            series.episodes.forEach(episode => {
-                const episodeItem = document.createElement('div');
-                episodeItem.className = 'episode-item';
-                
-                episodeItem.innerHTML = `
-                    <div class="episode-number">${episode.number}</div>
-                    <div class="episode-info">
-                        <div class="episode-title">${episode.title}</div>
-                    </div>
-                    <button class="play-episode" onclick="playEpisode('${episode.url}')">▶</button>
-                `;
-                
-                episodesList.appendChild(episodeItem);
-            });
-            
-            document.getElementById('seriesModal').style.display = 'block';
-        }
-        
-        // Función para cerrar el modal
-        function closeModal() {
-            document.getElementById('seriesModal').style.display = 'none';
-        }
-        
-        // Función para reproducir un episodio
-        function playEpisode(episodeUrl) {
-            const videoPlayer = document.getElementById('videoPlayer');
-            videoPlayer.src = episodeUrl;
-            document.getElementById('playerContainer').style.display = 'block';
-            videoPlayer.play();
-        }
-        
-        // Función para reproducir el primer episodio
-        function playFirstEpisode() {
-            const seriesId = getCurrentSeriesId();
-            const series = seriesData.find(s => s.id === seriesId);
-            if (series && series.episodes.length > 0) {
-                playEpisode(series.episodes[0].url);
-            }
-        }
-        
-        // Función para obtener el ID de la serie actual
-        function getCurrentSeriesId() {
-            const title = document.getElementById('modalTitle').textContent;
-            const series = seriesData.find(s => s.title === title);
-            return series ? series.id : null;
-        }
-        
-        // Función para cerrar el reproductor
-        function closePlayer() {
-            const videoPlayer = document.getElementById('videoPlayer');
-            videoPlayer.pause();
-            videoPlayer.src = '';
-            document.getElementById('playerContainer').style.display = 'none';
-        }
-        
-        // Función para buscar series
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const filteredSeries = seriesData.filter(series => 
-                series.title.toLowerCase().includes(searchTerm) || 
-                series.synopsis.toLowerCase().includes(searchTerm)
-            );
-            
-            const seriesGrid = document.getElementById('seriesGrid');
-            seriesGrid.innerHTML = '';
-            
-            filteredSeries.forEach(series => {
-                const seriesCard = document.createElement('div');
-                seriesCard.className = 'series-card';
-                seriesCard.onclick = () => openSeriesModal(series.id);
-                
-                seriesCard.innerHTML = `
-                    <img class="series-poster" src="${series.poster}" alt="${series.title}">
-                    <div class="series-title">${series.title}</div>
-                `;
-                
-                seriesGrid.appendChild(seriesCard);
-            });
-        });
-    
-        
-        // Inicializar la aplicación
-        window.onload = function() {
-            loadSeries();
-            updateTime();
-            setInterval(updateTime, 60000); // Actualizar cada minuto
+    <!-- Anuncio antes del contenido principal -->
+    <div class="ad-container">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'f6088f4d0f8e60d5aa5832d5695753bb',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
         };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/f6088f4d0f8e60d5aa5832d5695753bb/invoke.js"></script>
+    </div>
+    
+    <div class="movies-grid">
+      <!-- Película 1 -->
+      <div class="movie-card">
+        <img src="https://cuevana.pro/resize/200/storage/76625/D12JvWaChGVcRQtvFV1F2nvDY3Zd29O6OMdzCqQX.jpg">
+        <!-- Anuncio pequeño después del título -->
+        <div class="ad-container" style="margin: 5px 0;">
+          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">En la boca del miedo</div>
+          <div class="movie-description">John Trent es un cínico investigador que sigue la pista de Sutter Cane, un escritor que desaparece misteriosamente y que, a través de sus novelas de terror, ejerce un extraño poder sobre sus lectores.</div>
+          <a href="javascript:void(0)" class="btn" onclick="mostrarAnuncio('verPelicula1', 'https://pixeldrain.com/u/fP1Z1yDM')" id="verPelicula1">Ver</a>
+        </div>
+      </div>
+      
+      <!-- Película 2 (ejemplo) -->
+      <div class="movie-card">
+        <img src="https://cdn.akamai.steamstatic.com/steam/apps/1046930/capsule_616x353.jpg?t=1667978478">
+        <!-- Anuncio pequeño después del título -->
+        <div class="ad-container" style="margin: 5px 0;">
+          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">The House</div>
+          <div class="movie-description">A lo largo de diferentes épocas, una casa es habitada por diferentes inquilinos que experimentan sucesos sobrenaturales que alteran sus vidas.</div>
+          <a href="javascript:void(0)" class="btn" onclick="mostrarAnuncio('verPelicula2', 'https://ejemplo.com/pelicula2')" id="verPelicula2">Ver</a>
+        </div>
+      </div>
+      
+      <!-- Película 3 (ejemplo) -->
+      <div class="movie-card">
+        <img src="https://imgs.search.brave.com/T7kPnFMpXC1VRS7XnV3bUEFZjXKs28cPTnvdnJXwJzM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly93d3cu/dGhlbW92aWVkYi5v/cmcvdC9wL3cvNzgw/L0MzMDgxM0Y4LUJG/NjAtNEVCRi1CQTFG/LTlCNkVGRDI1MUE1/Mi5qcGc">
+        <!-- Anuncio pequeño después del título -->
+        <div class="ad-container" style="margin: 5px 0;">
+          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">El Conjuro</div>
+          <div class="movie-description">Los investigadores paranormales Ed y Lorraine Warren trabajan para ayudar a una familia aterrorizada por una presencia oscura en su casa.</div>
+          <a href="javascript:void(0)" class="btn" onclick="mostrarAnuncio('verPelicula3', 'https://ejemplo.com/pelicula3')" id="verPelicula3">Ver</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Anuncio en medio de la página -->
+    <div class="ad-container" style="margin: 30px 0;">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'd5057e78d993d8d7e4b858d86eecb789',
+          'format' : 'iframe',
+          'height' : 60,
+          'width' : 468,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/d5057e78d993d8d7e4b858d86eecb789/invoke.js"></script>
+    </div>
+    
+    <div class="movies-grid">
+      <!-- Película 4 (ejemplo) -->
+      <div class="movie-card">
+        <img src="https://imgs.search.brave.com/gSJBmR4Z47FEHpNhFkqVFqbYB4smtdNDczMm8L3S95c/rs:fit:860:0:0/g:ce/aHR0cHM6Ly93d3cu/dGhlbW92aWVkYi5v/cmcvdC9wL3cvNzgw/L29jdmlTQVBTU3ZK/MnRuYXRuak9hdDZJ/TnRjYi5qcGc">
+        <!-- Anuncio pequeño después del título -->
+        <div class="ad-container" style="margin: 5px 0;">
+          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">Inception</div>
+          <div class="movie-description">Un ladrón que roba secretos corporativos a través del uso de la tecnología de compartir sueños, se le da la tarea inversa de plantar una idea en la mente de un CEO.</div>
+          <a href="javascript:void(0)" class="btn" onclick="mostrarAnuncio('verPelicula4', 'https://ejemplo.com/pelicula4')" id="verPelicula4">Ver</a>
+        </div>
+      </div>
+      
+      <!-- Película 5 (ejemplo) -->
+      <div class="movie-card">
+        <img src="https://imgs.search.brave.com/S0Vw5WlyzlHyLagWElU0ZiJVxE04Y-zjDihh8-zNOpw/rs:fit:860:0:0/g:ce/aHR0cHM6Ly93d3cu/dGhlbW92aWVkYi5v/cmcvdC9wL3cvNzgw/L3Z6OUNYM2NDZmti/UURURlR2c0FvdGVm/ek9Vby5qcGc">
+        <!-- Anuncio pequeño después del título -->
+        <div class="ad-container" style="margin: 5px 0;">
+          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">Joker</div>
+          <div class="movie-description">Arthur Fleck, un hombre ignorado por la sociedad, solo quiere hacer reír a la gente. Pero una serie de trágicos sucesos lo llevará a cometer actos cada vez más extremos.</div>
+          <a href="javascript:void(0)" class="btn" onclick="mostrarAnuncio('verPelicula5', 'https://ejemplo.com/pelicula5')" id="verPelicula5">Ver</a>
+        </div>
+      </div>
+      
+      <!-- Película 6 (ejemplo) -->
+      <div class="movie-card">
+        <img src="https://imgs.search.brave.com/xhJPMnMcB9KyEQpYoOLJ9_FxIvCQRyeuWfL2Vu1AjyA/rs:fit:860:0:0/g:ce/aHR0cHM6Ly93d3cu/dGhlbW92aWVkYi5v/cmcvdC9wL3cvNzgw/L3FKS2NGMkZCblYy/NUtpcXlqSU9PWDIw/cU1Mdy5qcGc">
+        <!-- Anuncio pequeño después del título -->
+        <div class="ad-container" style="margin: 5px 0;">
+          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
+        </div>
+        <div class="movie-info">
+          <div class="movie-title">El Origen</div>
+          <div class="movie-description">Dom Cobb es un experto en el arte de apropiarse, durante el sueño, de los secretos del subconsciente ajeno.</div>
+          <a href="javascript:void(0)" class="btn" onclick="mostrarAnuncio('verPelicula6', 'https://ejemplo.com/pelicula6')" id="verPelicula6">Ver</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Anuncio al final -->
+    <div class="ad-container" style="margin-top: 30px;">
+      <script async="async" data-cfasync="false" src="//pl26364851.profitableratecpm.com/c3772adff43aba2ccae55611da999d7e/invoke.js"></script>
+      <div id="container-c3772adff43aba2ccae55611da999d7e"></div>
+    </div>
+    
+    <!-- Anuncio flotante con X para cerrar -->
+    <div class="floating-ad" id="floatingAd">
+      <span class="close-btn" onclick="document.getElementById('floatingAd').style.display='none'">✕</span>
+      <script type='text/javascript' src='//pl26364868.profitableratecpm.com/36/72/5a/36725aeb5411ac6fc121dd71f59a3cd6.js'></script>
+    </div>
+    
+    <!-- Modal de anuncio al hacer clic en "Ver" -->
+    <div class="modal-overlay" id="anuncioModal">
+      <div class="modal-content">
+        <h2>Antes de ver la película...</h2>
+        <p>Por favor espera mientras carga el anuncio</p>
+        <div class="ad-container">
+          <script>
+            document.write('<iframe src="https://www.profitableratecpm.com/ki1qmt2i?key=94918e4fd860fdf0f13979fa9a8ce5e3" width="300" height="250" frameborder="0" scrolling="no"></iframe>');
+          </script>
+        </div>
+        <div class="modal-buttons">
+          <button class="btn" id="continuarBtn">Continuar a la película</button>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Función para mostrar el anuncio antes de ver la película
+      function mostrarAnuncio(buttonId, peliculaUrl) {
+        // Mostrar el modal
+        document.getElementById('anuncioModal').style.display = 'flex';
+        
+        // Configurar el botón de continuar
+        document.getElementById('continuarBtn').onclick = function() {
+          document.getElementById('anuncioModal').style.display = 'none';
+          window.location.href = peliculaUrl;
+        };
+      }
+      
+      // Mostrar anuncio flotante después de un retraso
+      setTimeout(function() {
+        document.getElementById('floatingAd').style.display = 'block';
+      }, 3000);
     </script>
+  </div>
 </body>
 </html>

@@ -16,11 +16,13 @@
       background-color: #0f0f0f;
       color: #fff;
       padding: 20px;
+      overflow-x: hidden;
     }
     
     .container {
       max-width: 1200px;
       margin: 0 auto;
+      position: relative;
     }
     
     header {
@@ -109,6 +111,35 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       max-width: 300px;
+      display: none; /* Oculto por defecto */
+    }
+    
+    .floating-ad-left {
+      position: fixed;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      z-index: 999;
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      max-width: 160px;
+      display: none; /* Oculto por defecto */
+    }
+    
+    .floating-ad-right {
+      position: fixed;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      z-index: 999;
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      max-width: 160px;
+      display: none; /* Oculto por defecto */
     }
     
     .close-btn {
@@ -153,6 +184,12 @@
     }
     
     /* Responsive */
+    @media (max-width: 1024px) {
+      .floating-ad-left, .floating-ad-right {
+        display: none !important; /* Ocultar siempre en pantallas más pequeñas */
+      }
+    }
+    
     @media (max-width: 768px) {
       .movies-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -163,9 +200,11 @@
       }
       
       .floating-ad {
-        bottom: 10px;
-        right: 10px;
-        max-width: 250px;
+        display: none !important; /* Ocultar completamente en móvil */
+      }
+      
+      .ad-container.desktop-only {
+        display: none; /* Ocultar anuncios solo para desktop */
       }
     }
     
@@ -181,18 +220,36 @@
       header h1 {
         font-size: 1.7rem;
       }
+      
+      .ad-container.mobile-reduced {
+        margin: 10px 0; /* Reducir margen en móvil */
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Anuncio antes del título (solo desktop) -->
+    <div class="ad-container desktop-only">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'f6088f4d0f8e60d5aa5832d5695753bb',
+          'format' : 'iframe',
+          'height' : 60,
+          'width' : 468,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/f6088f4d0f8e60d5aa5832d5695753bb/invoke.js"></script>
+    </div>
+    
     <header>
       <h1>CATÁLOGO DE PELÍCULAS</h1>
       <p>Las mejores películas en un solo lugar</p>
     </header>
     
-    <!-- Anuncio antes del contenido principal -->
-    <div class="ad-container">
+    <!-- Anuncio después del título -->
+    <div class="ad-container mobile-reduced">
       <script type="text/javascript">
         atOptions = {
           'key' : 'f6088f4d0f8e60d5aa5832d5695753bb',
@@ -209,10 +266,6 @@
       <!-- Película 1 -->
       <div class="movie-card">
         <img src="https://cuevana.pro/resize/200/storage/76625/D12JvWaChGVcRQtvFV1F2nvDY3Zd29O6OMdzCqQX.jpg">
-        <!-- Anuncio pequeño después del título -->
-        <div class="ad-container" style="margin: 5px 0;">
-          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
-        </div>
         <div class="movie-info">
           <div class="movie-title">En la boca del miedo</div>
           <div class="movie-description">John Trent es un cínico investigador que sigue la pista de Sutter Cane, un escritor que desaparece misteriosamente y que, a través de sus novelas de terror, ejerce un extraño poder sobre sus lectores.</div>
@@ -223,10 +276,6 @@
       <!-- Película 2 (ejemplo) -->
       <div class="movie-card">
         <img src="https://cdn.akamai.steamstatic.com/steam/apps/1046930/capsule_616x353.jpg?t=1667978478">
-        <!-- Anuncio pequeño después del título -->
-        <div class="ad-container" style="margin: 5px 0;">
-          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
-        </div>
         <div class="movie-info">
           <div class="movie-title">The House</div>
           <div class="movie-description">A lo largo de diferentes épocas, una casa es habitada por diferentes inquilinos que experimentan sucesos sobrenaturales que alteran sus vidas.</div>
@@ -237,10 +286,6 @@
       <!-- Película 3 (ejemplo) -->
       <div class="movie-card">
         <img src="https://imgs.search.brave.com/T7kPnFMpXC1VRS7XnV3bUEFZjXKs28cPTnvdnJXwJzM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly93d3cu/dGhlbW92aWVkYi5v/cmcvdC9wL3cvNzgw/L0MzMDgxM0Y4LUJG/NjAtNEVCRi1CQTFG/LTlCNkVGRDI1MUE1/Mi5qcGc">
-        <!-- Anuncio pequeño después del título -->
-        <div class="ad-container" style="margin: 5px 0;">
-          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
-        </div>
         <div class="movie-info">
           <div class="movie-title">El Conjuro</div>
           <div class="movie-description">Los investigadores paranormales Ed y Lorraine Warren trabajan para ayudar a una familia aterrorizada por una presencia oscura en su casa.</div>
@@ -250,7 +295,7 @@
     </div>
     
     <!-- Anuncio en medio de la página -->
-    <div class="ad-container" style="margin: 30px 0;">
+    <div class="ad-container mobile-reduced">
       <script type="text/javascript">
         atOptions = {
           'key' : 'd5057e78d993d8d7e4b858d86eecb789',
@@ -267,10 +312,6 @@
       <!-- Película 4 (ejemplo) -->
       <div class="movie-card">
         <img src="https://imgs.search.brave.com/gSJBmR4Z47FEHpNhFkqVFqbYB4smtdNDczMm8L3S95c/rs:fit:860:0:0/g:ce/aHR0cHM6Ly93d3cu/dGhlbW92aWVkYi5v/cmcvdC9wL3cvNzgw/L29jdmlTQVBTU3ZK/MnRuYXRuak9hdDZJ/TnRjYi5qcGc">
-        <!-- Anuncio pequeño después del título -->
-        <div class="ad-container" style="margin: 5px 0;">
-          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
-        </div>
         <div class="movie-info">
           <div class="movie-title">Inception</div>
           <div class="movie-description">Un ladrón que roba secretos corporativos a través del uso de la tecnología de compartir sueños, se le da la tarea inversa de plantar una idea en la mente de un CEO.</div>
@@ -281,10 +322,6 @@
       <!-- Película 5 (ejemplo) -->
       <div class="movie-card">
         <img src="https://imgs.search.brave.com/S0Vw5WlyzlHyLagWElU0ZiJVxE04Y-zjDihh8-zNOpw/rs:fit:860:0:0/g:ce/aHR0cHM6Ly93d3cu/dGhlbW92aWVkYi5v/cmcvdC9wL3cvNzgw/L3Z6OUNYM2NDZmti/UURURlR2c0FvdGVm/ek9Vby5qcGc">
-        <!-- Anuncio pequeño después del título -->
-        <div class="ad-container" style="margin: 5px 0;">
-          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
-        </div>
         <div class="movie-info">
           <div class="movie-title">Joker</div>
           <div class="movie-description">Arthur Fleck, un hombre ignorado por la sociedad, solo quiere hacer reír a la gente. Pero una serie de trágicos sucesos lo llevará a cometer actos cada vez más extremos.</div>
@@ -295,10 +332,6 @@
       <!-- Película 6 (ejemplo) -->
       <div class="movie-card">
         <img src="https://imgs.search.brave.com/xhJPMnMcB9KyEQpYoOLJ9_FxIvCQRyeuWfL2Vu1AjyA/rs:fit:860:0:0/g:ce/aHR0cHM6Ly93d3cu/dGhlbW92aWVkYi5v/cmcvdC9wL3cvNzgw/L3FKS2NGMkZCblYy/NUtpcXlqSU9PWDIw/cU1Mdy5qcGc">
-        <!-- Anuncio pequeño después del título -->
-        <div class="ad-container" style="margin: 5px 0;">
-          <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
-        </div>
         <div class="movie-info">
           <div class="movie-title">El Origen</div>
           <div class="movie-description">Dom Cobb es un experto en el arte de apropiarse, durante el sueño, de los secretos del subconsciente ajeno.</div>
@@ -313,10 +346,22 @@
       <div id="container-c3772adff43aba2ccae55611da999d7e"></div>
     </div>
     
-    <!-- Anuncio flotante con X para cerrar -->
+    <!-- Anuncio flotante derecho con X para cerrar (solo PC) -->
     <div class="floating-ad" id="floatingAd">
       <span class="close-btn" onclick="document.getElementById('floatingAd').style.display='none'">✕</span>
       <script type='text/javascript' src='//pl26364868.profitableratecpm.com/36/72/5a/36725aeb5411ac6fc121dd71f59a3cd6.js'></script>
+    </div>
+    
+    <!-- Anuncio flotante izquierdo (solo PC) -->
+    <div class="floating-ad-left" id="floatingAdLeft">
+      <span class="close-btn" onclick="document.getElementById('floatingAdLeft').style.display='none'">✕</span>
+      <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
+    </div>
+    
+    <!-- Anuncio flotante derecho (solo PC) -->
+    <div class="floating-ad-right" id="floatingAdRight">
+      <span class="close-btn" onclick="document.getElementById('floatingAdRight').style.display='none'">✕</span>
+      <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
     </div>
     
     <!-- Modal de anuncio al hacer clic en "Ver" -->
@@ -336,6 +381,11 @@
     </div>
     
     <script>
+      // Detectar si es un dispositivo móvil
+      function isMobile() {
+        return window.innerWidth <= 768;
+      }
+      
       // Función para mostrar el anuncio antes de ver la película
       function mostrarAnuncio(buttonId, peliculaUrl) {
         // Mostrar el modal
@@ -348,10 +398,15 @@
         };
       }
       
-      // Mostrar anuncio flotante después de un retraso
-      setTimeout(function() {
-        document.getElementById('floatingAd').style.display = 'block';
-      }, 3000);
+      // Solo mostrar anuncios flotantes en PC
+      if (!isMobile()) {
+        // Mostrar anuncio flotante después de un retraso
+        setTimeout(function() {
+          document.getElementById('floatingAd').style.display = 'block';
+          document.getElementById('floatingAdLeft').style.display = 'block';
+          document.getElementById('floatingAdRight').style.display = 'block';
+        }, 3000);
+      }
     </script>
   </div>
 </body>

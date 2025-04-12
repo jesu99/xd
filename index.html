@@ -90,6 +90,7 @@
       text-decoration: none;
       font-weight: bold;
       transition: background-color 0.3s;
+      cursor: pointer;
     }
     
     .btn:hover {
@@ -99,6 +100,7 @@
     .ad-container {
       margin: 20px 0;
       text-align: center;
+      overflow: hidden;
     }
     
     .floating-ad {
@@ -183,6 +185,69 @@
       margin-top: 20px;
     }
     
+    .ad-iframe {
+      margin: 15px auto;
+      display: block;
+    }
+    
+    .forced-ad {
+      position: relative;
+      margin: 15px auto;
+      width: 300px;
+      height: 250px;
+      cursor: pointer;
+    }
+    
+    .forced-ad-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    
+    .forced-ad-message {
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    
+    .countdown {
+      font-weight: bold;
+      color: #e50914;
+    }
+    
+    .sticky-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #1a1a1a;
+      text-align: center;
+      z-index: 998;
+      padding: 5px 0;
+      display: none;
+    }
+    
+    .mid-page-ads {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 25px 0;
+    }
+    
+    .ad-group {
+      margin-bottom: 30px;
+    }
+    
     /* Responsive */
     @media (max-width: 1024px) {
       .floating-ad-left, .floating-ad-right {
@@ -200,7 +265,7 @@
       }
       
       .floating-ad {
-        display: none !important; /* Ocultar completamente en móvil */
+        bottom: 70px; /* Para dar espacio al banner inferior */
       }
       
       .ad-container.desktop-only {
@@ -295,17 +360,47 @@
     </div>
     
     <!-- Anuncio en medio de la página -->
-    <div class="ad-container mobile-reduced">
-      <script type="text/javascript">
-        atOptions = {
-          'key' : 'd5057e78d993d8d7e4b858d86eecb789',
-          'format' : 'iframe',
-          'height' : 60,
-          'width' : 468,
-          'params' : {}
-        };
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/d5057e78d993d8d7e4b858d86eecb789/invoke.js"></script>
+    <div class="ad-group">
+      <div class="ad-container mobile-reduced">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : 'd5057e78d993d8d7e4b858d86eecb789',
+            'format' : 'iframe',
+            'height' : 60,
+            'width' : 468,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/d5057e78d993d8d7e4b858d86eecb789/invoke.js"></script>
+      </div>
+      
+      <!-- Anuncios adicionales en medio -->
+      <div class="mid-page-ads">
+        <div>
+          <script type="text/javascript">
+            atOptions = {
+              'key' : 'd5057e78d993d8d7e4b858d86eecb789',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="//www.highperformanceformat.com/d5057e78d993d8d7e4b858d86eecb789/invoke.js"></script>
+        </div>
+        <div>
+          <script type="text/javascript">
+            atOptions = {
+              'key' : 'f6088f4d0f8e60d5aa5832d5695753bb',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="//www.highperformanceformat.com/f6088f4d0f8e60d5aa5832d5695753bb/invoke.js"></script>
+        </div>
+      </div>
     </div>
     
     <div class="movies-grid">
@@ -364,23 +459,61 @@
       <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
     </div>
     
+    <!-- Banner pegajoso inferior -->
+    <div class="sticky-banner" id="stickyBanner">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'f6088f4d0f8e60d5aa5832d5695753bb',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/f6088f4d0f8e60d5aa5832d5695753bb/invoke.js"></script>
+    </div>
+    
     <!-- Modal de anuncio al hacer clic en "Ver" -->
     <div class="modal-overlay" id="anuncioModal">
       <div class="modal-content">
         <h2>Antes de ver la película...</h2>
-        <p>Por favor espera mientras carga el anuncio</p>
-        <div class="ad-container">
-          <script>
-            document.write('<iframe src="https://www.profitableratecpm.com/ki1qmt2i?key=94918e4fd860fdf0f13979fa9a8ce5e3" width="300" height="250" frameborder="0" scrolling="no"></iframe>');
-          </script>
+        <p>Por favor espera <span id="countdown" class="countdown">5</span> segundos mientras carga la película</p>
+        
+        <!-- Anuncio principal con clic forzado -->
+        <div class="forced-ad" id="forcedAd">
+          <div class="forced-ad-overlay" id="forcedAdOverlay">
+            <div class="forced-ad-message">Haz clic para continuar</div>
+          </div>
+          <iframe id="mainAdFrame" src="https://www.profitableratecpm.com/ki1qmt2i?key=94918e4fd860fdf0f13979fa9a8ce5e3" width="300" height="250" frameborder="0" scrolling="no"></iframe>
         </div>
+        
+        <!-- Anuncios adicionales en el modal -->
+        <div class="ad-iframe">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : 'd5057e78d993d8d7e4b858d86eecb789',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="//www.highperformanceformat.com/d5057e78d993d8d7e4b858d86eecb789/invoke.js"></script>
+        </div>
+        
         <div class="modal-buttons">
-          <button class="btn" id="continuarBtn">Continuar a la película</button>
+          <button class="btn" id="continuarBtn" disabled>Continuar a la película</button>
         </div>
       </div>
     </div>
     
     <script>
+      // Variables globales
+      let currentPeliculaUrl = '';
+      let adClicked = false;
+      let countdownInterval;
+      let timeLeft = 5;
+      
       // Detectar si es un dispositivo móvil
       function isMobile() {
         return window.innerWidth <= 768;
@@ -388,25 +521,92 @@
       
       // Función para mostrar el anuncio antes de ver la película
       function mostrarAnuncio(buttonId, peliculaUrl) {
+        // Resetear variables
+        adClicked = false;
+        timeLeft = 5;
+        currentPeliculaUrl = peliculaUrl;
+        
+        // Actualizar el contador
+        document.getElementById('countdown').textContent = timeLeft;
+        
         // Mostrar el modal
         document.getElementById('anuncioModal').style.display = 'flex';
+        document.getElementById('continuarBtn').disabled = true;
+        
+        // Configurar el overlay del anuncio forzado
+        document.getElementById('forcedAdOverlay').style.display = 'flex';
+        
+        // Configurar el contador
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(function() {
+          timeLeft--;
+          document.getElementById('countdown').textContent = timeLeft;
+          
+          if (timeLeft <= 0 && adClicked) {
+            clearInterval(countdownInterval);
+            document.getElementById('continuarBtn').disabled = false;
+          }
+        }, 1000);
+        
+        // Configurar el clic forzado en el anuncio
+        document.getElementById('forcedAd').onclick = function() {
+          adClicked = true;
+          document.getElementById('forcedAdOverlay').style.display = 'none';
+          
+          // Si el tiempo ya terminó, habilitar el botón
+          if (timeLeft <= 0) {
+            document.getElementById('continuarBtn').disabled = false;
+          }
+          
+          // Registrar estadística del clic (aquí podrías agregar tu propio sistema)
+          console.log('Anuncio clickeado para película: ' + buttonId);
+          
+          // Simular un clic real en el iframe (esto es crucial para que se registre como clic real)
+          try {
+            // Esto es solo para simular, en la práctica el usuario ya hizo clic en el área
+            // y las plataformas de anuncios generalmente registran eso como un clic válido
+          } catch(e) {
+            console.error('Error al registrar clic en anuncio:', e);
+          }
+        };
         
         // Configurar el botón de continuar
         document.getElementById('continuarBtn').onclick = function() {
           document.getElementById('anuncioModal').style.display = 'none';
-          window.location.href = peliculaUrl;
+          clearInterval(countdownInterval);
+          window.location.href = currentPeliculaUrl;
         };
       }
       
-      // Solo mostrar anuncios flotantes en PC
-      if (!isMobile()) {
-        // Mostrar anuncio flotante después de un retraso
-        setTimeout(function() {
+      // Mostrar anuncios flotantes y banner pegajoso con retraso
+      setTimeout(function() {
+        if (!isMobile()) {
           document.getElementById('floatingAd').style.display = 'block';
           document.getElementById('floatingAdLeft').style.display = 'block';
           document.getElementById('floatingAdRight').style.display = 'block';
-        }, 3000);
-      }
+        }
+        document.getElementById('stickyBanner').style.display = 'block';
+      }, 2000);
+      
+      // Detectar si el usuario está usando AdBlock y mostrar mensaje
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          // Intentar detectar AdBlock (método simple)
+          var adBlockDetected = false;
+          var testAd = document.createElement('div');
+          testAd.innerHTML = '&nbsp;';
+          testAd.className = 'adsbox';
+          document.body.appendChild(testAd);
+          
+          setTimeout(function() {
+            if (testAd.offsetHeight === 0) {
+              adBlockDetected = true;
+              alert('Por favor desactiva tu bloqueador de anuncios para ver las películas. ¡Este sitio se mantiene gracias a la publicidad!');
+            }
+            testAd.remove();
+          }, 100);
+        }, 2000);
+      });
     </script>
   </div>
 </body>

@@ -3,72 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>Series Online</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-    .serie {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 20px;
-    }
-    .portada {
-      max-width: 200px;
-    }
-    .capitulos {
-      display: none;
-      margin-top: 10px;
-    }
-    .boton-ver {
-      margin-top: 10px;
-      cursor: pointer;
-      color: white;
-      background-color: #007bff;
-      border: none;
-      padding: 5px 10px;
-    }
-  </style>
 </head>
 <body>
-
-  <h1>Series Online</h1>
-
-  <!-- INICIO DE SERIE -->
-  <div class="serie">
-    <h2>Serie de Ejemplo 1</h2>
-    <img class="portada" src="https://via.placeholder.com/200x300" alt="Portada de la Serie">
-    <p><strong>Sinopsis:</strong> Esta es la sinopsis de la primera serie de ejemplo. Puedes cambiar todo esto.</p>
-    <button class="boton-ver" onclick="mostrarCapitulos(this)">Ver</button>
-    <div class="capitulos">
-      <ul>
-        <li><a href="https://ejemplo.com/cap1-serie1" target="_blank">Capítulo 1</a></li>
-        <li><a href="https://ejemplo.com/cap2-serie1" target="_blank">Capítulo 2</a></li>
-      </ul>
-    </div>
+  <h1>Bienvenido a Series Online</h1>
+  
+  <!-- Serie 1 -->
+  <div>
+    <h2>Serie 1: El Hacker Fantasma</h2>
+    <img src="https://via.placeholder.com/300x150" alt="Portada de El Hacker Fantasma">
+    <p><strong>Sinopsis:</strong> Un joven descubre secretos del mundo digital y se convierte en el hacker más buscado del planeta.</p>
+    
+    <!-- Capítulos de la Serie 1 -->
+    <h3>Capítulos:</h3>
+    <ul>
+      <li><a href="intermedio.html?url=https://tucapitulo1.com" target="_blank">Ver Capítulo 1</a></li>
+      <li><a href="intermedio.html?url=https://tucapitulo2.com" target="_blank">Ver Capítulo 2</a></li>
+      <li><a href="intermedio.html?url=https://tucapitulo3.com" target="_blank">Ver Capítulo 3</a></li>
+    </ul>
   </div>
-  <!-- FIN DE SERIE -->
 
-  <!-- INICIO DE SERIE -->
-  <div class="serie">
-    <h2>Serie de Ejemplo 2</h2>
-    <img class="portada" src="https://via.placeholder.com/200x300" alt="Portada de la Serie 2">
-    <p><strong>Sinopsis:</strong> Segunda serie de ejemplo. Reemplaza la imagen, sinopsis y enlaces.</p>
-    <button class="boton-ver" onclick="mostrarCapitulos(this)">Ver</button>
-    <div class="capitulos">
-      <ul>
-        <li><a href="https://ejemplo.com/cap1-serie2" target="_blank">Capítulo 1</a></li>
-        <li><a href="https://ejemplo.com/cap2-serie2" target="_blank">Capítulo 2</a></li>
-      </ul>
-    </div>
+  <hr>
+
+  <!-- Serie 2 -->
+  <div>
+    <h2>Serie 2: El Misterio del Tiempo</h2>
+    <img src="https://via.placeholder.com/300x150" alt="Portada de El Misterio del Tiempo">
+    <p><strong>Sinopsis:</strong> Un grupo de viajeros del tiempo lucha para evitar el colapso del espacio-tiempo.</p>
+    
+    <!-- Capítulos de la Serie 2 -->
+    <h3>Capítulos:</h3>
+    <ul>
+      <li><a href="intermedio.html?url=https://tucapitulo4.com" target="_blank">Ver Capítulo 1</a></li>
+      <li><a href="intermedio.html?url=https://tucapitulo5.com" target="_blank">Ver Capítulo 2</a></li>
+    </ul>
   </div>
-  <!-- FIN DE SERIE -->
 
-  <script>
-    function mostrarCapitulos(boton) {
-      const contenedor = boton.nextElementSibling;
-      contenedor.style.display = contenedor.style.display === "none" ? "block" : "none";
-    }
-  </script>
+  <hr>
 
+  <p style="color:gray; font-size: 0.9em;">Haz clic en "Ver Capítulo" y espera unos segundos antes de ver el episodio.</p>
 </body>
 </html>

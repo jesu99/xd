@@ -25,12 +25,14 @@
       background-color: var(--netflix-black);
       color: var(--netflix-white);
       padding-bottom: 50px;
+      min-height: 100vh;
     }
     
     .navbar {
       display: flex;
       align-items: center;
-      padding: 20px 60px;
+      justify-content: space-between;
+      padding: 20px 4%;
       background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 10%, rgba(0, 0, 0, 0));
       position: fixed;
       width: 100%;
@@ -43,12 +45,16 @@
       background-color: var(--netflix-black);
     }
     
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+    
     .logo {
       color: var(--netflix-red);
       font-size: 32px;
       font-weight: bold;
       text-decoration: none;
-      margin-right: 30px;
     }
     
     .nav-links {
@@ -65,12 +71,18 @@
       text-decoration: none;
       font-size: 14px;
       transition: color 0.3s;
-      /* Quitar resaltado azul */
       outline: none;
     }
     
     .nav-links a:hover, .nav-links a.active {
       color: var(--netflix-white);
+    }
+
+    .menu-toggle {
+      display: none;
+      color: var(--netflix-white);
+      font-size: 24px;
+      cursor: pointer;
     }
 
     /* Quitar resaltado azul para todos los enlaces */
@@ -90,7 +102,7 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      padding: 0 60px 150px 60px;
+      padding: 0 4% 150px 4%;
       position: relative;
     }
     
@@ -99,12 +111,12 @@
     }
     
     .hero h1 {
-      font-size: 64px;
+      font-size: 3.5rem;
       margin-bottom: 20px;
     }
     
     .hero p {
-      font-size: 18px;
+      font-size: 1.1rem;
       margin-bottom: 25px;
       color: var(--netflix-light-gray);
       line-height: 1.5;
@@ -113,6 +125,7 @@
     .hero-buttons {
       display: flex;
       gap: 15px;
+      flex-wrap: wrap;
     }
     
     .btn {
@@ -152,11 +165,11 @@
     }
     
     .content {
-      padding: 20px 60px;
+      padding: 20px 4%;
     }
     
     .row-title {
-      font-size: 22px;
+      font-size: 1.5rem;
       margin: 50px 0 20px 0;
       font-weight: 500;
     }
@@ -176,7 +189,7 @@
     }
     
     .card {
-      min-width: 280px;
+      min-width: calc(25% - 10px);
       height: 170px;
       background-color: var(--netflix-dark-gray);
       border-radius: 4px;
@@ -222,6 +235,7 @@
     .card-info {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 15px;
       font-size: 12px;
       color: var(--netflix-light-gray);
@@ -307,29 +321,140 @@
     }
     
     .footer {
-      padding: 20px 60px;
+      padding: 20px 4%;
       color: var(--netflix-light-gray);
       font-size: 12px;
       text-align: center;
+      margin-top: 40px;
     }
     
-    @media (max-width: 768px) {
-      .navbar, .content {
-        padding: 15px 20px;
-      }
-      
-      .hero {
-        padding: 0 20px 100px 20px;
-        height: 60vh;
+    /* Tablets (768px - 1023px) */
+    @media (max-width: 1023px) {
+      .card {
+        min-width: calc(33.33% - 10px);
       }
       
       .hero h1 {
-        font-size: 42px;
+        font-size: 3rem;
       }
       
+      .hero-content {
+        max-width: 500px;
+      }
+    }
+    
+    /* Mobile Landscape (576px - 767px) */
+    @media (max-width: 767px) {
       .card {
-        min-width: 220px;
-        height: 140px;
+        min-width: calc(50% - 10px);
+        height: 150px;
+      }
+      
+      .hero {
+        height: 70vh;
+        padding: 0 4% 100px 4%;
+      }
+      
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .hero p {
+        font-size: 1rem;
+      }
+      
+      .menu-toggle {
+        display: block;
+      }
+      
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        height: 100vh;
+        background-color: var(--netflix-black);
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 70px;
+        transition: right 0.3s ease;
+        z-index: 999;
+      }
+      
+      .nav-links.active {
+        right: 0;
+      }
+      
+      .nav-links li {
+        margin: 15px 0;
+        padding: 0 30px;
+      }
+      
+      .nav-links a {
+        font-size: 16px;
+        display: block;
+        padding: 10px 0;
+      }
+      
+      .nav-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--netflix-white);
+      }
+    }
+    
+    /* Mobile Portrait (up to 575px) */
+    @media (max-width: 575px) {
+      .card {
+        min-width: 100%;
+        height: 180px;
+      }
+      
+      .navbar, .content {
+        padding: 15px 4%;
+      }
+      
+      .hero {
+        height: 60vh;
+        padding: 0 4% 80px 4%;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .logo {
+        font-size: 24px;
+      }
+      
+      .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .btn {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .row-title {
+        font-size: 1.2rem;
+      }
+      
+      .episode {
+        padding: 10px;
+      }
+      
+      .episode-number {
+        font-size: 16px;
+        margin-right: 10px;
+      }
+      
+      .episode-title {
+        font-size: 14px;
       }
     }
   </style>
@@ -338,12 +463,19 @@
 <body>
   <!-- Navbar -->
   <nav class="navbar">
-    <a href="#" class="logo">SERIES</a>
-    <ul class="nav-links">
+    <div class="logo-container">
+      <a href="#" class="logo">SERIES</a>
+    </div>
+    <div class="menu-toggle" id="mobile-menu">
+      <i class="fas fa-bars"></i>
+    </div>
+    <ul class="nav-links" id="nav-menu">
       <li><a href="#" class="active">Inicio</a></li>
       <li><a href="#">Series</a></li>
       <li><a href="#">Películas</a></li>
-      <!-- Se quitaron los botones de Novedades y Mi Lista -->
+      <div class="nav-close" id="nav-close">
+        <i class="fas fa-times"></i>
+      </div>
     </ul>
   </nav>
   
@@ -533,14 +665,45 @@
     <p>Haz clic en "Reproducir" y espera unos segundos antes de ver el episodio.</p>
   </footer>
   
-  <!-- JavaScript for navbar scrolling effect -->
+  <!-- JavaScript for navbar scrolling effect and mobile menu -->
   <script>
+    // Navbar scroll effect
     window.addEventListener('scroll', function() {
       const navbar = document.querySelector('.navbar');
       if (window.scrollY > 50) {
         navbar.classList.add('scrolled');
       } else {
         navbar.classList.remove('scrolled');
+      }
+    });
+    
+    // Mobile menu toggle
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navMenu = document.getElementById('nav-menu');
+    const navClose = document.getElementById('nav-close');
+    
+    mobileMenu.addEventListener('click', function() {
+      navMenu.classList.add('active');
+    });
+    
+    navClose.addEventListener('click', function() {
+      navMenu.classList.remove('active');
+    });
+    
+    // Close menu when clicking on a link
+    const navLinks = document.querySelectorAll('.nav-links a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        navMenu.classList.remove('active');
+      });
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.nav-links') && !event.target.closest('.menu-toggle')) {
+        if (navMenu.classList.contains('active')) {
+          navMenu.classList.remove('active');
+        }
       }
     });
   </script>

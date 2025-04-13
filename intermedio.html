@@ -2,30 +2,130 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Redireccionando al capítulo...</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .container {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 50px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .countdown {
+      font-size: 24px;
+      font-weight: bold;
+      color: #e74c3c;
+      margin: 15px 0;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #3498db;
+      color: white;
+      padding: 12px 25px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      margin: 15px 0;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #2980b9;
+    }
+    .instructions {
+      background-color: #f9f9f9;
+      border-left: 4px solid #3498db;
+      padding: 10px 15px;
+      margin: 20px 0;
+      text-align: left;
+    }
+    .back-instruction {
+      font-weight: bold;
+      color: #e74c3c;
+    }
+  </style>
   <script>
-    // Espera 6 segundos y redirige al enlace del capítulo real
-    function redirigir() {
-      const params = new URLSearchParams(window.location.search);
-      const url = params.get("url");
-      if (url) {
-        setTimeout(() => {
-          window.location.href = url;
-        }, 6000); // 6 segundos
+    // Variables globales
+    let countdown = 6;
+    let countdownInterval;
+    let params, url;
+    
+    // Inicializar cuando la página carga
+    function inicializar() {
+      params = new URLSearchParams(window.location.search);
+      url = params.get("url");
+      
+      if (!url) {
+        document.getElementById('error-mensaje').style.display = 'block';
+        document.getElementById('container').style.display = 'none';
+        return;
+      }
+      
+      // Actualizar el contador cada segundo
+      actualizarContador();
+      countdownInterval = setInterval(actualizarContador, 1000);
+    }
+    
+    // Actualizar el contador regresivo
+    function actualizarContador() {
+      document.getElementById('countdown').innerText = countdown;
+      
+      if (countdown <= 0) {
+        clearInterval(countdownInterval);
+        document.getElementById('redirect-btn').style.display = 'inline-block';
+        document.getElementById('countdown-container').style.display = 'none';
+        document.getElementById('ready-message').style.display = 'block';
+      } else {
+        countdown--;
       }
     }
-    window.onload = redirigir;
+    
+    // Función para redirigir al usuario
+    function redirigir() {
+      if (url) {
+        window.location.href = url;
+      }
+    }
+    
+    window.onload = inicializar;
   </script>
 </head>
 <body>
-  <h2>Estamos preparando tu capítulo...</h2>
-  <p>Gracias por apoyar la página. Serás redirigido en unos segundos.</p>
-
-  <!-- PopUnder Ad: se activa automáticamente al hacer clic en el enlace anterior -->
-  <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
-
-  <p style="font-size: 0.9em; color:gray;">
-    Si no eres redirigido, <a href="#" onclick="redirigir()">haz clic aquí</a>.
-  </p>
+  <div class="container" id="container">
+    <h2>Estamos preparando tu capítulo...</h2>
+    
+    <div id="countdown-container">
+      <p>Gracias por apoyar la página. El capítulo estará listo en:</p>
+      <div class="countdown"><span id="countdown">6</span> segundos</div>
+    </div>
+    
+    <div id="ready-message" style="display: none;">
+      <p>¡Tu capítulo está listo!</p>
+    </div>
+    
+    <div class="instructions">
+      <p><strong>Instrucciones:</strong></p>
+      <p>1. Haz clic en el botón "Continuar al capítulo" cuando aparezca</p>
+      <p>2. <span class="back-instruction">Importante: Después de ver el anuncio, vuelve a esta pestaña para continuar</span></p>
+    </div>
+    
+    <button id="redirect-btn" class="btn" onclick="redirigir()" style="display: none;">Continuar al capítulo</button>
+    
+    <!-- PopUnder Ad: se activa automáticamente al hacer clic en el botón -->
+    <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
+  </div>
+  
+  <div id="error-mensaje" style="display: none;">
+    <h3>Error: No se encontró el enlace del capítulo</h3>
+    <p>Ha ocurrido un error. Por favor, vuelve a la página anterior e intenta nuevamente.</p>
+  </div>
 </body>
 </html>

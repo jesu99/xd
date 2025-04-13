@@ -2,72 +2,201 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Series Online</title>
+  <style>
+    :root {
+      --netflix-bg: #141414;
+      --netflix-red: #E50914;
+      --netflix-text: #FFFFFF;
+      --netflix-gray: #808080;
+      --netflix-dark-gray: #333333;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    body {
+      background-color: var(--netflix-bg);
+      color: var(--netflix-text);
+      padding-bottom: 50px;
+    }
+    
+    header {
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo {
+      color: var(--netflix-red);
+      font-size: 32px;
+      font-weight: bold;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    h1 {
+      font-size: 32px;
+      margin: 30px 0 20px;
+      font-weight: 500;
+    }
+    
+    .series-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 40px;
+      margin-top: 30px;
+    }
+    
+    .serie-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    
+    .serie-card:hover {
+      transform: scale(1.02);
+    }
+    
+    .serie-image {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+    
+    .serie-info {
+      padding: 15px;
+    }
+    
+    .serie-title {
+      font-size: 20px;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    
+    .serie-synopsis {
+      color: #CCC;
+      font-size: 14px;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+    
+    .episodes-title {
+      font-size: 16px;
+      margin: 15px 0 10px;
+      color: #DDD;
+      font-weight: 500;
+    }
+    
+    .episodes-list {
+      list-style-type: none;
+    }
+    
+    .episode-item {
+      margin-bottom: 8px;
+    }
+    
+    .episode-link {
+      display: block;
+      padding: 8px 12px;
+      background-color: var(--netflix-dark-gray);
+      color: var(--netflix-text);
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+    
+    .episode-link:hover {
+      background-color: var(--netflix-red);
+    }
+    
+    .footer-note {
+      text-align: center;
+      padding: 20px 0;
+      color: var(--netflix-gray);
+      font-size: 14px;
+      margin-top: 40px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Bienvenido a Series Online</h1>
-
-  <!-- === SERIE 1 === -->
-  <div>
-    <h2>Apariencias</h2>
-    <img src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FhdN3IrcjRoMtQ3v7TA1VpoA8Fwo.jpg&w=640&q=75" alt="Portada de Apariencias" width="300">
-    <p><strong>Sinopsis:</strong> Sophie pierde la memoria tras una lesión cerebral y comienza a sospechar que su vida perfecta es una mentira.</p>
-
-    <h3>Capítulos:</h3>
-    <ul>
-      <li><a href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" target="_blank">Ver Capítulo 1</a></li>
-      <li><a href="intermedio.html?url=https://pixeldrain.com/u/a4hQ619Z" target="_blank">Ver Capítulo 2</a></li>
-      <li><a href="intermedio.html?url=https://pixeldrain.com/u/QaThDDn8" target="_blank">Ver Capítulo 3</a></li>
-      <li><a href="intermedio.html?url=https://pixeldrain.com/u/QVQAoisk" target="_blank">Ver Capítulo 4</a></li>
-      <li><a href="intermedio.html?url=https://pixeldrain.com/u/kucEYsXu" target="_blank">Ver Capítulo 5</a></li>
-      <li><a href="intermedio.html?url=https://pixeldrain.com/u/EzCn3Qqy" target="_blank">Ver Capítulo 6</a></li>
-    </ul>
-  </div>
-
-  <hr>
-
-  <!-- === SERIE 2 === -->
-  <div>
-    <h2>Karma</h2>
-    <img src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FkFx0FD0Cgns9OThcSkAmWYcnYzu.jpg&w=256&q=75" alt="Portada de El Misterio del Tiempo" width="300">
-    <p><strong>Sinopsis:</strong> Un accidente fatídico entrelaza las vidas de seis personas en una historia cargada de karma y crimen en la que deben enfrentar sus oscuras verdades y conexiones.</p>
-
-    <h3>Capítulos:</h3>
-    <ul>
-      <li><a href="intermedio.html?url=https://tuservidor.com/tiempo-cap1" target="_blank">Ver Capítulo 1</a></li>
-      <li><a href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Ver Capítulo 2</a></li>
-      <li><a href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Ver Capítulo 3</a></li>
-      <li><a href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Ver Capítulo 4</a></li>
-      <li><a href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Ver Capítulo 5</a></li>
-      <li><a href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Ver Capítulo 6</a></li>
-    </ul>
-  </div>
-
-  <hr>
-
-  <!-- === SERIE NUEVA - COPIA Y PEGA DESDE AQUÍ PARA AGREGAR MÁS === -->
-  <div>
-    <h2>El juego del calamar</h2>
-    <img src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2F74qMRUy0lwkBBi39vsQVerIDkHj.jpg&w=640&q=75" alt="Portada de la serie" width="300">
-    <p><strong>Sinopsis:</strong> "Cientos de jugadores cortos de dinero aceptan una extraña invitación a competir en juegos infantiles. Adentro les espera un premio irresistible... con un riesgo mortal.</p>
-
-    <h3>Capítulos:</h3>
-    <ul>
-      <li><a href="https://pixeldrain.com/u/brB9ud3R" target="_blank">Ver Capítulo 1</a></li>
-      <li><a href="https://pixeldrain.com/u/KFVZMYLD" target="_blank">Ver Capítulo 2</a></li>
-       <li><a href="https://pixeldrain.com/u/FbMjPmDT" target="_blank">Ver Capítulo 3</a></li>
-       <li><a href="https://pixeldrain.com/u/sRFkqC7G" target="_blank">Ver Capítulo 4</a></li>
-       <li><a href="https://pixeldrain.com/u/vD91nmYS" target="_blank">Ver Capítulo 5</a></li>
-       <li><a href="https://pixeldrain.com/u/yhf92SMZ" target="_blank">Ver Capítulo 6</a></li>
-       <li><a href="https://pixeldrain.com/u/R3XZBB9X" target="_blank">Ver Capítulo 7</a></li>
-
+  <header>
+    <div class="logo">SERIES ONLINE</div>
+  </header>
+  
+  <div class="container">
+    <h1>Catálogo de Series</h1>
+    
+    <div class="series-grid">
+      <!-- Serie 1 -->
+      <div class="serie-card">
+        <img class="serie-image" src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FhdN3IrcjRoMtQ3v7TA1VpoA8Fwo.jpg&w=640&q=75" alt="Portada de Apariencias">
+        <div class="serie-info">
+          <h2 class="serie-title">Apariencias</h2>
+          <p class="serie-synopsis">Sophie pierde la memoria tras una lesión cerebral y comienza a sospechar que su vida perfecta es una mentira.</p>
+          <h3 class="episodes-title">Episodios</h3>
+          <ul class="episodes-list">
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" target="_blank">Episodio 1</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://pixeldrain.com/u/a4hQ619Z" target="_blank">Episodio 2</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://pixeldrain.com/u/QaThDDn8" target="_blank">Episodio 3</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://pixeldrain.com/u/QVQAoisk" target="_blank">Episodio 4</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://pixeldrain.com/u/kucEYsXu" target="_blank">Episodio 5</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://pixeldrain.com/u/EzCn3Qqy" target="_blank">Episodio 6</a></li>
+          </ul>
+        </div>
+      </div>
       
-      <!-- Agrega más capítulos aquí -->
-    </ul>
+      <!-- Serie 2 -->
+      <div class="serie-card">
+        <img class="serie-image" src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FkFx0FD0Cgns9OThcSkAmWYcnYzu.jpg&w=256&q=75" alt="Portada de Karma">
+        <div class="serie-info">
+          <h2 class="serie-title">Karma</h2>
+          <p class="serie-synopsis">Un accidente fatídico entrelaza las vidas de seis personas en una historia cargada de karma y crimen en la que deben enfrentar sus oscuras verdades y conexiones.</p>
+          <h3 class="episodes-title">Episodios</h3>
+          <ul class="episodes-list">
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://tuservidor.com/tiempo-cap1" target="_blank">Episodio 1</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Episodio 2</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Episodio 3</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Episodio 4</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Episodio 5</a></li>
+            <li class="episode-item"><a class="episode-link" href="intermedio.html?url=https://tuservidor.com/tiempo-cap2" target="_blank">Episodio 6</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Serie 3 -->
+      <div class="serie-card">
+        <img class="serie-image" src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2F74qMRUy0lwkBBi39vsQVerIDkHj.jpg&w=640&q=75" alt="Portada de El juego del calamar">
+        <div class="serie-info">
+          <h2 class="serie-title">El juego del calamar</h2>
+          <p class="serie-synopsis">Cientos de jugadores cortos de dinero aceptan una extraña invitación a competir en juegos infantiles. Adentro les espera un premio irresistible... con un riesgo mortal.</p>
+          <h3 class="episodes-title">Episodios</h3>
+          <ul class="episodes-list">
+            <li class="episode-item"><a class="episode-link" href="https://pixeldrain.com/u/brB9ud3R" target="_blank">Episodio 1</a></li>
+            <li class="episode-item"><a class="episode-link" href="https://pixeldrain.com/u/KFVZMYLD" target="_blank">Episodio 2</a></li>
+            <li class="episode-item"><a class="episode-link" href="https://pixeldrain.com/u/FbMjPmDT" target="_blank">Episodio 3</a></li>
+            <li class="episode-item"><a class="episode-link" href="https://pixeldrain.com/u/sRFkqC7G" target="_blank">Episodio 4</a></li>
+            <li class="episode-item"><a class="episode-link" href="https://pixeldrain.com/u/vD91nmYS" target="_blank">Episodio 5</a></li>
+            <li class="episode-item"><a class="episode-link" href="https://pixeldrain.com/u/yhf92SMZ" target="_blank">Episodio 6</a></li>
+            <li class="episode-item"><a class="episode-link" href="https://pixeldrain.com/u/R3XZBB9X" target="_blank">Episodio 7</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <p class="footer-note">Haz clic en "Episodio" y espera unos segundos antes de que cargue el video.</p>
   </div>
-
-  <hr>
-
-  <p style="color:gray; font-size: 0.9em;">Haz clic en "Ver Capítulo" y espera unos segundos antes de que cargue el video.</p>
 </body>
 </html>

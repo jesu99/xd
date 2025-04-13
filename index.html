@@ -345,6 +345,48 @@
       text-align: center;
       margin-top: 40px;
     }
+
+    /* Series selector tabs */
+    .series-tabs {
+      display: flex;
+      overflow-x: auto;
+      padding: 10px 0;
+      gap: 15px;
+      margin-top: 30px;
+      border-bottom: 1px solid var(--netflix-gray);
+      scrollbar-width: none;
+    }
+    
+    .series-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .series-tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      color: var(--netflix-light-gray);
+      font-weight: bold;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    
+    .series-tab:hover {
+      color: var(--netflix-white);
+    }
+    
+    .series-tab.active {
+      color: var(--netflix-white);
+      border-bottom: 3px solid var(--netflix-red);
+    }
+    
+    .series-content {
+      display: none;
+    }
+    
+    .series-content.active {
+      display: block;
+    }
     
     /* Tablets (768px - 1023px) */
     @media (max-width: 1023px) {
@@ -524,7 +566,7 @@
         <a href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" class="btn btn-primary" target="_blank">
           <i class="fas fa-play"></i> Reproducir
         </a>
-        <a href="#episodes" class="btn btn-secondary">
+        <a href="#series-tabs" class="btn btn-secondary">
           <i class="fas fa-info-circle"></i> Más información
         </a>
       </div>
@@ -533,178 +575,533 @@
   
   <!-- Content Section -->
   <section class="content">
-    <!-- Episodes Row -->
-    <h2 class="row-title" id="episodes">Episodios</h2>
-    <div class="episodes-list">
-      <!-- Episode 1 -->
-      <a href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" class="episode" target="_blank">
-        <div class="episode-number">1</div>
-        <div class="episode-info">
-          <div class="episode-title">Episodio 1</div>
-          <div class="episode-duration">45 min</div>
-        </div>
-        <div class="episode-play">
-          <i class="fas fa-play-circle"></i>
-        </div>
-      </a>
-      
-      <!-- Episode 2 -->
-      <a href="intermedio.html?url=https://pixeldrain.com/u/a4hQ619Z" class="episode" target="_blank">
-        <div class="episode-number">2</div>
-        <div class="episode-info">
-          <div class="episode-title">Episodio 2</div>
-          <div class="episode-duration">42 min</div>
-        </div>
-        <div class="episode-play">
-          <i class="fas fa-play-circle"></i>
-        </div>
-      </a>
-      
-      <!-- Episode 3 -->
-      <a href="intermedio.html?url=https://pixeldrain.com/u/QaThDDn8" class="episode" target="_blank">
-        <div class="episode-number">3</div>
-        <div class="episode-info">
-          <div class="episode-title">Episodio 3</div>
-          <div class="episode-duration">47 min</div>
-        </div>
-        <div class="episode-play">
-          <i class="fas fa-play-circle"></i>
-        </div>
-      </a>
+    <!-- Series Tabs -->
+    <div class="series-tabs" id="series-tabs">
+      <div class="series-tab active" data-series="apariencias">Apariencias</div>
+      <div class="series-tab" data-series="mundos-paralelos">Mundos Paralelos</div>
+      <div class="series-tab" data-series="operacion-sombra">Operación Sombra</div>
+      <div class="series-tab" data-series="la-casa-roja">La Casa Roja</div>
+      <div class="series-tab" data-series="misterio-tiempo">El Misterio del Tiempo</div>
     </div>
     
-    <!-- Trending Shows Row -->
-    <h2 class="row-title">Series populares</h2>
+    <!-- Series Content -->
+    <!-- Apariencias Content -->
+    <div class="series-content active" id="apariencias">
+      <h2 class="row-title" id="episodes">Episodios - Apariencias</h2>
+      <div class="episodes-list">
+        <!-- Episode 1 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" class="episode" target="_blank">
+          <div class="episode-number">1</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 1 - Despertar</div>
+            <div class="episode-duration">45 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 2 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/a4hQ619Z" class="episode" target="_blank">
+          <div class="episode-number">2</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 2 - Recuerdos</div>
+            <div class="episode-duration">42 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 3 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/QaThDDn8" class="episode" target="_blank">
+          <div class="episode-number">3</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 3 - Verdades</div>
+            <div class="episode-duration">47 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 4 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/example4" class="episode" target="_blank">
+          <div class="episode-number">4</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 4 - Conexiones</div>
+            <div class="episode-duration">44 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 5 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/example5" class="episode" target="_blank">
+          <div class="episode-number">5</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 5 - Revelaciones</div>
+            <div class="episode-duration">46 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <!-- Mundos Paralelos Content -->
+    <div class="series-content" id="mundos-paralelos">
+      <h2 class="row-title">Episodios - Mundos Paralelos</h2>
+      <div class="episodes-list">
+        <!-- Episode 1 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/mundos1" class="episode" target="_blank">
+          <div class="episode-number">1</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 1 - El Portal</div>
+            <div class="episode-duration">50 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 2 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/mundos2" class="episode" target="_blank">
+          <div class="episode-number">2</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 2 - El Otro Lado</div>
+            <div class="episode-duration">48 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 3 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/mundos3" class="episode" target="_blank">
+          <div class="episode-number">3</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 3 - Identidades</div>
+            <div class="episode-duration">52 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 4 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/mundos4" class="episode" target="_blank">
+          <div class="episode-number">4</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 4 - Convergencia</div>
+            <div class="episode-duration">51 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <!-- Operación Sombra Content -->
+    <div class="series-content" id="operacion-sombra">
+      <h2 class="row-title">Episodios - Operación Sombra</h2>
+      <div class="episodes-list">
+        <!-- Episode 1 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/sombra1" class="episode" target="_blank">
+          <div class="episode-number">1</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 1 - La Misión</div>
+            <div class="episode-duration">55 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 2 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/sombra2" class="episode" target="_blank">
+          <div class="episode-number">2</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 2 - Infiltración</div>
+            <div class="episode-duration">53 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 3 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/sombra3" class="episode" target="_blank">
+          <div class="episode-number">3</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 3 - Traición</div>
+            <div class="episode-duration">54 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <!-- La Casa Roja Content -->
+    <div class="series-content" id="la-casa-roja">
+      <h2 class="row-title">Episodios - La Casa Roja</h2>
+      <div class="episodes-list">
+        <!-- Episode 1 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/casa1" class="episode" target="_blank">
+          <div class="episode-number">1</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 1 - La Mudanza</div>
+            <div class="episode-duration">45 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 2 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/casa2" class="episode" target="_blank">
+          <div class="episode-number">2</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 2 - Voces</div>
+            <div class="episode-duration">43 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 3 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/casa3" class="episode" target="_blank">
+          <div class="episode-number">3</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 3 - El Sótano</div>
+            <div class="episode-duration">47 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 4 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/casa4" class="episode" target="_blank">
+          <div class="episode-number">4</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 4 - El Ritual</div>
+            <div class="episode-duration">46 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 5 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/casa5" class="episode" target="_blank">
+          <div class="episode-number">5</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 5 - La Verdad</div>
+            <div class="episode-duration">49 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 6 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/casa6" class="episode" target="_blank">
+          <div class="episode-number">6</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 6 - Escape</div>
+            <div class="episode-duration">51 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <!-- El Misterio del Tiempo Content -->
+    <div class="series-content" id="misterio-tiempo">
+      <h2 class="row-title">Episodios - El Misterio del Tiempo</h2>
+      <div class="episodes-list">
+        <!-- Episode 1 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/tiempo1" class="episode" target="_blank">
+          <div class="episode-number">1</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 1 - El Reloj</div>
+            <div class="episode-duration">48 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 2 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/tiempo2" class="episode" target="_blank">
+          <div class="episode-number">2</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 2 - Salto Atrás</div>
+            <div class="episode-duration">46 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 3 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/tiempo3" class="episode" target="_blank">
+          <div class="episode-number">3</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 3 - Paradoja</div>
+            <div class="episode-duration">50 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 4 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/tiempo4" class="episode" target="_blank">
+          <div class="episode-number">4</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 4 - Líneas Temporales</div>
+            <div class="episode-duration">49 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+        
+        <!-- Episode 5 -->
+        <a href="intermedio.html?url=https://pixeldrain.com/u/tiempo5" class="episode" target="_blank">
+          <div class="episode-number">5</div>
+          <div class="episode-info">
+            <div class="episode-title">Episodio 5 - El Bucle</div>
+            <div class="episode-duration">52 min</div>
+          </div>
+          <div class="episode-play">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <!-- Featured Content Row -->
+    <h2 class="row-title">Recomendados para ti</h2>
     <div class="row">
-      <!-- Show 1 -->
+      <!-- Card 1 -->
       <div class="card">
-        <img src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FhdN3IrcjRoMtQ3v7TA1VpoA8Fwo.jpg&w=640&q=75" alt="Apariencias">
+        <img src="/api/placeholder/400/320" alt="Serie recomendada">
         <div class="card-overlay">
-          <div class="card-title">Apariencias</div>
+          <div class="card-title">Zona de Peligro</div>
           <div class="card-info">
-            <span>2024</span>
+            <span>2023</span>
             <span>Drama</span>
-            <span>Suspenso</span>
+            <span>8.5</span>
           </div>
           <div class="card-buttons">
-            <a href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" class="card-btn play" target="_blank">
-              <i class="fas fa-play"></i>
-            </a>
-            <button class="card-btn">
-              <i class="fas fa-plus"></i>
-            </button>
-            <button class="card-btn">
-              <i class="fas fa-thumbs-up"></i>
-            </button>
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
           </div>
         </div>
       </div>
       
-      <!-- Show 2 -->
+      <!-- Card 2 -->
       <div class="card">
-        <img src="/api/placeholder/400/320" alt="El Misterio del Tiempo">
+        <img src="/api/placeholder/400/320" alt="Serie recomendada">
         <div class="card-overlay">
-          <div class="card-title">El Misterio del Tiempo</div>
+          <div class="card-title">Secretos Ocultos</div>
+          <div class="card-info">
+            <span>2022</span>
+            <span>Thriller</span>
+            <span>8.2</span>
+          </div>
+          <div class="card-buttons">
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Card 3 -->
+      <div class="card">
+        <img src="/api/placeholder/400/320" alt="Serie recomendada">
+        <div class="card-overlay">
+          <div class="card-title">El Último Día</div>
           <div class="card-info">
             <span>2023</span>
             <span>Sci-Fi</span>
-            <span>Aventura</span>
+            <span>8.7</span>
           </div>
           <div class="card-buttons">
-            <a href="intermedio.html?url=https://tucapitulo4.com" class="card-btn play" target="_blank">
-              <i class="fas fa-play"></i>
-            </a>
-            <button class="card-btn">
-              <i class="fas fa-plus"></i>
-            </button>
-            <button class="card-btn">
-              <i class="fas fa-thumbs-up"></i>
-            </button>
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
           </div>
         </div>
       </div>
       
-      <!-- Additional Sample Cards -->
+      <!-- Card 4 -->
       <div class="card">
-        <img src="/api/placeholder/400/320" alt="Mundos Paralelos">
+        <img src="/api/placeholder/400/320" alt="Serie recomendada">
         <div class="card-overlay">
-          <div class="card-title">Mundos Paralelos</div>
+          <div class="card-title">Conspiración</div>
           <div class="card-info">
-            <span>2024</span>
-            <span>Sci-Fi</span>
-            <span>Drama</span>
+            <span>2021</span>
+            <span>Acción</span>
+            <span>8.0</span>
           </div>
           <div class="card-buttons">
-            <button class="card-btn play">
-              <i class="fas fa-play"></i>
-            </button>
-            <button class="card-btn">
-              <i class="fas fa-plus"></i>
-            </button>
-            <button class="card-btn">
-              <i class="fas fa-thumbs-up"></i>
-            </button>
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
           </div>
         </div>
       </div>
       
+      <!-- Card 5 -->
       <div class="card">
-        <img src="/api/placeholder/400/320" alt="Operación Sombra">
+        <img src="/api/placeholder/400/320" alt="Serie recomendada">
         <div class="card-overlay">
-          <div class="card-title">Operación Sombra</div>
+          <div class="card-title">Lazos de Sangre</div>
+          <div class="card-info">
+            <span>2023</span>
+            <span>Drama</span>
+            <span>8.4</span>
+          </div>
+          <div class="card-buttons">
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Popular Content Row -->
+    <h2 class="row-title">Populares en tu región</h2>
+    <div class="row">
+      <!-- Card 1 -->
+      <div class="card">
+        <img src="/api/placeholder/400/320" alt="Serie popular">
+        <div class="card-overlay">
+          <div class="card-title">Al Otro Lado</div>
+          <div class="card-info">
+            <span>2022</span>
+            <span>Misterio</span>
+            <span>9.0</span>
+          </div>
+          <div class="card-buttons">
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Card 2 -->
+      <div class="card">
+        <img src="/api/placeholder/400/320" alt="Serie popular">
+        <div class="card-overlay">
+          <div class="card-title">Línea de Fuego</div>
           <div class="card-info">
             <span>2023</span>
             <span>Acción</span>
-            <span>Thriller</span>
+            <span>8.9</span>
           </div>
           <div class="card-buttons">
-            <button class="card-btn play">
-              <i class="fas fa-play"></i>
-            </button>
-            <button class="card-btn">
-              <i class="fas fa-plus"></i>
-            </button>
-            <button class="card-btn">
-              <i class="fas fa-thumbs-up"></i>
-            </button>
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
           </div>
         </div>
       </div>
       
+      <!-- Card 3 -->
       <div class="card">
-        <img src="/api/placeholder/400/320" alt="La Casa Roja">
+        <img src="/api/placeholder/400/320" alt="Serie popular">
         <div class="card-overlay">
-          <div class="card-title">La Casa Roja</div>
+          <div class="card-title">Desaparecidos</div>
           <div class="card-info">
-            <span>2024</span>
-            <span>Terror</span>
-            <span>Misterio</span>
+            <span>2022</span>
+            <span>Thriller</span>
+            <span>8.8</span>
           </div>
           <div class="card-buttons">
-            <button class="card-btn play">
-              <i class="fas fa-play"></i>
-            </button>
-            <button class="card-btn">
-              <i class="fas fa-plus"></i>
-            </button>
-            <button class="card-btn">
-              <i class="fas fa-thumbs-up"></i>
-            </button>
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Card 4 -->
+      <div class="card">
+        <img src="/api/placeholder/400/320" alt="Serie popular">
+        <div class="card-overlay">
+          <div class="card-title">Caminos Cruzados</div>
+          <div class="card-info">
+            <span>2023</span>
+            <span>Drama</span>
+            <span>8.6</span>
+          </div>
+          <div class="card-buttons">
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Card 5 -->
+      <div class="card">
+        <img src="/api/placeholder/400/320" alt="Serie popular">
+        <div class="card-overlay">
+          <div class="card-title">El Legado</div>
+          <div class="card-info">
+            <span>2021</span>
+            <span>Fantasía</span>
+            <span>8.7</span>
+          </div>
+          <div class="card-buttons">
+            <button class="card-btn play"><i class="fas fa-play"></i></button>
+            <button class="card-btn"><i class="fas fa-plus"></i></button>
+            <button class="card-btn"><i class="fas fa-thumbs-up"></i></button>
           </div>
         </div>
       </div>
     </div>
   </section>
   
-  <!-- Footer -->
+  <!-- Footer Section -->
   <footer class="footer">
-    <p>Haz clic en "Reproducir" y espera unos segundos antes de ver el episodio.</p>
+    <p>&copy; 2025 SERIES Online. Todos los derechos reservados.</p>
   </footer>
   
-  <!-- JavaScript for navbar scrolling effect and mobile menu -->
+  <!-- JavaScript -->
   <script>
-    // Navbar scroll effect
-    window.addEventListener('scroll', function() {
+    // Mobile Menu Toggle
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navMenu = document.getElementById('nav-menu');
+    const navClose = document.getElementById('nav-close');
+
+    mobileMenu.addEventListener('click', () => {
+      navMenu.classList.add('active');
+    });
+
+    navClose.addEventListener('click', () => {
+      navMenu.classList.remove('active');
+    });
+    
+    // Navbar background on scroll
+    window.addEventListener('scroll', () => {
       const navbar = document.querySelector('.navbar');
       if (window.scrollY > 50) {
         navbar.classList.add('scrolled');
@@ -713,34 +1110,21 @@
       }
     });
     
-    // Mobile menu toggle
-    const mobileMenu = document.getElementById('mobile-menu');
-    const navMenu = document.getElementById('nav-menu');
-    const navClose = document.getElementById('nav-close');
+    // Series Tabs
+    const seriesTabs = document.querySelectorAll('.series-tab');
+    const seriesContents = document.querySelectorAll('.series-content');
     
-    mobileMenu.addEventListener('click', function() {
-      navMenu.classList.add('active');
-    });
-    
-    navClose.addEventListener('click', function() {
-      navMenu.classList.remove('active');
-    });
-    
-    // Close menu when clicking on a link
-    const navLinks = document.querySelectorAll('.nav-links a');
-    navLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        navMenu.classList.remove('active');
+    seriesTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active class from all tabs and contents
+        seriesTabs.forEach(t => t.classList.remove('active'));
+        seriesContents.forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding content
+        tab.classList.add('active');
+        const seriesId = tab.getAttribute('data-series');
+        document.getElementById(seriesId).classList.add('active');
       });
-    });
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', function(event) {
-      if (!event.target.closest('.nav-links') && !event.target.closest('.menu-toggle')) {
-        if (navMenu.classList.contains('active')) {
-          navMenu.classList.remove('active');
-        }
-      }
     });
   </script>
 </body>

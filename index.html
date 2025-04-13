@@ -116,6 +116,7 @@
       display: none; /* Oculto por defecto */
     }
     
+    /* Modificados para mantener posición durante scroll */
     .floating-ad-left {
       position: fixed;
       top: 50%;
@@ -513,6 +514,7 @@
       let adClicked = false;
       let countdownInterval;
       let timeLeft = 5;
+      let modalShown = false; // Nueva variable para rastrear si el modal está activo
       
       // Detectar si es un dispositivo móvil
       function isMobile() {
@@ -525,6 +527,7 @@
         adClicked = false;
         timeLeft = 5;
         currentPeliculaUrl = peliculaUrl;
+        modalShown = true; // Marcar que se está mostrando el modal
         
         // Actualizar el contador
         document.getElementById('countdown').textContent = timeLeft;
@@ -574,6 +577,7 @@
         document.getElementById('continuarBtn').onclick = function() {
           document.getElementById('anuncioModal').style.display = 'none';
           clearInterval(countdownInterval);
+          modalShown = false; // Marcar que el modal ya no está activo
           window.location.href = currentPeliculaUrl;
         };
       }
@@ -587,6 +591,58 @@
         }
         document.getElementById('stickyBanner').style.display = 'block';
       }, 2000);
+      
+      // Ajustar la posición de los anuncios laterales al hacer scroll
+      window.addEventListener('scroll', function() {
+        // Solo ajustar si no estamos en móvil y el modal no está abierto
+        if (!isMobile() && !modalShown) {
+          // Asegurarse de que los anuncios laterales estén visibles
+          document.getElementById('floatingAdLeft').style.display = 'block';
+          document.getElementById('floatingAdRight').style.display = 'block';
+          
+          // Ajustar la posición verticalmente para mantener centrado durante el scroll
+          const scrollY = window.scrollY;
+          const windowHeight = window.innerHeight;
+          const middlePosition = scrollY + (windowHeight / 2);
+          
+          // Comprobar si los elementos existen antes de manipularlos
+          const leftAd = document.getElementById('floatingAdLeft');
+          const rightAd = document.getElementById('floatingAdRight');
+          
+          if (leftAd) {
+            leftAd.style.top = middlePosition + 'px';
+            leftAd.style.transform = 'translateY(-50%)';
+          }
+          
+          if (rightAd) {
+            rightAd.style.top = middlePosition + 'px';
+            rightAd.style.transform = 'translateY(-50%)';
+          }
+        }
+      });
+      
+      // Asegurar que el modal de anuncios se muestre cada vez
+      document.querySelectorAll('.btn').forEach(function(button) {
+        if (button.id.startsWith('verPelicula')) {
+          const originalOnclick = button.onclick;
+          button.onclick = function(e) {
+            e.preventDefault(); // Prevenir comportamiento predeterminado
+            
+            // Restablecer el estado del modal cada vez
+            document.getElementById('forcedAdOverlay').style.display = 'flex';
+            document.getElementById('continuarBtn').disabled = true;
+            adClicked = false;
+            timeLeft = 5;
+            
+            // Llamar a la función original
+            if (originalOnclick) {
+              originalOnclick.call(this);
+            }
+            
+            return false;
+          };
+        }
+      });
       
       // Detectar si el usuario está usando AdBlock y mostrar mensaje
       window.addEventListener('load', function() {

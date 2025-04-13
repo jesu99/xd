@@ -2,44 +2,535 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Series Online</title>
+  <style>
+    :root {
+      --netflix-red: #e50914;
+      --netflix-black: #141414;
+      --netflix-dark-gray: #181818;
+      --netflix-gray: #333333;
+      --netflix-light-gray: #b3b3b3;
+      --netflix-white: #ffffff;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    body {
+      background-color: var(--netflix-black);
+      color: var(--netflix-white);
+      padding-bottom: 50px;
+    }
+    
+    .navbar {
+      display: flex;
+      align-items: center;
+      padding: 20px 60px;
+      background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 10%, rgba(0, 0, 0, 0));
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      transition: background-color 0.3s;
+    }
+    
+    .navbar.scrolled {
+      background-color: var(--netflix-black);
+    }
+    
+    .logo {
+      color: var(--netflix-red);
+      font-size: 32px;
+      font-weight: bold;
+      text-decoration: none;
+      margin-right: 30px;
+    }
+    
+    .nav-links {
+      display: flex;
+      list-style: none;
+    }
+    
+    .nav-links li {
+      margin: 0 15px;
+    }
+    
+    .nav-links a {
+      color: var(--netflix-light-gray);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s;
+    }
+    
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--netflix-white);
+    }
+    
+    .hero {
+      height: 80vh;
+      background: linear-gradient(to top, var(--netflix-black), transparent), 
+                 url("https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FhdN3IrcjRoMtQ3v7TA1VpoA8Fwo.jpg&w=1080&q=75") center/cover no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 60px 150px 60px;
+      position: relative;
+    }
+    
+    .hero-content {
+      max-width: 600px;
+    }
+    
+    .hero h1 {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    
+    .hero p {
+      font-size: 18px;
+      margin-bottom: 25px;
+      color: var(--netflix-light-gray);
+      line-height: 1.5;
+    }
+    
+    .hero-buttons {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 16px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background-color: var(--netflix-red);
+      color: var(--netflix-white);
+    }
+    
+    .btn-primary:hover {
+      background-color: #f40612;
+    }
+    
+    .btn-secondary {
+      background-color: rgba(109, 109, 110, 0.7);
+      color: var(--netflix-white);
+    }
+    
+    .btn-secondary:hover {
+      background-color: rgba(109, 109, 110, 0.9);
+    }
+    
+    .btn i {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+    
+    .content {
+      padding: 20px 60px;
+    }
+    
+    .row-title {
+      font-size: 22px;
+      margin: 50px 0 20px 0;
+      font-weight: 500;
+    }
+    
+    .row {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 10px 0;
+      gap: 10px;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+    }
+    
+    .row::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .card {
+      min-width: 280px;
+      height: 170px;
+      background-color: var(--netflix-dark-gray);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+    
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .card:hover {
+      transform: scale(1.05);
+      z-index: 1;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    
+    .card:hover .card-overlay {
+      opacity: 1;
+    }
+    
+    .card-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+      padding: 15px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .card-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .card-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 12px;
+      color: var(--netflix-light-gray);
+      margin-bottom: 10px;
+    }
+    
+    .card-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .card-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(42, 42, 42, 0.7);
+      border: 2px solid var(--netflix-light-gray);
+      color: var(--netflix-white);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .card-btn:hover {
+      background-color: var(--netflix-dark-gray);
+      transform: scale(1.1);
+    }
+    
+    .card-btn.play {
+      background-color: var(--netflix-white);
+      border: none;
+      color: var(--netflix-black);
+    }
+    
+    .episodes-list {
+      display: flex;
+      flex-direction: column;
+      margin-top: 10px;
+    }
+    
+    .episode {
+      display: flex;
+      align-items: center;
+      background-color: var(--netflix-gray);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .episode:hover {
+      background-color: rgba(77, 77, 77, 0.8);
+    }
+    
+    .episode-number {
+      font-size: 18px;
+      margin-right: 20px;
+      color: var(--netflix-light-gray);
+    }
+    
+    .episode-info {
+      flex: 1;
+    }
+    
+    .episode-title {
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+    
+    .episode-duration {
+      font-size: 12px;
+      color: var(--netflix-light-gray);
+    }
+    
+    .episode-play {
+      color: var(--netflix-white);
+      font-size: 20px;
+    }
+    
+    .footer {
+      padding: 20px 60px;
+      color: var(--netflix-light-gray);
+      font-size: 12px;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .navbar, .content {
+        padding: 15px 20px;
+      }
+      
+      .hero {
+        padding: 0 20px 100px 20px;
+        height: 60vh;
+      }
+      
+      .hero h1 {
+        font-size: 42px;
+      }
+      
+      .card {
+        min-width: 220px;
+        height: 140px;
+      }
+    }
+  </style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Bienvenido a Series Online</h1>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="#" class="logo">SERIES</a>
+    <ul class="nav-links">
+      <li><a href="#" class="active">Inicio</a></li>
+      <li><a href="#">Series</a></li>
+      <li><a href="#">Películas</a></li>
+      <li><a href="#">Novedades</a></li>
+      <li><a href="#">Mi Lista</a></li>
+    </ul>
+  </nav>
   
-  <!-- Serie 1 -->
-  <div>
-    <h2>Apariencias</h2>
-    <img src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FhdN3IrcjRoMtQ3v7TA1VpoA8Fwo.jpg&w=640&q=75" alt="Portada de El Hacker Fantasma">
-    <p><strong>Sinopsis:</strong> Una lesión cerebral traumática causa a Sophie una pérdida extrema de la memoria. En su misión por unir las piezas de su vida, con ayuda de su esposo y amigos, Sophie comienza a cuestionarse la verdad atrás de su vida perfecta.</p>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Apariencias</h1>
+      <p>Una lesión cerebral traumática causa a Sophie una pérdida extrema de la memoria. En su misión por unir las piezas de su vida, con ayuda de su esposo y amigos, Sophie comienza a cuestionarse la verdad atrás de su vida perfecta.</p>
+      <div class="hero-buttons">
+        <a href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" class="btn btn-primary" target="_blank">
+          <i class="fas fa-play"></i> Reproducir
+        </a>
+        <a href="#episodes" class="btn btn-secondary">
+          <i class="fas fa-info-circle"></i> Más información
+        </a>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Content Section -->
+  <section class="content">
+    <!-- Episodes Row -->
+    <h2 class="row-title" id="episodes">Episodios</h2>
+    <div class="episodes-list">
+      <!-- Episode 1 -->
+      <a href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" class="episode" target="_blank">
+        <div class="episode-number">1</div>
+        <div class="episode-info">
+          <div class="episode-title">Episodio 1</div>
+          <div class="episode-duration">45 min</div>
+        </div>
+        <div class="episode-play">
+          <i class="fas fa-play-circle"></i>
+        </div>
+      </a>
+      
+      <!-- Episode 2 -->
+      <a href="intermedio.html?url=https://tucapitulo2.com" class="episode" target="_blank">
+        <div class="episode-number">2</div>
+        <div class="episode-info">
+          <div class="episode-title">Episodio 2</div>
+          <div class="episode-duration">42 min</div>
+        </div>
+        <div class="episode-play">
+          <i class="fas fa-play-circle"></i>
+        </div>
+      </a>
+      
+      <!-- Episode 3 -->
+      <a href="intermedio.html?url=https://tucapitulo3.com" class="episode" target="_blank">
+        <div class="episode-number">3</div>
+        <div class="episode-info">
+          <div class="episode-title">Episodio 3</div>
+          <div class="episode-duration">47 min</div>
+        </div>
+        <div class="episode-play">
+          <i class="fas fa-play-circle"></i>
+        </div>
+      </a>
+    </div>
     
-    <!-- Capítulos de la Serie 1 -->
-    <h3>Capítulos:</h3>
-    <ul>
-      <li><a href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" target="_blank">Ver Capítulo 1</a></li>
-      <li><a href="intermedio.html?url=https://tucapitulo2.com" target="_blank">Ver Capítulo 2</a></li>
-      <li><a href="intermedio.html?url=https://tucapitulo3.com" target="_blank">Ver Capítulo 3</a></li>
-    </ul>
-  </div>
-
-  <hr>
-
-  <!-- Serie 2 -->
-  <div>
-    <h2>Serie 2: El Misterio del Tiempo</h2>
-    <img src="https://via.placeholder.com/300x150" alt="Portada de El Misterio del Tiempo">
-    <p><strong>Sinopsis:</strong> Un grupo de viajeros del tiempo lucha para evitar el colapso del espacio-tiempo.</p>
-    
-    <!-- Capítulos de la Serie 2 -->
-    <h3>Capítulos:</h3>
-    <ul>
-      <li><a href="intermedio.html?url=https://tucapitulo4.com" target="_blank">Ver Capítulo 1</a></li>
-      <li><a href="intermedio.html?url=https://tucapitulo5.com" target="_blank">Ver Capítulo 2</a></li>
-    </ul>
-  </div>
-
-  <hr>
-
-  <p style="color:gray; font-size: 0.9em;">Haz clic en "Ver Capítulo" y espera unos segundos antes de ver el episodio.</p>
+    <!-- Trending Shows Row -->
+    <h2 class="row-title">Series populares</h2>
+    <div class="row">
+      <!-- Show 1 -->
+      <div class="card">
+        <img src="https://www.cuevana.is/_next/image?url=https%3A%2F%2Fimage.tmdb.org%2Ft%2Fp%2Foriginal%2FhdN3IrcjRoMtQ3v7TA1VpoA8Fwo.jpg&w=640&q=75" alt="Apariencias">
+        <div class="card-overlay">
+          <div class="card-title">Apariencias</div>
+          <div class="card-info">
+            <span>2024</span>
+            <span>Drama</span>
+            <span>Suspenso</span>
+          </div>
+          <div class="card-buttons">
+            <a href="intermedio.html?url=https://pixeldrain.com/u/H2DS1cPr" class="card-btn play" target="_blank">
+              <i class="fas fa-play"></i>
+            </a>
+            <button class="card-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button class="card-btn">
+              <i class="fas fa-thumbs-up"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Show 2 -->
+      <div class="card">
+        <img src="/api/placeholder/400/320" alt="El Misterio del Tiempo">
+        <div class="card-overlay">
+          <div class="card-title">El Misterio del Tiempo</div>
+          <div class="card-info">
+            <span>2023</span>
+            <span>Sci-Fi</span>
+            <span>Aventura</span>
+          </div>
+          <div class="card-buttons">
+            <a href="intermedio.html?url=https://tucapitulo4.com" class="card-btn play" target="_blank">
+              <i class="fas fa-play"></i>
+            </a>
+            <button class="card-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button class="card-btn">
+              <i class="fas fa-thumbs-up"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Additional Sample Cards -->
+      <div class="card">
+        <img src="/api/placeholder/400/320" alt="Mundos Paralelos">
+        <div class="card-overlay">
+          <div class="card-title">Mundos Paralelos</div>
+          <div class="card-info">
+            <span>2024</span>
+            <span>Sci-Fi</span>
+            <span>Drama</span>
+          </div>
+          <div class="card-buttons">
+            <button class="card-btn play">
+              <i class="fas fa-play"></i>
+            </button>
+            <button class="card-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button class="card-btn">
+              <i class="fas fa-thumbs-up"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <img src="/api/placeholder/400/320" alt="Operación Sombra">
+        <div class="card-overlay">
+          <div class="card-title">Operación Sombra</div>
+          <div class="card-info">
+            <span>2023</span>
+            <span>Acción</span>
+            <span>Thriller</span>
+          </div>
+          <div class="card-buttons">
+            <button class="card-btn play">
+              <i class="fas fa-play"></i>
+            </button>
+            <button class="card-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button class="card-btn">
+              <i class="fas fa-thumbs-up"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <img src="/api/placeholder/400/320" alt="La Casa Roja">
+        <div class="card-overlay">
+          <div class="card-title">La Casa Roja</div>
+          <div class="card-info">
+            <span>2024</span>
+            <span>Terror</span>
+            <span>Misterio</span>
+          </div>
+          <div class="card-buttons">
+            <button class="card-btn play">
+              <i class="fas fa-play"></i>
+            </button>
+            <button class="card-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button class="card-btn">
+              <i class="fas fa-thumbs-up"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Haz clic en "Reproducir" y espera unos segundos antes de ver el episodio.</p>
+  </footer>
+  
+  <!-- JavaScript for navbar scrolling effect -->
+  <script>
+    window.addEventListener('scroll', function() {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+  </script>
 </body>
 </html>

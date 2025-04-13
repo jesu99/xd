@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Redireccionando al capítulo...</title>
+  <script>
+    // Espera 6 segundos y redirige al enlace del capítulo real
+    function redirigir() {
+      const params = new URLSearchParams(window.location.search);
+      const url = params.get("url");
+      if (url) {
+        setTimeout(() => {
+          window.location.href = url;
+        }, 6000); // 6 segundos
+      }
+    }
+    window.onload = redirigir;
+  </script>
+</head>
+<body>
+  <h2>Estamos preparando tu capítulo...</h2>
+  <p>Gracias por apoyar la página. Serás redirigido en unos segundos.</p>
+
+  <!-- PopUnder Ad: se activa automáticamente al hacer clic en el enlace anterior -->
+  <script type='text/javascript' src='//pl26364849.profitableratecpm.com/63/c4/ef/63c4ef37398a7c28979f0f2b8e83e1c5.js'></script>
+
+  <p style="font-size: 0.9em; color:gray;">
+    Si no eres redirigido, <a href="#" onclick="redirigir()">haz clic aquí</a>.
+  </p>
+</body>
+</html>

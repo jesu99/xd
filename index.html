@@ -65,10 +65,22 @@
       text-decoration: none;
       font-size: 14px;
       transition: color 0.3s;
+      /* Quitar resaltado azul */
+      outline: none;
     }
     
     .nav-links a:hover, .nav-links a.active {
       color: var(--netflix-white);
+    }
+
+    /* Quitar resaltado azul para todos los enlaces */
+    a {
+      text-decoration: none;
+      outline: none;
+    }
+    
+    a:focus {
+      outline: none;
     }
     
     .hero {
@@ -262,6 +274,7 @@
       padding: 12px;
       cursor: pointer;
       transition: background-color 0.2s;
+      color: var(--netflix-white);
     }
     
     .episode:hover {
@@ -330,8 +343,7 @@
       <li><a href="#" class="active">Inicio</a></li>
       <li><a href="#">Series</a></li>
       <li><a href="#">Películas</a></li>
-      <li><a href="#">Novedades</a></li>
-      <li><a href="#">Mi Lista</a></li>
+      <!-- Se quitaron los botones de Novedades y Mi Lista -->
     </ul>
   </nav>
   
